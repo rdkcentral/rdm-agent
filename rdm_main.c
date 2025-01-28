@@ -42,6 +42,7 @@
 #include "rdm_rbus.h"
 #include "rdm_usbinstall.h"
 
+
 /** @brief Initializes all modules
  *
  *  @param[in]  prdmHandle  RDM handle
