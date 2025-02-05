@@ -2,7 +2,7 @@
 
 set -e  # Exit immediately if a command exits with a non-zero status
 
-cd unit-test/
+cd unittest/
 
 # Generate required files for automake
 automake --add-missing
