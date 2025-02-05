@@ -15,36 +15,33 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-# Initialize Autoconf
-AC_INIT([rdm_main_gtest],[1.0])
-# Initialize Automake
+AC_INIT([rdmagent_gtest], [1.0])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+
 # Check for necessary headers
-AC_CHECK_HEADERS([jsoncpp/json/json.h gtest/gtest.h gmock/gmock.h])
+AC_CHECK_HEADERS([json-c/json.h gtest/gtest.h gmock/gmock.h curl/curl.h openssl/ssl.h rbus/rbus.h])
+
 # Check for necessary libraries
-AC_CHECK_LIB([jsoncpp], [main])
+AC_CHECK_LIB([json-c], [main])
 AC_CHECK_LIB([gtest], [main])
 AC_CHECK_LIB([gmock], [main])
-# Checks for programs.
-AC_PROG_CXX
-# Checks for libraries.
-AC_CHECK_LIB([stdc++], [main])
-# Checks for header files.
-m4_warn([obsolete],
-[The preprocessor macro 'STDC_HEADERS' is obsolete.
-  Except in unusual embedded environments, you can safely include all
-  ISO C90 headers unconditionally.])dnl
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
+AC_CHECK_LIB([curl], [main])
+AC_CHECK_LIB([openssl], [main])
+AC_CHECK_LIB([rbus], [main])
+AC_CHECK_LIB([pthread], [main])
 
-# Checks for typedefs, structures, and compiler characteristics.
+# Checks for programs
+AC_PROG_CXX
+AC_PROG_CC
+
+# Check for standard C++ library
+AC_CHECK_LIB([stdc++], [main])
+
+# Checks for compiler characteristics
 AC_C_CONST
-# Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-# Generate the Makefile
+
+# Generate Makefile
 AC_CONFIG_FILES([Makefile])
-# Generate the configure script
 AC_OUTPUT
