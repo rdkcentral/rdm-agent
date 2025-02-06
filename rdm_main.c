@@ -150,6 +150,10 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
+                case 'c':
+		    download_customapp = 1;
+		    app_name = optarg;
+		    break;
                 case 'h':
                 default :
                     rdmHelp();
@@ -287,6 +291,21 @@ int main(int argc, char* argv[])
             RDMError("Failed to Install APP from USB: %s\n", usb_path);
         }
     }
+
+    else if(download_customapp) {
+        RDMInfo("Install App from custom path: %s\n", app_name);
+        
+	strcpy(pApp_det->app_name, app_name);
+	rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+
+	RDMInfo("Calling rdmDownload APP \n");
+	ret = rdmDownloadApp(pApp_det, &download_status);
+	if(ret) {
+		RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
+	}
+	RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+    }
+
 
 error1:
     //rdmDwnlCleanUp(pApp_det);
