@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-AC_INIT([rdmagent_gtest], [1.0])
+AC_INIT([rdm_main_gtest], [1.0])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
 # Check for necessary headers
