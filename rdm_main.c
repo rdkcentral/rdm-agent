@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
     INT32 idx                 = 0;
     INT32 download_status     = 0;
     INT32 download_singleapp  = 0;
+    INT32 download_customapp  = 0;
     INT32 usb_install         = 0;
     CHAR  *usb_path           = NULL;
     CHAR  *app_name           = NULL;
@@ -295,8 +296,8 @@ int main(int argc, char* argv[])
 	    RDMInfo("Install App from custom path: %s\n", app_name);
 
 	    strcpy(pApp_det->app_name, app_name);
-	    strcpy(pRdmAppDet->pkg_name, "Test");
-	    strcpy(pRdmAppDet->pkg_ver, "1.0");
+	    strcpy(pApp_det->pkg_name, "Test");
+	    strcpy(pApp_det->pkg_ver, "1.0");
 
 	    ret = rdmDownloadApp(pApp_det, &download_status);
 	    if(ret) {
