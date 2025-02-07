@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:c:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -150,6 +150,10 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
+                case 'c':
+		    download_customapp = 1;
+		    app_name = optarg;
+		    break;
                 case 'h':
                 default :
                     rdmHelp();
@@ -286,6 +290,19 @@ int main(int argc, char* argv[])
         if(ret) {
             RDMError("Failed to Install APP from USB: %s\n", usb_path);
         }
+    }
+    else if(download_customapp) {
+	    RDMInfo("Install App from custom path: %s\n", app_name);
+
+	    strcpy(pApp_det->app_name, app_name);
+	    strcpy(pRdmAppDet->pkg_name, "Test");
+	    strcpy(pRdmAppDet->pkg_ver, "1.0");
+
+	    ret = rdmDownloadApp(pApp_det, &download_status);
+	    if(ret) {
+		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
+             }
+	    RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
     }
 
 error1:
