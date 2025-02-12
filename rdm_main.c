@@ -296,11 +296,16 @@ int main(int argc, char* argv[])
 	    RDMInfo("Install App from custom path: %s\n", app_name);
 
 	    strcpy(pApp_det->app_name, app_name);
-	    //strcpy(pApp_det->pkg_name, "Test");
-	    //strcpy(pApp_det->pkg_ver, "1.0");
+	    strcpy(pApp_det->pkg_name, app_name);
+
+	    char *ver = strchr(app_name, ':');
+	    if (ver != NULL) {
+		    strcpy(pApp_det->pkg_ver, ver + 1);
+	    }
 
 	    /* Update App paths */
 	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+	    rdmPrintAppDetails(pApp_det);
 	    ret = rdmDownloadApp(pApp_det, &download_status);
 	    if(ret) {
 		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
