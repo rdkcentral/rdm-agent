@@ -296,8 +296,8 @@ int main(int argc, char* argv[])
 	    RDMInfo("Install App from custom path: %s\n", app_name);
 
 	    strcpy(pApp_det->app_name, app_name);
-	    strcat(pApp_det->app_name, "-signed.tar");
 	    strcpy(pApp_det->pkg_name, app_name);
+            strcat(pApp_det->pkg_name, "-signed.tar");
 
 	    char *ver = strchr(app_name, ':');
 	    if (ver != NULL) {
