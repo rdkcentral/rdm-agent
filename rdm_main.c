@@ -293,17 +293,20 @@ int main(int argc, char* argv[])
         }
     }
     else if(download_customapp) {
+            char result[20];
+
 	    RDMInfo("Install App from custom path: %s\n", app_name);
 
 	    strcpy(pApp_det->app_name, app_name);
-	    strcpy(pApp_det->pkg_name, app_name);
-            strcat(pApp_det->pkg_name, "-signed.tar");
 
 	    char *ver = strchr(app_name, ':');
 	    if (ver != NULL) {
 		    strcpy(pApp_det->pkg_ver, ver + 1);
 	    }
+            sscanf(app_name, "%[^:]", result);
+            sprintf(pApp_det->pkg_name, "%s_%s-signed.tar", result, pApp_det->pkg_ver);
 
+	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
 	    /* Update App paths */
 	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
 	    rdmPrintAppDetails(pApp_det);
