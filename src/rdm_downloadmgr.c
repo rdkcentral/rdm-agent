@@ -115,7 +115,6 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
                     RDMError("Failed to extract the package: %s\n", tmp_file);
-                    continue;
                 }
 
       /*  while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
