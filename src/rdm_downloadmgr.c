@@ -56,6 +56,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         return status;
     }
 
+    RDMInfo("rdmDwnlExtract: status = %d\n", status);
+
     if(findPFile(pRdmAppDet->app_dwnl_path, "*-pkg.tar", tmp_file)) {
         /* Extract the package */
         RDMInfo("Intermediate PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
@@ -64,6 +66,15 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             RDMError("Failed to extract the package\n");
             return status;
         }
+    }
+    else if(findPFile(pRdmAppDet->app_dwnl_path, "*-signed.tar", tmp_file)) {
+	    /* Extract the package */
+	    RDMInfo("Intermediate PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+	    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+	     if(status) {
+		      RDMError("Failed to extract the package\n");
+		      return status;
+             }
     }
     else {
         status = RDM_FAILURE;
@@ -74,6 +85,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
 
+    RDMInfo("tmp_file = %s\n", tmp_file);
     if(fileCheck(tmp_file)) {
         RDMInfo("Package already extracted\n");
     }
