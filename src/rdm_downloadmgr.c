@@ -98,7 +98,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	RDMInfo("In else before strcat tmp_file = %s\n", tmp_file);
         strcat(tmp_file, "/packages.list");
 
-	RDMInfo("In else : tmp_file = %s\n", tmp__file);
+	RDMInfo("In else : tmp_file = %s\n", tmp_file);
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
