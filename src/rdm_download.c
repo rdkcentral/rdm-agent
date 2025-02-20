@@ -144,7 +144,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
                 break;
             }
 
-            rdmDwnlUnInstallApp(pRdmAppDet->app_dwnl_path, pRdmAppDet->app_home);
+            //rdmDwnlUnInstallApp(pRdmAppDet->app_dwnl_path, pRdmAppDet->app_home);
             count++;
         }
     }
