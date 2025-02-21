@@ -15,14 +15,21 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include "unittest/mocks/rdmMgr.h"
+#include "unittest/mocks/libIBus.h"
+#ifndef GTEST_ENABLE
 #include "libIBus.h"
 #include "rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
 #include "rdm_download.h"
 #include "rdm_downloadutils.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#endif
+
 
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
