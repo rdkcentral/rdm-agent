@@ -80,7 +80,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         status = RDM_FAILURE;
     }
 
-    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
     //strcat(tmp_file, "_cpemanifest");
@@ -94,7 +94,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	RDMInfo("tmp_file = %s\n", tmp_file);
        // RDMInfo("Package already extracted\n");
     }
-    else {
+   /* else {
         FILE *fp;
         CHAR *extn = NULL;
         INT32 is_lxc = 0;
@@ -108,9 +108,19 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
             return RDM_FAILURE;
-        }
+        } */
 
-        while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
+        status = tarExtract(tmp_file, pRdmAppDet->app_home);
+	if(status) {
+		rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+				pRdmAppDet->pkg_ver,
+				pRdmAppDet->app_home,
+				RDM_PKG_EXTRACT_ERROR);
+		RDMError("Failed to extract the package: %s\n", tmp_file);
+		continue;
+	}
+
+        /*while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
             size_t len = strlen (tmp_file);
             if ((len > 0) && (tmp_file[len - 1] == '\n'))
                 tmp_file[len - 1] = 0;
@@ -161,7 +171,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             else {
                 RDMWarn("Unknown Package Extension\n");
             }
-        } //while ()
+        } //while ()*/
 
         fclose(fp);
     }
