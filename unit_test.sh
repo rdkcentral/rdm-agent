@@ -26,16 +26,15 @@ make
 rdmdown=$?
 echo "*********** Return value of rdm_download_gtest $rdmdown"
 
-./rdm_downloadmgr_gtest
-#./urlHelper_gtest
-rdmdmgr=$?
-echo "*********** Return value of rdm_downloadmgr_gtest $urlhelper"
+./rdm_utils_gtest
+rdmutils=$?
+echo "*********** Return value of rdm_downloadmgr_gtest $rdmutils"
 
 #./rdm_json_gtest
 #jsonparse=$?
 #echo "*********** Return value of json_parse_gtest $jsonparse"
 
-if [ "$rdmdown" = "0" ] && ["$rdmdmgr" = "0"] ; then
+if [ "$rdmdown" = "0" ] && ["$rdmutils" = "0"] ; then
     cd ../
 
     lcov --capture --directory . --output-file coverage.info
