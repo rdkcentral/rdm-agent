@@ -28,7 +28,7 @@ echo "*********** Return value of rdm_download_gtest $rdmdown"
 
 ./rdm_utils_gtest
 rdmutils=$?
-echo "*********** Return value of rdm_downloadmgr_gtest $rdmutils"
+echo "*********** Return value of rdm_utils_gtest $rdmutils"
 
 #./rdm_json_gtest
 #jsonparse=$?
