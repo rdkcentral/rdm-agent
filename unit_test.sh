@@ -24,12 +24,12 @@ make
 
 ./rdm_download_gtest
 rdmdown=$?
-echo "*********** Return value of rdm_utils_gtest $rdmdown"
+echo "*********** Return value of rdm_download_gtest $rdmdown"
 
 ./rdm_downloadmgr_gtest
 #./urlHelper_gtest
 rdmdmgr=$?
-echo "*********** Return value of urlHelper_gtest $urlhelper"
+echo "*********** Return value of rdm_downloadmgr_gtest $urlhelper"
 
 #./rdm_json_gtest
 #jsonparse=$?
