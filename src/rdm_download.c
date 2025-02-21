@@ -29,7 +29,10 @@
 #include "rdm_jsonquery.h"
 #include "rdm_downloadutils.h"
 #include "rdm_download.h"
+#if !defined(GTEST_ENABLE)
 #include <system_utils.h>
+#endif
+#include "unittest/mocks/system_utils.h"
 
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
