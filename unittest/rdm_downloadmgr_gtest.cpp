@@ -5,7 +5,7 @@
 #include <string.h>                                                                                                     
 #include <stdarg.h>                                                                                                                                                                                                                            
  extern "C" {                                                                                                            
- #include"unittest/mocks/rdmMgr_mock.h"                                                                                  
+ #include"unittest/mocks/rdmMgr.h"                                                                                  
  #include "rdm_types.h"                                                                                                  
  #include "rdm.h"                                                                                                        
  #include "rdm_utils.h"                                                                                                  
