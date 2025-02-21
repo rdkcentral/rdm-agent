@@ -26,7 +26,7 @@
 #include "rdm_downloadutils.h"
 #include <system_utils.h>
 
-static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
+/*static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
 {
     CHAR tmp[RDM_TMP_LEN_64] = {0};
 
@@ -37,12 +37,12 @@ static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
         return 1;
     }
     return 0;
-}
+}*/
 
-static INT32 rdmDwnlLXCIPKExctact()
+/*static INT32 rdmDwnlLXCIPKExctact()
 {
     return RDM_SUCCESS;
-}
+}*/
 
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
@@ -83,11 +83,16 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
-    strcat(tmp_file, "_cpemanifest");
+    //strcat(tmp_file, "_cpemanifest");
 
-    RDMInfo("tmp_file = %s\n", tmp_file);
+    strcat(tmp_file, "_");
+    strcat(tmp_file, pRdmAppDet->pkg_ver);
+    strcat(tmp_file, ".tar");
+
+    //RDMInfo("tmp_file = %s\n", tmp_file);
     if(fileCheck(tmp_file)) {
-        RDMInfo("Package already extracted\n");
+	RDMInfo("tmp_file = %s\n", tmp_file);
+       // RDMInfo("Package already extracted\n");
     }
     else {
         FILE *fp;
@@ -96,7 +101,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 
         strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
 	RDMInfo("In else before strcat tmp_file = %s\n", tmp_file);
-        strcat(tmp_file, "/packages.list");
+        //strcat(tmp_file, "/packages.list");
 
 	RDMInfo("In else : tmp_file = %s\n", tmp_file);
         fp = fopen(tmp_file, "r");
