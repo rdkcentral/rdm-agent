@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifndef GTEST_ENABLE
 #include "rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -24,7 +26,11 @@
 #include "rdm_download.h"
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
+#if !defined(GTEST_ENABLE)
 #include <system_utils.h>
+#endif
+#include"unittest/mocks/system_utils.h"
+
 
 static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
 {
