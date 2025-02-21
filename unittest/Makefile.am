@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 # Define the test executables
-bin_PROGRAMS =  rdm_download_gtest rdm_downloadmgr_gtest 
+bin_PROGRAMS =  rdm_downloadmgr_gtest rdm_download_gtest
 
 # Common include directories
 COMMON_CPPFLAGS = -std=c++11 -I./rbus/include -I../ -I../../ -I/usr/include -I../include -I./mocks -I./iarm  -I../src/codebig  -DGTEST_ENABLE
