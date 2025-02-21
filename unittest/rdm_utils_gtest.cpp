@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include "iarm_mock.h"
 extern "C" {
-#include "./iarm/libIBus.h"
+#include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
 #include "rdm_types.h"
 #include "rdm.h"
