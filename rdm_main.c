@@ -64,7 +64,7 @@ INT32 rdmInit(RDMHandle *prdmHandle)
         RDMError("Failed to allocate memory\n");
         return RDM_FAILURE;
     }
-    memset(prdmHandle->pApp_det, 0, sizeof(RDMAPPDetails));
+    memset(prdmHandle->pApp_det, 0, 10*sizeof(RDMAPPDetails));
 
     ret = rdmRbusInit(&prdmHandle->pRbusHandle, RDM_INIT_NAME);
     if (ret != RDM_SUCCESS) {
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
         RDMError("Failed to allocate memory\n");
         return RDM_FAILURE;
     }
-    memset(pApp_det, 0, sizeof(RDMAPPDetails));
+    memset(pApp_det, 0, 10*sizeof(RDMAPPDetails));
 
     /* handle allocation */
     prdmHandle = malloc(sizeof(RDMHandle));
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 
         do {
             /* reset app details */
-            memset(pApp_det, 0, sizeof(RDMAPPDetails));
+            memset(pApp_det, 0, 10*sizeof(RDMAPPDetails));
 
             /* Parse the JSON file and get the app details */
             ret = rdmJSONGetAppDetID(idx, pApp_det);
