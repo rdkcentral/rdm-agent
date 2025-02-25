@@ -568,8 +568,8 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
         RDMInfo("Validate the Package\n");
 
-       /* strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
-        strcat(tmp_file, "/");
+
+        strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
         strcat(tmp_file, pRdmAppDet->app_name);
         strcat(tmp_file, "_cpemanifest");
 
@@ -599,7 +599,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                 RDMError("RSA Signature Verification Failed\n");
                 status = RDM_FAILURE;
             }
-        } */
+        }
     } 
     else if(pRdmAppDet->sig_type == RDM_SIG_TYPE_OPENSSL) {
       /*In the script, there is no call for this sig type. So not handled*/
