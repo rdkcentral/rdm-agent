@@ -537,6 +537,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
 
+    RDMInfor("Saranya: In fucntion rdmDwnlValidation\n");
     if(out_buf == NULL) {
         RDMError("Failed to allocate memory\n");
         return RDM_FAILURE;
@@ -567,10 +568,10 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     if(pRdmAppDet->sig_type == RDM_SIG_TYPE_KMS) {
         status = rdmDecryptKey(RDM_KMS_PUB_KEY);
 
-        RDMInfo("Validate the Package\n");
+        RDMInfo("Saranya : Validate the Package\n");
 
 
-        strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
+       /* strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
         strcat(tmp_file, pRdmAppDet->app_name);
         strcat(tmp_file, "_cpemanifest");
 
@@ -583,7 +584,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                                        app_home,
                                        dwnl_path);
         if(status) {
-            RDMWarn("Failed to process manifest file\n");
+            RDMWarn("Saranya : Failed to process manifest file\n");
         }
         else {
 
@@ -600,20 +601,20 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                 RDMError("RSA Signature Verification Failed\n");
                 status = RDM_FAILURE;
             }
-        }
+        }*/
     } 
     else if(pRdmAppDet->sig_type == RDM_SIG_TYPE_OPENSSL) {
       /*In the script, there is no call for this sig type. So not handled*/
     }
     else {
-        RDMError("Unknown Signature Type\n");
+        RDMError("Saranya: Unknown Signature Type\n");
         status = RDM_FAILURE;
     }
 
     if(out_buf) {
         free(out_buf);
     }
-
+    RDMInfo("Saranya: Returning status = %d\n", status);
     return status;
 }
 
