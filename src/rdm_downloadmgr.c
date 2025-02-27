@@ -120,15 +120,21 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		RDMError("Failed to extract the package: %s\n", tmp_file);
 	}
 
-	/* status = tarExtract(tmp_file, pRdmAppDet->app_home);
-         if(status) {
+	CHAR app_file[RDM_APP_PATH_LEN];
+        strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+        strcat(app_file, "/");
+        strcat(app_file, pRdmAppDet->app_name);
+        strcat(app_file, ".tar");
+
+	status = tarExtract(app_file, pRdmAppDet->app_home);
+        if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
                     RDMError("Failed to extract the package: %s\n", tmp_file);
-         }*/
-	FILE *fp;
+         }
+	/*FILE *fp;
 	CHAR *extn = NULL;
 	//INT32 is_lxc = 0;
 
@@ -155,7 +161,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-            }//tar
+            }//tar*/
             /*else if(!strcmp(extn, "ipk")) {
                 if(rdmDownlLXCCheck(tmp_file, pRdmAppDet->app_name)) {
                     is_lxc = 1;
@@ -189,7 +195,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             else {
                 RDMWarn("Unknown Package Extension\n");
             }*/
-        } //while ()
+        //} //while ()
 
     //}
     return status;
