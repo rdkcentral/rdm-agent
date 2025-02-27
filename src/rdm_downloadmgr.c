@@ -110,7 +110,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             return RDM_FAILURE;
         } */
 
-        status = tarExtract(tmp_file, pRdmAppDet->app_home);
+        RDMInfo("Saranya: tmp_file  = %s\n", tmp_file);
+        status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 	if(status) {
 		rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
 				pRdmAppDet->pkg_ver,
@@ -119,6 +120,14 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		RDMError("Failed to extract the package: %s\n", tmp_file);
 	}
 
+	 status = tarExtract(tmp_file, pRdmAppDet->app_home);
+         if(status) {
+                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                                           pRdmAppDet->pkg_ver,
+                                           pRdmAppDet->app_home,
+                                           RDM_PKG_EXTRACT_ERROR);
+                    RDMError("Failed to extract the package: %s\n", tmp_file);
+         }
         /*while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
             size_t len = strlen (tmp_file);
             if ((len > 0) && (tmp_file[len - 1] == '\n'))
