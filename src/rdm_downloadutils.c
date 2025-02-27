@@ -557,6 +557,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
         /* Read the signature file */
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
+	RDMInfo("Saranya: Found .sig file\n");
         if(status) {
             RDMError("Failed to read Signature file: %s\n", pkg_file);
             return status;

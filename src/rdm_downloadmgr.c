@@ -243,7 +243,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
-            rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+            rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                    pRdmAppDet->pkg_ver,
                                    pRdmAppDet->app_home,
                                    RDM_PKG_VALIDATE_ERROR);
@@ -264,7 +264,8 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         }
     }
 
-    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+    RDMInfo("Saranya: Callingh IARMEventSentPayload with package name = %s\n", pRdmAppDet->app_name);
+    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                            pRdmAppDet->pkg_ver,
                            pRdmAppDet->app_home,
                            RDM_PKG_INSTALL_COMPLETE);
