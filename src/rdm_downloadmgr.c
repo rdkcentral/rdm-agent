@@ -128,6 +128,15 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            RDM_PKG_EXTRACT_ERROR);
                     RDMError("Failed to extract the package: %s\n", tmp_file);
          }*/
+	FILE *fp;
+	CHAR *extn = NULL;
+	//INT32 is_lxc = 0;
+
+	fp = fopen(tmp_file, "r");
+	if(fp == NULL) {
+		 return RDM_FAILURE;
+	}
+
         while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
             size_t len = strlen (tmp_file);
             if ((len > 0) && (tmp_file[len - 1] == '\n'))
@@ -147,7 +156,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     continue;
                 }
             }//tar
-            else if(!strcmp(extn, "ipk")) {
+            /*else if(!strcmp(extn, "ipk")) {
                 if(rdmDownlLXCCheck(tmp_file, pRdmAppDet->app_name)) {
                     is_lxc = 1;
                 }
@@ -179,7 +188,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             } //ipk
             else {
                 RDMWarn("Unknown Package Extension\n");
-            }
+            }*/
         } //while ()
 
     //}
