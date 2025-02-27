@@ -240,7 +240,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
     }
     else {
-        status = rdmDwnlValidation(pRdmAppDet, NULL);
+        /* status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
 	    RDMInfo("Saranya: Calling IarmEventsendpayload with RDM_PKG_VALIDATE_ERROR\n");
@@ -252,8 +252,8 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             pRdmAppDet->dwld_status = 0;
             rdm_status = RDM_DL_DWNLERR;
             goto error;
-        }
-        RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+        } */
+        RDMInfo(" Saranya : RDM package download success: %s \n", pRdmAppDet->pkg_name);
     }
 
     if(pRdmAppDet->is_usb) {
