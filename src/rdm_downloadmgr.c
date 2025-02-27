@@ -120,19 +120,20 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		RDMError("Failed to extract the package: %s\n", tmp_file);
 	}
 
-	 status = tarExtract(tmp_file, pRdmAppDet->app_home);
+	/* status = tarExtract(tmp_file, pRdmAppDet->app_home);
          if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
                     RDMError("Failed to extract the package: %s\n", tmp_file);
-         }
-        /*while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
+         }*/
+        while (fgets(tmp_file, RDM_APP_PATH_LEN, fp)) {
             size_t len = strlen (tmp_file);
             if ((len > 0) && (tmp_file[len - 1] == '\n'))
                 tmp_file[len - 1] = 0;
 
+	    RDMInfo("Saranya: Inside while tmp_file = %s\n", tmp_file);
             extn = getExtension(tmp_file);
 
             if(!strcmp(extn, "tar")) {
@@ -179,7 +180,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             else {
                 RDMWarn("Unknown Package Extension\n");
             }
-        } //while ()*/
+        } //while ()
 
     //}
     return status;
