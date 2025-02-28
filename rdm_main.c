@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
     INT32 idx                 = 0;
     INT32 download_status     = 0;
     INT32 download_singleapp  = 0;
+    INT32 download_customapp  = 0;
     INT32 usb_install         = 0;
     CHAR  *usb_path           = NULL;
     CHAR  *app_name           = NULL;
@@ -133,7 +134,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:c:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -149,6 +150,10 @@ int main(int argc, char* argv[])
                     break;
                 case 'o':
                     is_oss = 1;
+                    break;
+                case 'c':
+                    download_customapp = 1;
+                    app_name = optarg;
                     break;
                 case 'h':
                 default :
@@ -286,7 +291,32 @@ int main(int argc, char* argv[])
         if(ret) {
             RDMError("Failed to Install APP from USB: %s\n", usb_path);
         }
-    }
+    }//usb_install
+ 
+    else if(download_customapp) {
+	    char result[20];
+
+	    RDMInfo("Install App from custom path: %s\n", app_name);
+
+	    char *ver = strchr(app_name, ':');
+	    if (ver != NULL) {
+		    strcpy(pApp_det->pkg_ver, ver + 1);
+            }
+	    sscanf(app_name, "%[^:]", result);
+	    strcpy(pApp_det->app_name, result);
+	    sprintf(pApp_det->pkg_name, "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+
+	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
+	    /* Update App paths */
+	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+	    rdmPrintAppDetails(pApp_det);
+	    ret = rdmDownloadApp(pApp_det, &download_status);
+	    if(ret) {
+		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
+            }
+	    RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+   }
+    
 
 error1:
     //rdmDwnlCleanUp(pApp_det);
