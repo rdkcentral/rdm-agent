@@ -113,7 +113,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         RDMInfo("Saranya: tmp_file  = %s\n", tmp_file);
         status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 	if(status) {
-		rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+		rdmIARMEvntSendPayload(pRdmAppDet->app_name,
 				pRdmAppDet->pkg_ver,
 				pRdmAppDet->app_home,
 				RDM_PKG_EXTRACT_ERROR);
@@ -126,9 +126,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         strcat(app_file, pRdmAppDet->app_name);
         strcat(app_file, ".tar");
 
+	RDMInfo("Saranya : app_file name to be downloaded in app_home = %s\n", app_file);
 	status = tarExtract(app_file, pRdmAppDet->app_home);
         if(status) {
-                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
@@ -154,7 +155,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             if(!strcmp(extn, "tar")) {
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
-                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
@@ -169,7 +170,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 
                 status = arExtract(tmp_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
-                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
@@ -181,7 +182,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
-                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
