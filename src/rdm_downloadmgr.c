@@ -26,23 +26,6 @@
 #include "rdm_downloadutils.h"
 #include <system_utils.h>
 
-static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
-{
-    CHAR tmp[RDM_TMP_LEN_64] = {0};
-
-    strncpy(tmp, appname, RDM_TMP_LEN_64);
-    strcat(tmp, "_container.ipk");
-
-    if(!strcmp(package, tmp)) {
-        return 1;
-    }
-    return 0;
-}
-
-static INT32 rdmDwnlLXCIPKExctact()
-{
-    return RDM_SUCCESS;
-}
 
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
