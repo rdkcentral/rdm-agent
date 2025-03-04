@@ -313,8 +313,9 @@ int main(int argc, char* argv[])
 	    ret = rdmDownloadApp(pApp_det, &download_status);
 	    if(ret) {
 		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
+            } else {
+	        RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
             }
-	    RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
     }
 
 error1:
