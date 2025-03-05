@@ -256,8 +256,8 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     if(pRdmAppDet->is_oss) {
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
-    } else if (pRdmAppDet->is_custom_app) {
-	 RDMInfo("IMAGE_TYPE IS CUSTOM. Signature validation not required\n");
+    /*} else if (pRdmAppDet->is_custom_app) {
+	 RDMInfo("IMAGE_TYPE IS CUSTOM. Signature validation not required\n");*/
     } else {
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
