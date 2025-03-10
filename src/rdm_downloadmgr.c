@@ -59,12 +59,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     if(pRdmAppDet->is_custom_app) {
 	    if(findPFile(pRdmAppDet->app_dwnl_path, "*-signed.tar", tmp_file)) {
 		    /* Extract the package */
-		    RDMInfo("PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+		    RDMInfo("Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
 		    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 		    if(status) {
 			    RDMError("Failed to extract the package\n");
 			    return status;
                     }
+		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
 	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
 	    strcat(tmp_file, "/");
@@ -77,6 +78,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		    RDMInfo("tmp_file = %s\n", tmp_file);
             }
 
+	    RDMInfo("Extracting %s to %s\n", tmp_file, pRdmAppDet->app_dwnl_path);
 	    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 	    if(status) {
 		    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
@@ -85,6 +87,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 				    RDM_PKG_EXTRACT_ERROR);
 		    RDMError("Failed to extract the package: %s\n", tmp_file);
             }
+	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
 	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
@@ -256,8 +259,21 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     if(pRdmAppDet->is_oss) {
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
-    /*} else if (pRdmAppDet->is_custom_app) {
-	 RDMInfo("IMAGE_TYPE IS CUSTOM. Signature validation not required\n");*/
+    } else if (pRdmAppDet->is_custom_app) {
+	 RDMInfo("IMAGE_TYPE IS CUSTOM. Signature validation\n");
+	 status = rdmDwnlValidation(pRdmAppDet, NULL);
+        if(status) {
+            RDMError("signature validation failed\n");
+            rdmIARMEvntSendPayload(pRdmAppDet->app_name,
+                                   pRdmAppDet->pkg_ver,
+                                   pRdmAppDet->app_home,
+                                   RDM_PKG_VALIDATE_ERROR);
+
+            pRdmAppDet->dwld_status = 0;
+            rdm_status = RDM_DL_DWNLERR;
+            goto error;
+        }
+        RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
     } else {
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
