@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     INT32 idx                 = 0;
     INT32 download_status     = 0;
     INT32 download_singleapp  = 0;
-    INT32 download_customapp  = 0;
+    INT32 download_versionedapp  = 0;
     INT32 usb_install         = 0;
     CHAR  *usb_path           = NULL;
     CHAR  *app_name           = NULL;
@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
-		case 'c':
-		    download_customapp = 1;
+		case 'v':
+		    download_versionedapp = 1;
 		    app_name = optarg;
 		    break;
                 case 'h':
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
         }
     } //usb_install
 
-    else if(download_customapp) {
+    else if(download_versionedapp) {
 	    char result[20];
 
 	    RDMInfo("Install App from custom path: %s\n", app_name);
@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
 	    strcpy(pApp_det->app_name, result);
 	    sprintf(pApp_det->pkg_name, "%s_%s-signed.tar", result, pApp_det->pkg_ver);
 	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
-	    pApp_det->is_custom_app = 1;
+	    pApp_det->is_versioned_app = 1;
 
 	    /* Update App paths */
 	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);

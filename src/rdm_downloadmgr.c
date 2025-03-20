@@ -56,7 +56,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         return status;
     }
 
-    if(pRdmAppDet->is_custom_app) {
+    if(pRdmAppDet->is_versioned_app) {
 	    if(findPFile(pRdmAppDet->app_dwnl_path, "*-signed.tar", tmp_file)) {
 		    /* Extract the package */
 		    RDMInfo("Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
@@ -259,8 +259,8 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     if(pRdmAppDet->is_oss) {
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
-    } else if (pRdmAppDet->is_custom_app) {
-	 RDMInfo("IMAGE_TYPE IS CUSTOM. Signature validation\n");
+    } else if (pRdmAppDet->is_versioned_app) {
+	 RDMInfo("Signature validation for Versioned APP\n");
 	 status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
@@ -299,7 +299,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         }
     }
 
-    if(pRdmAppDet->is_custom_app) {
+    if(pRdmAppDet->is_versioned_app) {
 	    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
 			    pRdmAppDet->pkg_ver,
 			    pRdmAppDet->app_home,

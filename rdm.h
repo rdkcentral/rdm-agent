@@ -60,7 +60,7 @@ typedef struct _rdmAppDetails {
     INT32 is_codebig;
 #endif
     INT32 is_usb;
-    INT32 is_custom_app;
+    INT32 is_versioned_app;
     INT32 sig_type;
     INT32 dwld_status;
 }RDMAPPDetails;
