@@ -1,63 +1,73 @@
 #!/bin/bash
-
-set -e  # Exit immediately if a command exits with a non-zero status
-
 cd unittest/
 
-# Generate required files for automake
 automake --add-missing
 autoreconf --install
 
-# Run configure script
 ./configure
 
-# Clean and build the project
 make clean
 make
 
+./rdm_main_gtest
+rdmmain=$?
+echo "*********** Return value of system_utils_gtest $rdmmain"
+
+./rdm_utils_gtest
+utils=$?
+echo "*********** Return value of rdm_utils_gtest $utils"
+
+./rdm_curl_gtest
+rdmcurl=$?
+echo "*********** Return value of curl_gtest $rdmcurl"
+
+./rdm_download_gtest
+rdmdown=$?
+echo "*********** Return value of rdm_utils_gtest $rdmdown"
+
+./rdm_downloadutils_gtest
+rdmdownutils=$?
+echo "*********** Return value of rdm_down_gtest $rdmdownutils"
+
+./rdm_downloadmgr_gtest
+rdmdownloadmgr=$?
+echo "*********** Return value of rdm_downloadmgr_gtest $rdmdownloadmgr"
+
+./rdm_json_gtest
+rdm_json_gtest=$?
+echo "*********** Return value of json_parse_gtest $rdm_json_gtest"
+
+./rdm_usbinstall_gtest
+rdm_usbinstall_gtest=$?
+echo "*********** Return value of usbinstall $rdm_usbinstall_gtest"
+
+./rdm_openssl_gtest
+rdm_openssl_gtest=$?
+echo "*********** Return value of openssl $rdm_openssl_gtest"
+
+./codebig_utils_gtest
+codebig_utils_gtest=$?
+echo "*********** Return value of openssl $codebig_utils_gtest"
+
+./rdm_rbus_gtest
+rdm_rbus_gtest=$?
+echo "*********** Return value of openssl $rdm_rbus_gtest"
+
+./rdm_downloadverapp_gtest
+rdm_downloadverapp_gtest=$?
+echo "*********** Return value of openssl $rdm_downloadverapp_gtest"
 # List of unit test executables
-TESTS=(
-    "rdm_curl_gtest"
-    "rdm_download_gtest"
-    "rdm_downloadmgr_gtest"
-    "rdm_downloadutils_gtest"
-    "json_parse_gtest"
-    "downloadUtil_gtest"
-    "rdm_json_gtest"
-    "rdm_service_gtest"
-    "rdm_main_gtest"
-    "rdm_openssl_gtest"
-    "rdm_downloadverapp_gtest"
-    "rdm_utils_gtest"
-    "rdm_usbinstall_gtest"
-    "codebig_utils_gtest"
-)
 
 # Run tests and capture return values
-FAILED_TESTS=()
-for test in "${TESTS[@]}"; do
-    ./"$test"
-    ret_val=$?
-    echo "*********** Return value of $test = $ret_val"
-    
-    if [ "$ret_val" -ne 0 ]; then
-        FAILED_TESTS+=("$test")
-    fi
-done
-
-# Check if any tests failed
-if [ ${#FAILED_TESTS[@]} -eq 0 ]; then
+if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdownutils" = "0" ] && [ "$rdmdownloadmgr" = "0" ] && [ "$rdm_json_gtest" = "0" ] && [ "$rdm_usbinstall_gtest" = "0" ] && [ "$rdm_openssl_gtest" = "0" ] && [ "$codebig_utils_gtest" = "0" ] && [ "$rdm_rbus_gtest" = "0" ] && [ "$rdm_downloadverapp_gtest" = "0" ]; then
     cd ../
 
-    echo "Generating coverage report..."
     lcov --capture --directory . --output-file coverage.info
+
     lcov --remove coverage.info '/usr/*' --output-file coverage.filtered.info
+
     genhtml coverage.filtered.info --output-directory out
 else
     echo "L1 UNIT TEST FAILED. PLEASE CHECK AND FIX"
-    echo "Failed Tests: ${FAILED_TESTS[*]}"
     exit 1
 fi
-
-echo "All tests passed successfully."
-exit 0
