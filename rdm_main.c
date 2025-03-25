@@ -94,6 +94,7 @@ static VOID rdmHelp()
     RDMInfo("To Install apps from manifset : rdm\n");
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
+    RDMInfo("To Install Versioned app      : rdm -v <app_name>\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -134,7 +135,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:c:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
