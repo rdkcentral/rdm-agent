@@ -15,33 +15,29 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Initialize Autoconf
 AC_INIT([rdm_main_gtest], [1.0])
+LT_INIT
+# Initialize Automake
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-
 # Check for necessary headers
-AC_CHECK_HEADERS([json-c/json.h gtest/gtest.h gmock/gmock.h curl/curl.h openssl/ssl.h rbus/rbus.h])
-
+AC_CHECK_HEADERS([ gtest/gtest.h gmock/gmock.h])
 # Check for necessary libraries
-AC_CHECK_LIB([json-c], [main])
-AC_CHECK_LIB([gtest], [main])
-AC_CHECK_LIB([gmock], [main])
-AC_CHECK_LIB([curl], [main])
-AC_CHECK_LIB([openssl], [main])
-AC_CHECK_LIB([rbus], [main])
-AC_CHECK_LIB([pthread], [main])
-
-# Checks for programs
+#AC_CHECK_LIB([jsoncpp], [main])
+#AC_CHECK_LIB([gtest], [main])
+#AC_CHECK_LIB([gmock], [main])
+# Checks for programs.
 AC_PROG_CXX
-AC_PROG_CC
-
-# Check for standard C++ library
+# Checks for libraries.
 AC_CHECK_LIB([stdc++], [main])
-
-# Checks for compiler characteristics
+# Checks for header files.
+AC_HEADER_STDC
+# Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+# Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-
-# Generate Makefile
+# Generate the Makefile
 AC_CONFIG_FILES([Makefile])
+# Generate the configure script
 AC_OUTPUT
