@@ -11,7 +11,7 @@ make
 
 ./rdm_main_gtest
 rdmmain=$?
-echo "*********** Return value of system_utils_gtest $rdmmain"
+echo "*********** Return value of rdm_main_gtest $rdmmain"
 
 ./rdm_utils_gtest
 utils=$?
