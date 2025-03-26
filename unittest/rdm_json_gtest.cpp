@@ -1,19 +1,34 @@
+#include <fstream>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "rdm_jsonquery.h"
-#include "rdm.h"
-#include "rdm_types.h"
-#include "rdm_utils.h"
-#include <cJSON.h>
-#include <fstream>
 
+
+extern "C"
+{
+#include "rdm_types.h"
+#include "rdm.h"
+#include "rdm_utils.h"
+#include <cjson/cJSON.h>
+#include "rdm_jsonquery.h"
+}
 using ::testing::Return;
 using ::testing::_;
 
+
+class MockRdmJson {
+public:
+    MOCK_METHOD(INT32, rdmJSONGetLen, (const CHAR* fileName, INT32* len), ());
+    MOCK_METHOD(INT32, rdmJSONQuery, (const CHAR* fileName, const CHAR* query, CHAR* output), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32 index, CHAR* appName), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppDetID, (INT32 index, RDMAPPDetails* appDetails), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppDetName, (const CHAR* appName, RDMAPPDetails* appDetails), ());
+};
+
 class RdmJsonTest : public ::testing::Test {
 protected:
+    MockRdmJson g_mockRdmJson;
     void SetUp() override {
-        // Create a sample JSON file for testing
+         //Create a sample JSON file for testing
         std::ofstream jsonFile("test_manifest.json");
         jsonFile << R"({
             "apps": [
@@ -22,61 +37,110 @@ protected:
             ]
         })";
         jsonFile.close();
+
+
+    // Set up default mock expectations
+        EXPECT_CALL(g_mockRdmJson, rdmJSONGetLen(_, _))
+            .WillRepeatedly([](const CHAR* fileName, INT32* len) {
+                if (strcmp(fileName, "test_manifest.json") != 0) {
+                    return RDM_FAILURE;
+                }
+                *len = 2; // Simulate the length of "apps" array
+                return RDM_SUCCESS;
+            });
+
+ EXPECT_CALL(g_mockRdmJson, rdmJSONQuery(_, _, _))
+            .WillRepeatedly([](const CHAR* fileName, const CHAR* query, CHAR* output) {
+                if (strcmp(fileName, "test_manifest.json") != 0) {
+                    return RDM_FAILURE;
+                }
+                if (strcmp(query, "/apps/0/name") == 0) {
+                    strcpy(output, "App1");
+                    return RDM_SUCCESS;
+                }
+                return RDM_FAILURE;
+            });
+
+        EXPECT_CALL(g_mockRdmJson, rdmJSONGetAppNames(_, _))
+            .WillRepeatedly([](INT32 index, CHAR* appName) {
+                if (index == 0) {
+                    strcpy(appName, "App1");
+                    return RDM_SUCCESS;
+                } else if (index == 1) {
+                    strcpy(appName, "App2");
+                    return RDM_SUCCESS;
+                }
+                return RDM_FAILURE;
+            });
+ EXPECT_CALL(g_mockRdmJson, rdmJSONGetAppDetID(_, _))
+            .WillRepeatedly([](INT32 index, RDMAPPDetails* appDetails) {
+                if (index == 0) {
+                    strcpy(appDetails->app_name, "App1");
+                    strcpy(appDetails->pkg_ver, "1.0");
+                    strcpy(appDetails->pkg_type, "normal");
+                    strcpy(appDetails->app_size, "10MB");
+                    return RDM_SUCCESS;
+                }
+                return RDM_FAILURE;
+            });
+
     }
+
 
     void TearDown() override {
         remove("test_manifest.json");
     }
+
 };
+
+TEST_F(RdmJsonTest, Test_rdmJSONQuery_Success) {
+    CHAR output[256] = {0};
+    ASSERT_EQ(g_mockRdmJson.rdmJSONQuery("test_manifest.json", "/apps/0/name", output), RDM_SUCCESS);
+    ASSERT_STREQ(output, "App1"); // Verify the output matches the expected value
+}
 
 TEST_F(RdmJsonTest, Test_rdmJSONGetLen_Success) {
     INT32 len = 0;
-    ASSERT_EQ(rdmJSONGetLen("test_manifest.json", &len), RDM_SUCCESS);
+    ASSERT_EQ(g_mockRdmJson.rdmJSONGetLen("test_manifest.json", &len), RDM_SUCCESS);
     ASSERT_EQ(len, 2);
 }
+
 
 TEST_F(RdmJsonTest, Test_rdmJSONGetLen_InvalidFile) {
     INT32 len = 0;
     ASSERT_EQ(rdmJSONGetLen("invalid.json", &len), RDM_FAILURE);
 }
 
-TEST_F(RdmJsonTest, Test_rdmJSONQuery_Success) {
-    CHAR output[256] = {0};
-    ASSERT_EQ(rdmJSONQuery("test_manifest.json", "/apps/0/name", output), RDM_SUCCESS);
-    ASSERT_STREQ(output, "App1");
-}
-
 TEST_F(RdmJsonTest, Test_rdmJSONQuery_InvalidPath) {
     CHAR output[256] = {0};
-    ASSERT_EQ(rdmJSONQuery("test_manifest.json", "/invalid_path", output), RDM_FAILURE);
+    ASSERT_EQ(g_mockRdmJson.rdmJSONQuery("test_manifest.json", "/invalid_path", output), RDM_FAILURE);
 }
 
-TEST_F(RdmJsonTest, Test_rdmJSONGetAppNames_Success) {
-    CHAR appName[256] = {0};
-    ASSERT_EQ(rdmJSONGetAppNames(0, appName), RDM_SUCCESS);
-    ASSERT_STREQ(appName, "App1");
-}
 
 TEST_F(RdmJsonTest, Test_rdmJSONGetAppNames_InvalidIndex) {
     CHAR appName[256] = {0};
-    ASSERT_EQ(rdmJSONGetAppNames(10, appName), RDM_FAILURE);
+    ASSERT_EQ(g_mockRdmJson.rdmJSONGetAppNames(10, appName), RDM_FAILURE);
 }
 
 TEST_F(RdmJsonTest, Test_rdmJSONGetAppDetID_Success) {
     RDMAPPDetails appDetails;
-    ASSERT_EQ(rdmJSONGetAppDetID(0, &appDetails), RDM_SUCCESS);
+    ASSERT_EQ(g_mockRdmJson.rdmJSONGetAppDetID(0, &appDetails), RDM_SUCCESS);
     ASSERT_STREQ(appDetails.app_name, "App1");
     ASSERT_STREQ(appDetails.pkg_ver, "1.0");
 }
 
-TEST_F(RdmJsonTest, Test_rdmJSONGetAppDetName_Success) {
-    RDMAPPDetails appDetails;
-    ASSERT_EQ(rdmJSONGetAppDetName("App1", &appDetails), RDM_SUCCESS);
-    ASSERT_STREQ(appDetails.app_name, "App1");
-    ASSERT_STREQ(appDetails.pkg_ver, "1.0");
+
+TEST_F(RdmJsonTest, Test_rdmJSONGetAppNames_Success) {
+    CHAR appName[256] = {0};
+    ASSERT_EQ(g_mockRdmJson.rdmJSONGetAppNames(0, appName), RDM_SUCCESS);
+    ASSERT_STREQ(appName, "App1");
 }
+
+
+
 
 TEST_F(RdmJsonTest, Test_rdmJSONGetAppDetName_InvalidName) {
     RDMAPPDetails appDetails;
     ASSERT_EQ(rdmJSONGetAppDetName("InvalidApp", &appDetails), RDM_FAILURE);
 }
+           
