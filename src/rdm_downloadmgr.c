@@ -56,6 +56,54 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         return status;
     }
 
+    if(pRdmAppDet->is_versioned_app) {
+	    if(findPFile(pRdmAppDet->app_dwnl_path, "*-signed.tar", tmp_file)) {
+		    /* Extract the package */
+		    RDMInfo("Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+		    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+		    if(status) {
+			    RDMError("Failed to extract the package\n");
+			    return status;
+                    }
+		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
+            }
+	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strcat(tmp_file, "/");
+	    strcat(tmp_file, pRdmAppDet->app_name);
+	    strcat(tmp_file, "_");
+	    strcat(tmp_file, pRdmAppDet->pkg_ver);
+	    strcat(tmp_file, ".tar");
+
+	    if(fileCheck(tmp_file)) {
+		    RDMInfo("tmp_file = %s\n", tmp_file);
+            }
+
+	    RDMInfo("Extracting %s to %s\n", tmp_file, pRdmAppDet->app_dwnl_path);
+	    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+	    if(status) {
+		    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
+				    pRdmAppDet->pkg_ver,
+				    pRdmAppDet->app_home,
+				    RDM_PKG_EXTRACT_ERROR);
+		    RDMError("Failed to extract the package: %s\n", tmp_file);
+            }
+	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
+
+	    CHAR app_file[RDM_APP_PATH_LEN];
+	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strcat(app_file, "/");
+	    strcat(app_file, pRdmAppDet->app_name);
+	    strcat(app_file, ".tar");
+
+	    status = tarExtract(app_file, pRdmAppDet->app_home);
+	    if(status) {
+		    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
+				    pRdmAppDet->pkg_ver,
+				    pRdmAppDet->app_home,
+				    RDM_PKG_EXTRACT_ERROR);
+		    RDMError("Failed to extract the package: %s\n", tmp_file);
+            }
+    } else {
     if(findPFile(pRdmAppDet->app_dwnl_path, "*-pkg.tar", tmp_file)) {
         /* Extract the package */
         RDMInfo("Intermediate PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
@@ -143,8 +191,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 RDMWarn("Unknown Package Extension\n");
             }
         } //while ()
-
         fclose(fp);
+    }
     }
     return status;
 }
@@ -211,8 +259,22 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     if(pRdmAppDet->is_oss) {
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
-    }
-    else {
+    } else if (pRdmAppDet->is_versioned_app) {
+	 RDMInfo("Signature validation for Versioned APP\n");
+	 status = rdmDwnlValidation(pRdmAppDet, NULL);
+        if(status) {
+            RDMError("signature validation failed\n");
+            rdmIARMEvntSendPayload(pRdmAppDet->app_name,
+                                   pRdmAppDet->pkg_ver,
+                                   pRdmAppDet->app_home,
+                                   RDM_PKG_VALIDATE_ERROR);
+
+            pRdmAppDet->dwld_status = 0;
+            rdm_status = RDM_DL_DWNLERR;
+            goto error;
+        }
+        RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+    } else {
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
@@ -237,11 +299,17 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         }
     }
 
-    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+    if(pRdmAppDet->is_versioned_app) {
+	    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
+			    pRdmAppDet->pkg_ver,
+			    pRdmAppDet->app_home,
+			    RDM_PKG_INSTALL_COMPLETE);
+    } else {
+           rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                            pRdmAppDet->pkg_ver,
                            pRdmAppDet->app_home,
                            RDM_PKG_INSTALL_COMPLETE);
-
+    }
     rdmDwnlRunPostScripts(pRdmAppDet->app_home);
 
 error:

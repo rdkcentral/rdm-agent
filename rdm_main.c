@@ -94,6 +94,7 @@ static VOID rdmHelp()
     RDMInfo("To Install apps from manifset : rdm\n");
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
+    RDMInfo("To Install Versioned app      : rdm -v <app_name>\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -114,6 +115,7 @@ int main(int argc, char* argv[])
     INT32 idx                 = 0;
     INT32 download_status     = 0;
     INT32 download_singleapp  = 0;
+    INT32 download_versionedapp  = 0;
     INT32 usb_install         = 0;
     CHAR  *usb_path           = NULL;
     CHAR  *app_name           = NULL;
@@ -133,7 +135,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -150,6 +152,10 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
+		case 'v':
+		    download_versionedapp = 1;
+		    app_name = optarg;
+		    break;
                 case 'h':
                 default :
                     rdmHelp();
@@ -286,6 +292,31 @@ int main(int argc, char* argv[])
         if(ret) {
             RDMError("Failed to Install APP from USB: %s\n", usb_path);
         }
+    } //usb_install
+
+    else if(download_versionedapp) {
+	    char result[20];
+
+	    RDMInfo("Install App from custom path: %s\n", app_name);
+	    char *ver = strchr(app_name, ':');
+	    if (ver != NULL) {
+		    strcpy(pApp_det->pkg_ver, ver + 1);
+	    }
+	    sscanf(app_name, "%[^:]", result);
+	    strcpy(pApp_det->app_name, result);
+	    sprintf(pApp_det->pkg_name, "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
+	    pApp_det->is_versioned_app = 1;
+
+	    /* Update App paths */
+	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+	    rdmPrintAppDetails(pApp_det);
+	    ret = rdmDownloadApp(pApp_det, &download_status);
+	    if(ret) {
+		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
+            } else {
+	        RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+            }
     }
 
 error1:
