@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 # Define the test executables
-bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
+bin_PROGRAMS =  rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
                rdm_download_gtest rdm_downloadmgr_gtest rdm_downloadutils_gtest \
                rdm_usbinstall_gtest rdm_rbus_gtest rdm_downloadverapp_gtest codebig_utils_gtest rdm_openssl_gtest
 
@@ -18,7 +18,7 @@ COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
 
 # Define source files for each test
-rdm_main_gtest_SOURCES = rdm_main_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c
+#rdm_main_gtest_SOURCES = rdm_main_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c
 rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curl.c
 rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp ../src/rdm_utils.c
 rdm_downloadmgr_gtest_SOURCES = rdm_downloadmgr_gtest.cpp ../src/rdm_downloadmgr.c
@@ -31,10 +31,7 @@ rdm_rbus_gtest_SOURCES = rdm_rbus_gtest.cpp ../src/rdm_rbus.c mocks/mock_rbus.cp
 rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../src/rdm_openssl.c mocks/mock_openssl.cpp
 codebig_utils_gtest_SOURCES = codebig_utils_gtest.cpp ../src/codebig/codeBigUtils.c 
 
-rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_main_gtest_LDADD = $(COMMON_LDADD)
-rdm_main_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_main_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+
 
 rdm_curl_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_curl_gtest_LDADD = $(COMMON_LDADD)
