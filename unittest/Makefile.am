@@ -18,18 +18,18 @@ COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
 
 # Define source files for each test
-rdm_main_gtest_SOURCES = unittest/rdm_main_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c
-rdm_curl_gtest_SOURCES = unittest/rdm_curl_gtest.cpp  ../src/rdm_curl.c
-rdm_utils_gtest_SOURCES = unittest/rdm_utils_gtest.cpp ../src/rdm_utils.c
-rdm_downloadmgr_gtest_SOURCES = unittest/rdm_downloadmgr_gtest.cpp ../src/rdm_downloadmgr.c
-rdm_downloadutils_gtest_SOURCES = unittest/rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c
-rdm_usbinstall_gtest_SOURCES = unittest/rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
-rdm_downloadverapp_gtest_SOURCES = unittest/rdm_downloadverapp_gtest.cpp ../src/rdm_downloadverapp.c
-rdm_json_gtest_SOURCES = unittest/rdm_json_gtest.cpp ../src/rdm_jsonquery.c
-rdm_download_gtest_SOURCES = unittest/rdm_download_gtest.cpp ../src/rdm_download.c mocks/mock_curl.cpp
-rdm_rbus_gtest_SOURCES = unittest/rdm_rbus_gtest.cpp ../src/rdm_rbus.c mocks/mock_rbus.cpp
-rdm_openssl_gtest_SOURCES = unittest/rdm_openssl_gtest.cpp ../src/rdm_openssl.c mocks/mock_openssl.cpp
-codebig_utils_gtest_SOURCES = unittest/codebig_utils_gtest.cpp ../src/codebig/codeBigUtils.c 
+rdm_main_gtest_SOURCES = rdm_main_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c
+rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curl.c
+rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp ../src/rdm_utils.c
+rdm_downloadmgr_gtest_SOURCES = rdm_downloadmgr_gtest.cpp ../src/rdm_downloadmgr.c
+rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c
+rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
+rdm_downloadverapp_gtest_SOURCES = rdm_downloadverapp_gtest.cpp ../src/rdm_downloadverapp.c
+rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
+rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c mocks/mock_curl.cpp
+rdm_rbus_gtest_SOURCES = rdm_rbus_gtest.cpp ../src/rdm_rbus.c mocks/mock_rbus.cpp
+rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../src/rdm_openssl.c mocks/mock_openssl.cpp
+codebig_utils_gtest_SOURCES = codebig_utils_gtest.cpp ../src/codebig/codeBigUtils.c 
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_main_gtest_LDADD = $(COMMON_LDADD)
