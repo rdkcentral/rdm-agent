@@ -34,8 +34,8 @@ rdmdownloadmgr=$?
 echo "*********** Return value of rdm_downloadmgr_gtest $rdmdownloadmgr"
 
 ./rdm_json_gtest
-rdm_json_gtest=$?
-echo "*********** Return value of json_parse_gtest $rdm_json_gtest"
+rdmjson=$?
+echo "*********** Return value of json_parse_gtest $rdmjson"
 
 ./rdm_usbinstall_gtest
 rdm_usbinstall_gtest=$?
@@ -59,7 +59,7 @@ echo "*********** Return value of openssl $rdm_downloadverapp_gtest"
 # List of unit test executables
 
 # Run tests and capture return values
-if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdownutils" = "0" ] && [ "$rdmdownloadmgr" = "0" ] && [ "$rdm_json_gtest" = "0" ] && [ "$rdm_usbinstall_gtest" = "0" ] && [ "$rdm_openssl_gtest" = "0" ] && [ "$codebig_utils_gtest" = "0" ] && [ "$rdm_rbus_gtest" = "0" ] && [ "$rdm_downloadverapp_gtest" = "0" ]; then
+if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdownutils" = "0" ] && [ "$rdmdownloadmgr" = "0" ] && [ "$rdmjson" = "0" ] && [ "$rdm_usbinstall_gtest" = "0" ] && [ "$rdm_openssl_gtest" = "0" ] && [ "$codebig_utils_gtest" = "0" ] && [ "$rdm_rbus_gtest" = "0" ] && [ "$rdm_downloadverapp_gtest" = "0" ]; then
     cd ../
 
     lcov --capture --directory . --output-file coverage.info
