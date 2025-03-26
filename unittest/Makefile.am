@@ -18,7 +18,7 @@ COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
 
 # Define source files for each test
-rdm_main_gtest_SOURCES = unittest/rdm_main_gtest.cpp ../rdm_main.c 
+rdm_main_gtest_SOURCES = unittest/rdm_main_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c
 rdm_curl_gtest_SOURCES = unittest/rdm_curl_gtest.cpp  ../src/rdm_curl.c
 rdm_utils_gtest_SOURCES = unittest/rdm_utils_gtest.cpp ../src/rdm_utils.c
 rdm_downloadmgr_gtest_SOURCES = unittest/rdm_downloadmgr_gtest.cpp ../src/rdm_downloadmgr.c
