@@ -1,5 +1,5 @@
 #!/bin/bash
-cd unittest/
+cd ./unittest/
 
 automake --add-missing
 autoreconf --install
