@@ -213,8 +213,11 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
 {
     //Read your Cert details here
     strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
+    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
     strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
+    sec->cert_type[sizeof(sec->key_cert_type) - 1] = '\0';  // Ensure null termination
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
+    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
     RDMInfo("success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
     return RDM_SUCCESS;
 }
@@ -240,7 +243,8 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
-    strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url));
+    strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
+    file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
     strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname));
     strcat(file_dwnl.pathname, "/");
     strcat(file_dwnl.pathname, pPkgName);
@@ -543,6 +547,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     }
 
     strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+    dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     if(pVer) {
         strcat(dwnl_path, "/v");
         strcat(dwnl_path, pVer);
@@ -559,6 +564,8 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
         if(status) {
             RDMError("Failed to read Signature file: %s\n", pkg_file);
+	    if(out_buf)
+                free(out_buf);
             return status;
         }
     }
@@ -830,6 +837,7 @@ error:
            free(app_manifests[index]);
        }
    }
+   free(pApp_det);
 
    return status;
 }
