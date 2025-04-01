@@ -1,7 +1,7 @@
 // mock_rdm_rbus.h
 #ifndef MOCK_RDM_RBUS_H
 #define MOCK_RDM_RBUS_H
-
+#include "rdm_types.h"
 #include <gmock/gmock.h>
 
 // Mock class for rdm_rbus functions
