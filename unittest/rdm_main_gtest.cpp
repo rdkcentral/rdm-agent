@@ -3,6 +3,7 @@
 #include <gmock/gmock.h>
 #include "rdm_types.h" 
 #include "rdm.h"
+#include "rdm_utils.h"
 //#include "rdmMgr.h"
 #include "unittest/mocks/mock_rdm_rbus.h"
 
