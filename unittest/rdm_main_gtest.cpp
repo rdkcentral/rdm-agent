@@ -4,7 +4,7 @@
 #include <gmock/gmock.h>
 #include "rdm.h"
 //#include "rdmMgr.h"
-#include "mock_rdm_rbus.h"
+#include "unittest/mocks/mock_rdm_rbus.h"
 
 MockRdmRbus* g_mockRdmRbus = nullptr;
 
