@@ -112,6 +112,7 @@ static VOID rdmHelp()
  *  @return  status.
  *  @retval  status.
  */
+#ifndef GTEST_ENABLE
 int main(int argc, char* argv[])
 {
     INT32 download_all        = 0;
@@ -323,3 +324,4 @@ error2:
 
     return ret;
 }
+#endif
