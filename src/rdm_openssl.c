@@ -641,6 +641,7 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
     }
     size_t sizeRead = fread(manifest, BUFSIZE, 1, manifest_fh);
     fclose(manifest_fh);
+    manifest_fh = NULL; // Set the file handle to NULL after closing
 
     // Ensure the buffer is null-terminated
     if (sizeRead < BUFSIZE) {
