@@ -215,7 +215,7 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
     strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
     sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
     strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
-    sec->cert_type[sizeof(sec->key_cert_type) - 1] = '\0';  // Ensure null termination
+    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
     sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
     RDMInfo("success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
