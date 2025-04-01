@@ -30,8 +30,8 @@
 #ifndef GTEST_ENABLE
 #include "json_parse.h"
 #include <downloadUtil.h>
-#endif
 #include "rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
