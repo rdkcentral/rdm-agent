@@ -6,7 +6,7 @@ bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
                rdm_usbinstall_gtest rdm_rbus_gtest rdm_downloadverapp_gtest codebig_utils_gtest rdm_openssl_gtest
 
 # Common include directories
-COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include    \
+COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include   -I./unittest/mocks \
                   -I/usr/include/gtest -I/usr/local/include/gtest  -I../src/codebig\
                   -DGTEST_ENABLE
 
