@@ -140,7 +140,10 @@ exit:
         rbusValue_Release(paramValue);
         paramValue = NULL;
     }
-
+    if(stringValue) {
+	free(stringValue);
+	stringValue = NULL;
+    }
     return ret;
 }
 
