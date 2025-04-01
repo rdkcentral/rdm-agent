@@ -27,9 +27,10 @@
 #include <time.h>
 
 #include <curl/curl.h>
-#include <json_parse.h>
+#ifndef GTEST_ENABLE
+#include "json_parse.h"
 #include <downloadUtil.h>
-
+#endif
 #include "rdmMgr.h"
 #include "rdm_types.h"
 #include "rdm.h"
