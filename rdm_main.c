@@ -32,7 +32,9 @@
 #include <downloadUtil.h>
 #include "rdmMgr.h"
 #endif
-include "unittest/mocks/rdmMgr.h"
+#ifdef GTEST_ENABLE
+#include "unittest/mocks/rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
