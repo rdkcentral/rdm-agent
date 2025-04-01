@@ -29,7 +29,9 @@
 #include <unistd.h>
 #include <signal.h>
 
+#ifdef GTEST_ENABLE
 #include "rbus.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_rbus.h"
