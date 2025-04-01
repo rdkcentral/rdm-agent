@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "rdm.h"
-#include "rdmMgr.h"
+//#include "rdmMgr.h"
 #include "mock_rdm_rbus.h"
 
 MockRdmRbus* g_mockRdmRbus = nullptr;
