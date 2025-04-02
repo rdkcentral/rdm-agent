@@ -249,12 +249,6 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         goto error;
     }
 
-    if(findPFile(pRdmAppDet->app_dwnl_path, "*.ipk", ipk_file)) {
-        /* Remove the ipk file */
-        RDMInfo("Removing %s after Extraction\n", ipk_file);
-        removeFile(ipk_file);
-    }
-
     RDMInfo("Download and Extraction Completed\n");
 
     if(pRdmAppDet->is_oss) {
