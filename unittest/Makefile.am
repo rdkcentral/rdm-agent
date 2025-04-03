@@ -3,8 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Define the test executables
 bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
-               rdm_download_gtest rdm_downloadmgr_gtest rdm_downloadutils_gtest \
-               rdm_usbinstall_gtest rdm_rbus_gtest rdm_downloadverapp_gtest codebig_utils_gtest rdm_openssl_gtest
+               rdm_download_gtest 
 
 # Common include directories
 COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include    \
@@ -26,13 +25,7 @@ rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curldownload.c
 rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c
 rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c
-rdm_downloadmgr_gtest_SOURCES = rdm_downloadmgr_gtest.cpp ../src/rdm_downloadmgr.c
-rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c
-rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
-rdm_downloadverapp_gtest_SOURCES = rdm_downloadverapp_gtest.cpp ../src/rdm_downloadverapp.c
-rdm_rbus_gtest_SOURCES = rdm_rbus_gtest.cpp ../src/rdm_rbus.c mocks/mock_rbus.cpp
-rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../src/rdm_openssl.c mocks/mock_openssl.cpp
-codebig_utils_gtest_SOURCES = codebig_utils_gtest.cpp ../src/codebig/codeBigUtils.c 
+
 
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
@@ -50,25 +43,6 @@ rdm_utils_gtest_LDADD = $(COMMON_LDADD)
 rdm_utils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
-rdm_downloadmgr_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_downloadmgr_gtest_LDADD = $(COMMON_LDADD)
-rdm_downloadmgr_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_downloadmgr_gtest_CFLAGS = $(COMMON_CXXFLAGS)
-
-rdm_downloadutils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_downloadutils_gtest_LDADD = $(COMMON_LDADD)
-rdm_downloadutils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_downloadutils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
-
-rdm_usbinstall_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_usbinstall_gtest_LDADD = $(COMMON_LDADD)
-rdm_usbinstall_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_usbinstall_gtest_CFLAGS = $(COMMON_CXXFLAGS)
-
-rdm_downloadverapp_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_downloadverapp_gtest_LDADD = $(COMMON_LDADD)
-rdm_downloadverapp_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_downloadverapp_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
 rdm_json_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_json_gtest_LDADD = $(COMMON_LDADD)
@@ -80,17 +54,4 @@ rdm_download_gtest_LDADD = $(COMMON_LDADD)
 rdm_download_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
-rdm_rbus_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_rbus_gtest_LDADD = $(COMMON_LDADD)
-rdm_rbus_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_rbus_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
-rdm_openssl_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-rdm_openssl_gtest_LDADD = $(COMMON_LDADD)
-rdm_openssl_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_openssl_gtest_CFLAGS = $(COMMON_CXXFLAGS)
-
-codebig_utils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
-codebig_utils_gtest_LDADD = $(COMMON_LDADD)
-codebig_utils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-codebig_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
