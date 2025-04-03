@@ -214,8 +214,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
         if(pRdmAppDet->is_usb) {
 
-	    snprintf(pRdmAppDet->app_dwnl_filepath, sizeof(pRdmAppDet->app_dwnl_filepath), "%s/%s", pRdmAppDet->app_dwnl_path, pRdmAppDet->pkg_name);
-	    /*size_t path_len = strlen(pRdmAppDet->app_dwnl_path);
+	    size_t path_len = strlen(pRdmAppDet->app_dwnl_path);
             size_t name_len = strlen(pRdmAppDet->pkg_name);
             size_t total_len = path_len + name_len + 2; // +2 for '/' and null terminator
 
@@ -227,7 +226,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             } else {
                 RDMError("Failed to copy download paths\n");
 		return RDM_FAILURE;
-            }*/
+            }
 
             status = copyFiles(pRdmAppDet->app_usb, pRdmAppDet->app_dwnl_filepath);
             if(status) {
