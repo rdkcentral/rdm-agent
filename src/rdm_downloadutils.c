@@ -248,7 +248,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) -1);
     strcat(file_dwnl.pathname, "/");
     strcat(file_dwnl.pathname, pPkgName);
-    file_dwnl.url[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
+    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
     strcpy(pOut, file_dwnl.pathname);
 
     if(rdmDwnlIsOCSPEnable()) {
