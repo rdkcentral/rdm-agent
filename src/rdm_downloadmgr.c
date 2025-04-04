@@ -67,12 +67,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     }
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
-	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 	    strcat(tmp_file, "/");
 	    strcat(tmp_file, pRdmAppDet->app_name);
 	    strcat(tmp_file, "_");
 	    strcat(tmp_file, pRdmAppDet->pkg_ver);
 	    strcat(tmp_file, ".tar");
+	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
 
 	    if(fileCheck(tmp_file)) {
 		    RDMInfo("tmp_file = %s\n", tmp_file);
