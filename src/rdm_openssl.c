@@ -184,7 +184,15 @@ static INT32 prepare_sig_file(CHAR *sig_file)
     FILE *file_out = fopen(RDM_TMP_SIGFILE, "w+");
 
     if (NULL == file_in || NULL == file_out)
+    {
+	if (file_in != NULL) {
+            fclose(file_in);
+        }
+        if (file_out != NULL) {
+            fclose(file_out);
+        }
         return 1;
+    }
 
     while((read = fread(buffer, sizeof(CHAR), sizeof(buffer), file_in)) > 0) {
         if(0 == skip && read > 6) {
@@ -215,7 +223,14 @@ static INT32 prepare_app_manifest(CHAR *etc_manifest_file,
     FILE *file_in = fopen(etc_manifest_file, "r");
     FILE *file_out = fopen(cache_manifest_file, "w+");
 
-    if(file_in == NULL || file_out == NULL) {
+    if (NULL == file_in || NULL == file_out)
+    {
+        if (file_in != NULL) {
+            fclose(file_in);
+        }
+        if (file_out != NULL) {
+            fclose(file_out);
+        }
         return 1;
     }
 
@@ -624,8 +639,16 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
         RDMError("memory allocation failed\n");
         goto error;
     }
-    fread(manifest, BUFSIZE, 1, manifest_fh);
+    size_t sizeRead = fread(manifest, BUFSIZE, 1, manifest_fh);
     fclose(manifest_fh);
+    manifest_fh = NULL; // Set the file handle to NULL after closing
+
+    // Ensure the buffer is null-terminated
+    if (sizeRead < BUFSIZE) {
+        manifest[sizeRead] = '\0';
+    } else {
+        manifest[BUFSIZE - 1] = '\0';
+    }
 
     path_buff = strtok(manifest, "\t\r\n");
 
@@ -675,6 +698,7 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
 error:
 
     if (data_fh != NULL)  fclose( data_fh );
+    if (manifest_fh != NULL)  fclose( manifest_fh );
     if (mdctx != NULL)    EVP_MD_CTX_destroy( mdctx );
     if (manifest != NULL) free( manifest );
     if (buffer != NULL)   free( buffer );
