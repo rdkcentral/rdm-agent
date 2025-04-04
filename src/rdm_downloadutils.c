@@ -437,9 +437,10 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
             continue;
         }
 
-        strncpy(filePath, tmp_file, RDM_APP_PATH_LEN);
+        strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
         strcat(filePath, "/");
         strcat(filePath, entry->d_name);
+	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
 
         RDMInfo("RDM Post script Execution %s\n", filePath);
 
