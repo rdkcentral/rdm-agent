@@ -68,6 +68,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
 	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+	    tmp_file[sizeof(tmp_file) - 1] = '\0';
 	    strcat(tmp_file, "/");
 	    strcat(tmp_file, pRdmAppDet->app_name);
 	    strcat(tmp_file, "_");
