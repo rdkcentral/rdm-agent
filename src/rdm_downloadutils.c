@@ -438,6 +438,7 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
         }
 
         strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
+	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
         strcat(filePath, "/");
         strcat(filePath, entry->d_name);
 	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
