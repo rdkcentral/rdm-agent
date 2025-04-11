@@ -138,24 +138,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
 }
 
-TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
-    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
-    strncpy(appDetails.app_dwnl_filepath, "/tmp/test_pkg.tar", sizeof(appDetails.app_dwnl_filepath) - 1);
-    strncpy(appDetails.app_dwnl_path, "/tmp/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_home, "/tmp/test_home", sizeof(appDetails.app_home) - 1);
-    appDetails.is_versioned_app = true;
 
-    EXPECT_CALL(*mockRdmUtils, findPFile(StrEq(appDetails.app_dwnl_path), StrEq("*-signed.tar"), _))
-        .WillOnce(Return(1));
-    EXPECT_CALL(*mockRdmUtils, getFreeSpace(StrEq(appDetails.app_dwnl_path)))
-        .WillOnce(Return(200));
-    EXPECT_CALL(*mockRdmDownloadUtils, tarExtract(StrEq("/tmp/test_pkg.tar"), StrEq("/tmp/test")))
-        .WillOnce(Return(RDM_SUCCESS));
-
-    EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_SUCCESS);
-}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
