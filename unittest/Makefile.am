@@ -22,7 +22,7 @@ COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
 # Define source files for each test
 rdm_main_gtest_SOURCES = rdm_main_gtest.cpp ../rdm_main.c 
 rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curldownload.c
-rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c ../src/rdm_downloadutils.c
+rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c ../src/rdm_downloadutils.c ../src/rdm_jsonquery.c ../src/rdm_rbus.c ../src/rdm_openssl.c
 rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c
 
