@@ -18,4 +18,9 @@ public:
         MOCK_METHOD1(rdmDwnlGetCert, int(MockMtlsAuth_t*));
 };
 
+struct MtlsAuth_t {
+    char cert_name[64];
+    char cert_type[16];
+    char key_pas[32];
+};
 #endif // MOCK_RDM_DOWNLOADUTILS_H
