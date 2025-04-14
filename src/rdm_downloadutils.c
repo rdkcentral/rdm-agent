@@ -540,12 +540,13 @@ static INT32 rdmDwnlReadSigFile(CHAR *sig_file, CHAR *pout)
  */
 INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 {
+    INT32 status = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR pkg_file[RDM_APP_PATH_LEN];
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR out_file[RDM_APP_PATH_LEN];
     CHAR dwnl_path[RDM_APP_PATH_LEN];
     CHAR app_home[RDM_APP_PATH_LEN];
-    INT32 status = RDM_SUCCESS;
     INT32 ssl_status = 0;
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
@@ -628,7 +629,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     if(out_buf) {
         free(out_buf);
     }
-
+#endif
     return status;
 }
 
