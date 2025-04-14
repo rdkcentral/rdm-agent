@@ -19,6 +19,8 @@
 #ifndef _RDM_DOWNLOADUTILS_H_
 #define _RDM_DOWNLOADUTILS_H_
 
+#include "urlHelper.h"
+
 //Define required file paths here
 #define RDM_DWNL_URL            "/path/to/my/url/file"
 #define RDM_DWNLSSR_URL         "/path/to/my/url/file"
@@ -75,4 +77,5 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 VOID rdmPrintAppDetails(RDMAPPDetails *pRdmAppDet);
 INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet);
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size);
+INT32 rdmDwnlGetCert(MtlsAuth_t *sec);
 #endif //_RDM_DOWNLOADUTILS_H_
