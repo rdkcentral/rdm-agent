@@ -699,9 +699,11 @@ error:
  **/
 INT32 rdmUnInstallApps(INT32  is_broadband)
 {
+    INT32 status                         = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
     CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
-    INT32 status                         = RDM_SUCCESS;
+
     INT32 numOfAppsInstalled             = 0;
     INT32 numOfAppsManifest              = 0;
     INT32 isAppUninstalled               = 0;
@@ -849,7 +851,7 @@ error:
        }
    }
    free(pApp_det);
-
+#endif
    return status;
 }
 
