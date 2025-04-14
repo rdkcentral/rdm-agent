@@ -33,6 +33,13 @@
 #define RDK_APP_PATH_LEN   256
 #define RDK_MB_SIZE        (1024 * 1024)
 
+
+typedef struct credential {
+    char cert_name[64];
+    char cert_type[16];
+    char key_pas[32];
+}MtlsAuth_t;
+
 /** Description: File present check.
  *
  *  @param file_name: The pointer to hold the file name.
