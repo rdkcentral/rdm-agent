@@ -15,6 +15,7 @@ public:
         MOCK_METHOD1(rdmDownloadMgr, int(RDMAPPDetails*));
         MOCK_METHOD2(rdmDwnlUnInstallApp, void(const char*, const char*));
         MOCK_METHOD1(rdmDownloadVerApp, int(RDMAPPDetails*));
+        MOCK_METHOD1(rdmDwnlGetCert, int(MockMtlsAuth_t*));
 };
 
 #endif // MOCK_RDM_DOWNLOADUTILS_H
