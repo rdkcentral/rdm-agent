@@ -21,6 +21,7 @@
 #define VIDEO_UTILS_SYSTEM_UTILS_H_
 
 #include "rdk_fwdl_utils.h"
+#include <cjson/cJSON.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
