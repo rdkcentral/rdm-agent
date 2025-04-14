@@ -27,11 +27,11 @@
 #include <system_utils.h>
 #include <json_parse.h>
 #include <downloadUtil.h>
+#include "codebigUtils.h"
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
 
-#include "codebigUtils.h"
 #include "rdmMgr.h"
 #include "rdm_types.h"
 #include "rdm.h"
