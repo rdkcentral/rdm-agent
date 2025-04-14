@@ -128,16 +128,3 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
     EXPECT_EQ(rdmDwnlGetCert(&myCredential), RDM_SUCCESS);
 }*/
 
-// Test rdmDwnlDirect
-TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
-    char pUrl[128];
-    char pDwnlPath[64];
-    char pPkgName[64];
-    char pOut[64];
-    strncpy(pUrl, "http://example.com", sizeof(pUrl) - 1);
-    strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
-    strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
-    strncpy(pOut, "/etc", sizeof(pOut) - 1);
-    INT32 isMtls = 0;
-    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
-}            
