@@ -23,9 +23,13 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdbool.h>
-#include <json_parse.h>
-#include <downloadUtil.h>
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#include <json_parse.h>
+#else
+#include "unittest/mocks/system_utils.h"
+#endif
+#include <downloadUtil.h>
 
 #include "codebigUtils.h"
 #include "rdmMgr.h"
