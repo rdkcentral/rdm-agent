@@ -8,6 +8,7 @@ extern "C" {
 #include "rdm.h"
 #include "rdm_utils.h"
 #include "rdm_download.h"
+#include "rdm_downloadutils.h"
 #include <dirent.h>
 #include <string.h>
 #include <cstdlib>
