@@ -134,7 +134,7 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
 TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     char pUrl[128];
     char pDwnlPath[64];
-    char pDwnlPath[64];
+    char pPkgName[64];
     char pOut[64];
     strncpy(pUrl, "http://example.com", sizeof(pUrl) - 1);
     strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
