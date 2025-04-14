@@ -28,11 +28,12 @@
 #include <json_parse.h>
 #include <downloadUtil.h>
 #include "codebigUtils.h"
+#include "rdmMgr.h"
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
 
-#include "rdmMgr.h"
+
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
