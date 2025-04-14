@@ -25,7 +25,6 @@
 #include "rdm.h"
 #include "rdm_jsonquery.h"
 #include "rdm_openssl.h"
-#include "rdm_rbus.h"
 #include <cjson/cJSON.h>
 #include <unistd.h>
 #include <sys/stat.h>
