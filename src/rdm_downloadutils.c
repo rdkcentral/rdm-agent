@@ -855,6 +855,7 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
                           RDMAPPDetails *pRdmAppDet,
                           INT32 is_broadband)
 {
+#ifndef GTEST_ENABLE
     INT32 ret = RDM_SUCCESS;
 
     if(is_broadband) {
@@ -914,7 +915,7 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     strcat(pRdmAppDet->app_dwnl_url, "/");
     strcat(pRdmAppDet->app_dwnl_url, pRdmAppDet->pkg_name);
-
+#endif
     return RDM_SUCCESS;
 }
 
