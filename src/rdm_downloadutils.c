@@ -31,6 +31,7 @@
 #include "rdmMgr.h"
 #else
 #include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/rdmMgr.h"
 #endif
 
 
