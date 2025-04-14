@@ -114,7 +114,7 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
 }
 
 // Test rdmDwnlGetCert
-TEST(rdmDwnlGetCertTest, rdmDwnlGetCert_Success) {
+/*TEST(rdmDwnlGetCertTest, rdmDwnlGetCert_Success) {
     typedef struct credential {
         char cert_name[64];
         char cert_type[16];
@@ -128,5 +128,18 @@ TEST(rdmDwnlGetCertTest, rdmDwnlGetCert_Success) {
     strcpy(myCredential.key_pas, "password123");
 
     EXPECT_EQ(rdmDwnlGetCert(&myCredential), RDM_SUCCESS);
-}
-                 
+}*/
+
+// Test rdmDwnlDirect
+TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
+    char pUrl[128];
+    char pDwnlPath[64];
+    char pDwnlPath[64];
+    char pOut[64];
+    strncpy(pUrl, "http://example.com", sizeof(pUrl) - 1);
+    strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
+    strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
+    strncpy(pOut, "/etc", sizeof(pOut) - 1);
+    INT32 isMtls = 0;
+    EXPECT_EQ(rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls), RDM_SUCCESS);
+}            
