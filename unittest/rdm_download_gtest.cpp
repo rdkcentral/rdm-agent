@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
+#include "mocks/system_utils.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
@@ -45,8 +46,8 @@ extern "C"{
         return mockRdmUtils->doCurlInit();
     }
 
-    INT32 doHttpFileDownload(void* curl, char* file_dwnl, int* sec, int* max_dwnl_speed, NULL, &httpCode) {
-        return mockRdmUtils->checkFileSystem(path);
+    INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
+        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
     }
 
     void doStopDownload(void* curl) {
