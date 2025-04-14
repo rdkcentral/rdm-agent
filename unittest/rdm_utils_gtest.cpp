@@ -141,5 +141,5 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
-    EXPECT_EQ(rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls), RDM_SUCCESS);
+    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 }            
