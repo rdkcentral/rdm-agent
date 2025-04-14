@@ -58,6 +58,8 @@ typedef struct filedwnl {
         hashParam_t *hashData;
 }FileDwnl_t;
 
+typedef cJSON   JSON;
+
 /** Description: File present check.
  *
  *  @param file_name: The pointer to hold the file name.
