@@ -41,6 +41,18 @@ extern "C"{
         return mockRdmUtils->createDir(path);
     }
 
+    CURL doCurlInit(const char* path) {
+        return mockRdmUtils->checkFileSystem(path);
+    }
+
+    INT32 doHttpFileDownload(int curl, &file_dwnl, &sec, max_dwnl_speed, NULL, &httpCode) {
+        return mockRdmUtils->checkFileSystem(path);
+    }
+
+    INT32 doStopDownload(int curl) {
+        return mockRdmUtils->checkFileSystem(path);
+    }
+
     INT32 rdmDownloadMgr(RDMAPPDetails* appDetails) {
         return mockRdmDownloadUtils->rdmDownloadMgr(appDetails);
     }
