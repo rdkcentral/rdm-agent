@@ -32,6 +32,7 @@
 #define RDK_FILEPATH_LEN    128
 #define RDK_APP_PATH_LEN   256
 #define RDK_MB_SIZE        (1024 * 1024)
+#define DIRECT_BLOCK_FILENAME /tmp/.lastDirectFailed 
 
 
 typedef struct credential {
@@ -39,6 +40,23 @@ typedef struct credential {
     char cert_type[16];
     char key_pas[32];
 }MtlsAuth_t;
+typedef struct CommonDownloadData {
+    void* pvOut;
+    size_t datasize;        // data size
+    size_t memsize;         // allocated memory size (if applicable)
+} DownloadData;
+
+typedef struct filedwnl {
+        char *pPostFields;
+        char *pHeaderData;
+        DownloadData *pDlData;
+        DownloadData *pDlHeaderData;
+        int chunk_dwnl_retry_time;
+        char url[128];
+        char pathname[64];
+        bool sslverify;
+        hashParam_t *hashData;
+}FileDwnl_t;
 
 /** Description: File present check.
  *
