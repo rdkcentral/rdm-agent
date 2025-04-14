@@ -21,6 +21,7 @@
 #define VIDEO_UTILS_SYSTEM_UTILS_H_
 
 #include "rdk_fwdl_utils.h"
+#include "rdm_types.h"
 #include "rdm_jsonquery.h"
 #include "rdm_openssl.h"
 #include "rdm_rbus.h"
