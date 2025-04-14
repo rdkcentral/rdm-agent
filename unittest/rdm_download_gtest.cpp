@@ -41,16 +41,16 @@ extern "C"{
         return mockRdmUtils->createDir(path);
     }
 
-    CURL doCurlInit(const char* path) {
+    void* doCurlInit() {
+        return mockRdmUtils->doCurlInit();
+    }
+
+    INT32 doHttpFileDownload(void* curl, char* file_dwnl, int* sec, int* max_dwnl_speed, NULL, &httpCode) {
         return mockRdmUtils->checkFileSystem(path);
     }
 
-    INT32 doHttpFileDownload(int curl, &file_dwnl, &sec, max_dwnl_speed, NULL, &httpCode) {
-        return mockRdmUtils->checkFileSystem(path);
-    }
-
-    INT32 doStopDownload(int curl) {
-        return mockRdmUtils->checkFileSystem(path);
+    void doStopDownload(void* curl) {
+        return mockRdmUtils->doStopDownload(curl);
     }
 
     INT32 rdmDownloadMgr(RDMAPPDetails* appDetails) {
