@@ -46,6 +46,11 @@ typedef struct CommonDownloadData {
     size_t memsize;         // allocated memory size (if applicable)
 } DownloadData;
 
+typedef struct hashParam {
+    char *hashvalue;
+    char *hashtime;
+}hashParam_t;
+
 typedef struct filedwnl {
         char *pPostFields;
         char *pHeaderData;
