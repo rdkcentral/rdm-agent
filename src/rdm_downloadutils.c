@@ -458,12 +458,13 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 
     return RDM_SUCCESS;
 }
-
+#ifndef GTEST_ENABLE
 VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
 {
     rdmDwnlCleanUp(pDwnlPath);
     rdmDwnlAppCleanUp(pAppPath);
 }
+#endif
 
 /** @brief This Function updates the manifest file.
  *
