@@ -2,6 +2,7 @@
 #define MOCK_RDM_UTILS_H
 
 #include <gmock/gmock.h>
+#include "system_utils.h"
 
 extern "C" {
     #include "rdm_types.h"
@@ -16,6 +17,8 @@ public:
     MOCK_METHOD1(emptyFolder, INT32(const CHAR*));
     MOCK_METHOD1(getFreeSpace, UINT32(const CHAR*));
     MOCK_METHOD1(createDir, INT32(const CHAR*));
+    MOCK_METHOD(doCurlInit, void*());
+    MOCK_METHOD(doHttpFileDownload, INT32(void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*));
 };
 
 #endif // MOCK_RDM_UTILS_H
