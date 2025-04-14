@@ -33,7 +33,7 @@
 #define RDK_FILEPATH_LEN    128
 #define RDK_APP_PATH_LEN   256
 #define RDK_MB_SIZE        (1024 * 1024)
-#define DIRECT_BLOCK_FILENAME /tmp/.lastDirectFailed 
+#define DIRECT_BLOCK_FILENAME "/tmp/.lastdirectfail_cdl"
 
 
 typedef struct credential {
