@@ -47,9 +47,11 @@
 
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
+    UINT32 modification_time = 0;
+#ifndef GTEST_ENABLE
     UINT32 current_time = 0;
     UINT32 last_mod_time = 0;
-    UINT32 modification_time = 0;
+
     INT32  remtime = 0;
 
     last_mod_time = getFileLastModifyTime(file);
@@ -66,14 +68,17 @@ UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
             modification_time = 0;
         }
     }
+#endif
     return modification_time;
 }
 
 INT32 rdmDwnlUpdateURL(CHAR *pUrl)
 {
+    INT32 status = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR dwnl_url[MAX_BUFF_SIZE];
     FILE *fp  = NULL;
-    INT32 status = RDM_SUCCESS;
+
 
     if(fileCheck(RDM_DWNL_URL)) {
         copyFiles(RDM_DWNL_URL, RDM_DWNLSSR_URL);
@@ -114,6 +119,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
         RDMError("RDM download url is not available in both %s and RFC parameter. Exiting...\n", RDM_DWNLSSR_URL);
         status = RDM_FAILURE;
     }
+#endif
     return status;
 }
 
@@ -155,6 +161,7 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 
 VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
 {
+#ifndef GTEST_ENABLE
     INT32  fs_status = RDM_SUCCESS;
 
     fs_status = emptyFolder(pDwnlPath);
@@ -163,10 +170,12 @@ VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
     }
 
     removeFile(pDwnlPath);
+#endif
 }
 
 VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
 {
+#ifndef GTEST_ENABLE
     INT32  fs_status = RDM_SUCCESS;
 
     fs_status = emptyFolder(pAppPath);
@@ -175,6 +184,7 @@ VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
     }
 
     removeFile(pAppPath);
+#endif
 }
 
 VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
@@ -271,7 +281,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
             return RDM_FAILURE;
         }
     }
-
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("Failed init curl\n");
@@ -290,7 +299,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     }
 
     doStopDownload(curl);
-
     return status;
 }
 
@@ -342,9 +350,11 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
  * */
 INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
 {
+    INT32 ret = 0;
+#ifndef GTEST_ENABLE
     JSON *pJson = NULL;
     INT8  status[8];
-    INT32 ret = -1;
+    ret = -1;
 
     if (token == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -362,6 +372,7 @@ INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
             ret = 0;
         }
     }
+#endif
     return ret;
 }
 
@@ -416,6 +427,7 @@ VOID rdmMemDLFree(VOID *pvDwnData)
 
 INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 {
+#ifndef GTEST_ENABLE
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
     DIR *dir;
@@ -455,7 +467,7 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
     }
 
     closedir(dir);
-
+#endif
     return RDM_SUCCESS;
 }
 #ifndef GTEST_ENABLE
@@ -644,6 +656,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
 {
     INT32 ret           = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     INT32 len           = 0;
     INT32 idx           = 0;
 
@@ -688,6 +701,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
     *numOfApps = idx;
 
 error:
+#endif
     return ret;
 }
 
@@ -958,8 +972,10 @@ INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet)
  * */
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
 {
+    INT32 ret = 0;
+#ifndef GTEST_ENABLE
     JSON *pJson = NULL;
-    INT32 ret = -1;
+    ret = -1;
 
     if (result == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -974,6 +990,6 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
         FreeJson(pJson);
         ret = 0;
     }
-
+#endif
     return ret;
 }
