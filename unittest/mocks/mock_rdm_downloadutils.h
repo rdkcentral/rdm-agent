@@ -15,7 +15,7 @@ public:
         MOCK_METHOD1(rdmDownloadMgr, int(RDMAPPDetails*));
         MOCK_METHOD2(rdmDwnlUnInstallApp, void(const char*, const char*));
         MOCK_METHOD1(rdmDownloadVerApp, int(RDMAPPDetails*));
-        MOCK_METHOD1(rdmDwnlGetCert, int(MockMtlsAuth_t*));
+        //MOCK_METHOD1(rdmDwnlGetCert, int(MockMtlsAuth_t*));
 };
 
 struct MtlsAuth_t {
