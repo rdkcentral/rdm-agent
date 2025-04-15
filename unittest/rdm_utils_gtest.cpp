@@ -111,3 +111,4 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
 
     EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs), RDM_FAILURE);
 }
+
