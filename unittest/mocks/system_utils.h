@@ -89,6 +89,7 @@ int filePresentCheck(const char *file_name);
  *          RDK_API_FAILURE -1
  *  NOTE: The size_buff should not less than equal zero or greater than 4096 byte
  */
+extern "C"{
 int cmdExec(const char *cmd, char *output, unsigned int size_buff);
 
 int getFileSize(const char *file_name);
@@ -126,5 +127,6 @@ void  qsString(char *arr[], unsigned int length);
 int strRmDuplicate(char **in, int len);
 int isDataInList(char **pList,char *pData,int count);
 void getStringValueFromFile(char* path, char* strtokvalue, char* string, char* outValue);
+}
 #endif /* VIDEO_UTILS_SYSTEM_UTILS_H_ */
 
