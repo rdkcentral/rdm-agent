@@ -21,7 +21,7 @@ using ::testing::StrEq;
 
 MockRdmUtils* mockRdmUtils;
 MockRdmDownloadUtils* mockRdmDownloadUtils;
-extern "C"{
+
     INT32 checkFileSystem(const char* path) {
         return mockRdmUtils->checkFileSystem(path);
     }
@@ -65,7 +65,7 @@ extern "C"{
     INT32 rdmDownloadVerApp(RDMAPPDetails* appDetails) {
         return mockRdmDownloadUtils->rdmDownloadVerApp(appDetails);
     }
-}
+
 
 class RDMDownloadTest : public ::testing::Test {
 protected:
