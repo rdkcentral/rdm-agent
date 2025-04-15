@@ -105,13 +105,13 @@ int createFile(const char *file_name);
 int eraseTGZItemsMatching(const char *folder, const char* file_name);
 size_t GetHwMacAddress( char *iface, char *pMac, size_t szBufSize );
 /* Filesystem functions */
-unsigned int getFreeSpace(char *path);
-unsigned int checkFileSystem(char *path);
+UNIT32 getFreeSpace(char *path);
+INT32 checkFileSystem(char *path);
 int  findSize(char *fileName);
 int  findFile(char *dir, char *search);
-int  findPFile(char *dir, char *search, char *out);
+INT32  findPFile(char *dir, char *search, char *out);
 int  findPFileAll(char *path, char *search, char **out, int *found_t, int max_list);
-int  emptyFolder(char *dir);
+INT32  emptyFolder(char *dir);
 int  removeFile(char *filePath);
 int  copyFiles(char *src, char *dst);
 int  fileCheck(char *pFilepath);
