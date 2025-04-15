@@ -34,9 +34,11 @@
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
 #include <secure_wrapper.h>
+#define STATIC
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/secure_wrapper.h"
+#define STATIC static
 #endif
 #ifdef LIBRDKCONFIG_BUILD
 #include "rdkconfig.h"
@@ -103,7 +105,7 @@ void dump_buffer(void *buffer, INT32 buffer_size, CHAR *name)
   *
   * @note ASCII '0' = 0x30,'A' = 0x41. Case conversion/enforcement is based on same assumption.
   */
-static
+STATIC
 INT32 asciihex_to_bin(const CHAR *asciihex,
                       size_t asciihex_length,
                       UINT8 *bin,
@@ -150,7 +152,7 @@ INT32 asciihex_to_bin(const CHAR *asciihex,
  * @retval -1  Bad input args, length returned if too small.
  * @retval  0  All inputs OK, conversion returned.
  */
-static
+STATIC
 INT32 bin_to_asciihex(const UINT8 *bin,
                       size_t bin_length,
                       CHAR *asciihex,
@@ -180,7 +182,7 @@ INT32 bin_to_asciihex(const UINT8 *bin,
     return 0;
 }
 
-static INT32 prepare_sig_file(CHAR *sig_file)
+STATIC INT32 prepare_sig_file(CHAR *sig_file)
 {
     CHAR buffer[512] = {0};
     INT32 read = 0, skip = 0;
@@ -209,7 +211,7 @@ static INT32 prepare_sig_file(CHAR *sig_file)
     return 0;
 }
 
-static INT32 prepare_app_manifest(CHAR *etc_manifest_file,
+STATIC INT32 prepare_app_manifest(CHAR *etc_manifest_file,
                                   CHAR *cache_manifest_file,
                                   CHAR* padding_file,
                                   CHAR *prefix) {
@@ -275,7 +277,7 @@ static int prepare_kms_pubkey() {
  * 2. Prepare cpe manifest file with correct path to extracted files
  * 3. Decrypt kms public key
  */
-static INT32 prepare_rdm_files_for_sign_verification(CHAR *cache_dir,
+STATIC INT32 prepare_rdm_files_for_sign_verification(CHAR *cache_dir,
                                                      CHAR *app_name)
 {
     CHAR *app_cache_dir = NULL;
@@ -379,7 +381,7 @@ void rdmInitSslLib(void)
  * @ret returns  -1                         Bad parameters, including bad length.  *buffer_len contains required len.
  * @ret returns   2                         Failed reading sig_file, no sig check done, reply_msg has response
  */
-static
+STATIC
 INT32 read_signature_file(const CHAR *sig_file,
                           UINT8 **sig_buffer,
                           INT32 *sig_size)
@@ -402,7 +404,7 @@ INT32 read_signature_file(const CHAR *sig_file,
  * @{
  */
 
-static
+STATIC
 INT32 manifest_file_size(const CHAR *data_file, INT32 *buffer_size)
 {
     FILE *data_fh = NULL;
@@ -455,7 +457,7 @@ error:
  * @ret returns -1                Bad parameters, including bad length.
  * @ret returns 3                 Openssl returned some sort of error.
  */
-static
+STATIC
 INT32 rdm_openssl_file_hash_sha256(const CHAR *data_file,
                                    size_t file_len,
                                    UINT8 *hash_buffer,
@@ -567,7 +569,7 @@ error:
  * @retval -1                     Bad parameters, including bad length.
  * @retval 3                      Openssl returned some sort of error.
  */
-static
+STATIC
 INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
                                                   size_t file_len,
                                                   UINT8 *hash_buffer,
@@ -700,7 +702,7 @@ error:
  * @ret returns -1                    Bad parameters, including bad length.  *buffer_len contains required len.
  */
 
-static
+STATIC
 INT32 openssl_verify_signature(const UINT8 *hashval,
                                INT32 hashval_len,
                                const CHAR *sig_file,
