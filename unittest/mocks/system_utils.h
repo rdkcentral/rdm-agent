@@ -105,7 +105,7 @@ int createFile(const char *file_name);
 int eraseTGZItemsMatching(const char *folder, const char* file_name);
 size_t GetHwMacAddress( char *iface, char *pMac, size_t szBufSize );
 /* Filesystem functions */
-UNIT32 getFreeSpace(char *path);
+UINT32 getFreeSpace(char *path);
 INT32 checkFileSystem(char *path);
 int  findSize(char *fileName);
 int  findFile(char *dir, char *search);
