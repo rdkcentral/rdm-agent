@@ -1,4 +1,6 @@
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+using ::testing::Return; 
 #include <cstring>
 #include <openssl/evp.h>
 
