@@ -53,10 +53,10 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
 
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((mockReturnValue, &fileVar, &myAuth, 0, NULL, NULL)))
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &fileVar, &myAuth, 0, NULL, NULL))
         .WillOnce(Return(0));
     
-    EXPECT_CALL(*mockRdmUtils, doStopDownload((::testing::_)));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
 
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 
