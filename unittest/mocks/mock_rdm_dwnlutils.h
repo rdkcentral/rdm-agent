@@ -10,7 +10,7 @@ extern "C" {
     #include "system_utils.h"
 }
 
-class MockRdmUtils {
+class MockRdmDwnlUtils {
 public:
     MOCK_METHOD(void*, doCurlInit, (), ());
     MOCK_METHOD(INT32, doHttpFileDownload, (void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*), ());

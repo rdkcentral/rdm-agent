@@ -17,7 +17,7 @@ extern "C" {
 using ::testing::_;
 using ::testing::Return;
 
-MockRdmUtils* mockRdmUtils = new MockRdmUtils();
+MockRdmDwnlUtils* mockRdmUtils = new MockRdmUtils();
 extern "C"{
     void* doCurlInit() {
         return mockRdmUtils->doCurlInit();
