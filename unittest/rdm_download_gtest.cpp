@@ -165,13 +165,13 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     INT32 isMtls = 0;
 
     void* mockReturnValue = static_cast<void*>(new int(42)); 
-    EXPECT_CALL(*mockRdmUtils, doCurlInit(())
+    EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
     
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_,))
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_,)))
         .WillOnce(Return(0));
     
-    EXPECT_CALL(*mockRdmUtils, doStopDownload((mockReturnValue));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload((mockReturnValue)));
     
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 }
