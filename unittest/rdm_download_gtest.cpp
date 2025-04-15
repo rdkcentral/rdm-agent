@@ -19,6 +19,7 @@ using ::testing::Return;
 using ::testing::StrEq;
 
 
+MockRdmUtils* mockRdmUtils2 = new MockRdmUtils();
 MockRdmUtils* mockRdmUtils;
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 extern "C" {
@@ -43,7 +44,7 @@ extern "C" {
     }
 
     void* doCurlInit() {
-        return mockRdmUtils->doCurlInit();
+        return mockRdmUtils2->doCurlInit();
     }
 
     /*INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
@@ -165,7 +166,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     INT32 isMtls = 0;
 
     void* mockReturnValue = static_cast<void*>(new int(42)); 
-    EXPECT_CALL(*mockRdmUtils, doCurlInit())
+    EXPECT_CALL(*mockRdmUtils2, doCurlInit())
         .WillOnce(Return(mockReturnValue));
     
     /*EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_)))
