@@ -175,6 +175,10 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_CALL(*mockRdmUtils, doStopDownload((mockReturnValue)));*/
     
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
+    
+delete static_cast<int*>(mockReturnValue);
+delete mockRdmUtils;
+
 }
 
 int main(int argc, char** argv) {
