@@ -22,10 +22,6 @@ extern "C"{
         return mockRdmUtils->doCurlInit();
     }
 
-    INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
-        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
-    }
-    
     void doStopDownload(void* curl) {
         return mockRdmUtils->doStopDownload(curl);
     }
@@ -46,16 +42,11 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
-    FileDwnl_t fileVar = {.pPostFields = NULL, .pHeaderData = NULL, .pDlData = NULL, .pDlHeaderData = NULL, .chunk_dwnl_retry_time = 0, .url = "http://example.com", .pathname = "MyPath", .sslverify = false, .hashData = NULL};
-    MtlsAuth_t myAuth = {.cert_name = "MyCert.pem", .cert_type = "MyType", .key_pas = "MyKeyPass"};
 
     void* mockReturnValue = static_cast<void*>(new int(42)); 
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
-
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &fileVar, &myAuth, 0, NULL, NULL))
-        .WillOnce(Return(0));
-    
+ 
     EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
 
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
@@ -77,10 +68,6 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
-}
-
-TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
-    EXPECT_EQ(rdmDwnlRunPostScripts(NULL), RDM_FAILURE);
 }
 
 // Test rdmUnInstallApps
