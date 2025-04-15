@@ -183,13 +183,13 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     int mockHttpCode = 0;
 
 
-    /*EXPECT_CALL(*mockRdmUtils, doCurlInit())
+    EXPECT_CALL(*mockRdmUtils, doCurlInit(void))
         .WillOnce(Return(mockReturnValue));
 
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &mockFileDwnl, &mockAuth, mockMaxDwnlSpeed, mockDnlStartPos, &mockHttpCode))
-        .WillOnce(Return(0));*/
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(0));
 
-    EXPECT_CALL(*mockRdmUtils, doStopDownload(mockReturnValue));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
     
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 }
