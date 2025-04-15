@@ -4,8 +4,9 @@
 
 // Include the header file for the functions being tested
 extern "C" {
+    #include "rdm_types.h"  
     #include "rdm_openssl.h"
-    #include "rdm_types.h"
+   
 }
 
 TEST(OpenSSLTests, AsciiHexToBin_ValidInput) {
