@@ -19,6 +19,10 @@
 #ifndef _RDM_DOWNLOADUTILS_H_
 #define _RDM_DOWNLOADUTILS_H_
 
+#ifdef GTEST_ENABLE
+#include "../unittest/mocks/system_utils.h"
+#endif
+
 //Define required file paths here
 #define RDM_DWNL_URL            "/path/to/my/url/file"
 #define RDM_DWNLSSR_URL         "/path/to/my/url/file"
