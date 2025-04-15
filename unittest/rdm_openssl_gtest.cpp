@@ -17,7 +17,6 @@ class MockRdmOpenssl {
 public:
     MOCK_METHOD(int, asciihex_to_bin, (const char* asciihex, size_t asciihex_length, uint8_t* bin, size_t* bin_length));
     MOCK_METHOD(int, bin_to_asciihex, (const uint8_t* bin, size_t bin_length, char* asciihex, size_t* asciihex_length));
-    MOCK_METHOD(void, dump_buffer, (void* buffer, int32_t buffer_size, char* name));
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
 };
 
@@ -34,9 +33,7 @@ extern "C" {
         return global_mock->bin_to_asciihex(bin, bin_length, asciihex, asciihex_length);
     }
 
-   extern "C"  void dump_buffer(void* buffer, int32_t buffer_size, char* name) {
-        global_mock->dump_buffer(buffer, buffer_size, name);
-    }
+   
 
     int rdm_openssl_file_hash_sha256(const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len) {
         return global_mock->rdm_openssl_file_hash_sha256(data_file, file_len, hash_buffer, buffer_len);
@@ -104,18 +101,15 @@ TEST(OpenSSLTests, BinToAsciiHex_ValidInput) {
 }
 
 TEST(OpenSSLTests, DumpBuffer_DebugEnabled) {
-    MockRdmOpenssl mock;
-    global_mock = &mock;
-
     char buffer[] = "Test buffer";
     int32_t buffer_size = strlen(buffer);
     char name[] = "test_file";
 
-    EXPECT_CALL(mock, dump_buffer(buffer, buffer_size, name))
-        .Times(1);
-
+    // Call the actual `dump_buffer` implementation
     dump_buffer(buffer, buffer_size, name);
-    global_mock = nullptr;
+
+    // If `dump_buffer` logs or prints, capture and validate the output if necessary
+    SUCCEED(); // Test passes if no exceptions or errors
 }
 
 TEST(OpenSSLTests, RdmOpensslFileHashSha256_ValidInput) {
