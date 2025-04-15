@@ -18,7 +18,7 @@ public:
     MOCK_METHOD1(getFreeSpace, UINT32(const CHAR*));
     MOCK_METHOD1(createDir, INT32(const CHAR*));
     MOCK_METHOD0(doCurlInit, void*());
-    MOCK_METHOD6(doHttpFileDownload, INT32(void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*));
+    //MOCK_METHOD6(doHttpFileDownload, INT32(void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*));
     MOCK_METHOD1(doStopDownload, void(void*));
 };
 
