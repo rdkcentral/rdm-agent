@@ -33,6 +33,10 @@ extern "C"{
     void copyCommandOutput(char *filePath, char *fileOut, int len) {
         return mockRdmUtils->copyCommandOutput(filePath, fileOut, len);
     }
+
+    INT32 findPFile(const char* path, const char* pkg, char* tmp_file) {
+        return mockRdmUtils->findPFile(path, pkg, tmp_file);
+    }
 }
 
 // Test rdmDwnlDirect

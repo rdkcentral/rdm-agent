@@ -31,8 +31,12 @@
 #include "rdm.h"
 #include "rdm_utils.h"
 #include "rdm_openssl.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
 #include <secure_wrapper.h>
+#else
+#include "unittest/mocks/system_utils.h"
+#endif
 #ifdef LIBRDKCONFIG_BUILD
 #include "rdkconfig.h"
 #endif
