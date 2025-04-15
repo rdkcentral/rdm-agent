@@ -281,6 +281,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
             return RDM_FAILURE;
         }
     }
+#ifndef GTEST_ENABLE
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("Failed init curl\n");
@@ -299,6 +300,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     }
 
     doStopDownload(curl);
+#endif
     return status;
 }
 
