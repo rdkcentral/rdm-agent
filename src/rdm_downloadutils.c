@@ -126,6 +126,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
 INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 {
     INT32 status = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR  tmp[RDM_APP_PATH_LEN]  = {0};
 
     strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
@@ -155,7 +156,7 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
     if(status) {
         return RDM_FAILURE;
     }
-
+#endif
     return status;
 }
 
