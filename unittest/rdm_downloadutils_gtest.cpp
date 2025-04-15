@@ -80,7 +80,23 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
 }
 
+// Test rdmDwnlValidation
+TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
+    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    appDetails.app_size_mb = 100;
+    appDetails.bFsCheck = true;
+    appDetails.is_versioned = false;
+    appDetails.is_usb = 0;
+    appDetails.app_size_kb = 100;
 
+    EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
+}
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
