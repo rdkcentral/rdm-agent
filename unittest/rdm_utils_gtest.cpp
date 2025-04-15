@@ -4,9 +4,10 @@
 extern "C" {
 #include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
-#include "unittest/mocks/mock_rdm_utils.h"
+#include "rdm_types.h"
+#include "rdm.h"
+#include "rdm_utils.h"
 #include "rdm_download.h"
-#include "rdm_downloadutils.h"
 #include <dirent.h>
 #include <string.h>
 #include <cstdlib>
