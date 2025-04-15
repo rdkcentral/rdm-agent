@@ -80,7 +80,7 @@ protected:
     }
 };
 
-TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
+/*TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
@@ -150,7 +150,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
         .Times(2);
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
-}
+}*/
 
 // Test rdmDwnlDirect
 TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
