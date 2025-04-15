@@ -34,11 +34,11 @@
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
 #include <secure_wrapper.h>
-#define STATIC
+#define STATIC static
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/secure_wrapper.h"
-#define STATIC static
+#define STATIC 
 #endif
 #ifdef LIBRDKCONFIG_BUILD
 #include "rdkconfig.h"
