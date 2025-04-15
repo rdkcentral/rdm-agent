@@ -123,6 +123,7 @@ int  folderCheck(char *path);
 int  tarExtract(char *in_file, char *out_path);
 int  arExtract(char *in_file, char *out_path);
 void copyCommandOutput (char *cmd, char *out, int len);
+INT32 doHttpFileDownload(void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*);
 unsigned int getFileLastModifyTime(char *file_name);
 time_t getCurrentSysTimeSec(void);
 int  getProcessID(char *in_file, char *out_path);
