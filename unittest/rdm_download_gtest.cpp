@@ -153,7 +153,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
 }
 
 // Test rdmDwnlDirect
-/*TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
+TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     char pUrl[128];
     char pDwnlPath[64];
     char pPkgName[64];
@@ -163,8 +163,51 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
+    void* mockReturnValue = static_cast<void*>(new int(0));
+    
+    // Initialize DownloadData objects
+    DownloadData defaultDownloadData = { nullptr, 0, 0 };
+    DownloadData defaultDownloadHeaderData = { nullptr, 0, 0 };
+
+    // Initialize hashParam object
+    hashParam_t defaultHashParam = { "defaultHashValue", "defaultHashTime" };
+
+    // Initialize FileDwnl_t object with default values
+    FileDwnl_t mockFileDwnl = {
+    .pPostFields = "defaultPostFields",
+    .pHeaderData = "defaultHeaderData",
+    .pDlData = &defaultDownloadData,
+    .pDlHeaderData = &defaultDownloadHeaderData,
+    .chunk_dwnl_retry_time = 5,
+    .url = "http://default.url",
+    .pathname = "/default/path",
+    .sslverify = false,
+    .hashData = &defaultHashParam
+    };
+
+    
+    // Initialize MtlsAuth_t object with default values
+    MtlsAuth_t mockAuth = {
+    .cert_name = "defaultCertName",
+    .cert_type = "defaultCertType",
+    .key_pas = "defaultKeyPassword"
+    };
+    
+    unsigned int mockMaxDwnlSpeed = 10;
+    char mockDnlStartPos[] = "start_pos";
+    int mockHttpCode = 0;
+
+
+    EXPECT_CALL(*mockRdmUtils, doCurlInit())
+        .WillOnce(Return(mockReturnValue));
+
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &mockFileDwnl, &mockAuth, mockMaxDwnlSpeed, mockDnlStartPos, &mockHttpCode))
+        .WillOnce(Return(0));
+
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(mockReturnValue));
+    
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
-}*/
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
