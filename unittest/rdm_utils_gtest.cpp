@@ -111,21 +111,3 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
 
     EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs), RDM_FAILURE);
 }
-
-// Test rdmDwnlGetCert
-/*TEST(rdmDwnlGetCertTest, rdmDwnlGetCert_Success) {
-    typedef struct credential {
-        char cert_name[64];
-        char cert_type[16];
-        char key_pas[32];
-    }MtlsAuth_t;
-
-    // Create an object of MtlsAuth_t
-    MtlsAuth_t myCredential;
-    strcpy(myCredential.cert_name, "MyCertificate");
-    strcpy(myCredential.cert_type, "SSL");
-    strcpy(myCredential.key_pas, "password123");
-
-    EXPECT_EQ(rdmDwnlGetCert(&myCredential), RDM_SUCCESS);
-}*/
-
