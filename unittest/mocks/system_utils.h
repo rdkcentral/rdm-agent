@@ -30,6 +30,7 @@
 #include <dirent.h>
 #include <time.h>
 
+extern "C" {
 #define MAX_OUT_BUFF_POPEN 4096
 #define RDK_API_SUCCESS 0
 #define RDK_API_FAILURE -1
@@ -69,7 +70,6 @@ typedef struct filedwnl {
 
 typedef cJSON   JSON;
 
-extern "C" {
 /** Description: File present check.
  *
  *  @param file_name: The pointer to hold the file name.
