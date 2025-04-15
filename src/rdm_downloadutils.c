@@ -288,7 +288,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         return status;
     }
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-#endif
+
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
@@ -298,7 +298,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         RDMError("Download failed\n");
         status = RDM_FAILURE;
     }
-
+#endif
     doStopDownload(curl);
     return status;
 }
