@@ -46,12 +46,14 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
+    FileDwnl_t fileVar = {.pPostFields = NULL, .pHeaderData = NULL, .pDlData = NULL, .pDlHeaderData = NULL, .chunk_dwnl_retry_time = 0, .url = "http://example.com", .pathname = "MyPath", .sslverify = false, .hashData = NULL};
+    MtlsAuth_t myAuth = {.cert_name = "MyCert.pem", .cert_type = "MyType", .key_pas = "MyKeyPass"};
 
     void* mockReturnValue = static_cast<void*>(new int(42)); 
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
 
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_)))
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((mockReturnValue, &fileVar, &myAuth, 0, NULL, NULL)))
         .WillOnce(Return(0));
     
     EXPECT_CALL(*mockRdmUtils, doStopDownload((::testing::_)));
