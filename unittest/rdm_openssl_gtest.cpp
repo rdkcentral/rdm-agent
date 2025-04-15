@@ -9,12 +9,7 @@ extern "C" {
    
 }
 
-extern "C" {
-    INT32 asciihex_to_bin(const char* asciihex, size_t asciihex_length, uint8_t* bin, size_t* bin_length);
-    INT32 bin_to_asciihex(const uint8_t* bin, size_t bin_length, char* asciihex, size_t* asciihex_length);
-    void dump_buffer(const char* buffer, int32_t buffer_size, const char* name);
-    INT32 rdm_openssl_file_hash_sha256(const char* file_path, int32_t file_descriptor, uint8_t* hash_buffer, int32_t* buffer_len);
-}
+
 
 TEST(OpenSSLTests, AsciiHexToBin_ValidInput) {
     const char* asciihex = "4A6F686E446F65";
