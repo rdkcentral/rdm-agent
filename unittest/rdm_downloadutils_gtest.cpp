@@ -22,6 +22,10 @@ extern "C"{
         return mockRdmUtils->doCurlInit();
     }
 
+    INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
+        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
+    }
+
     void doStopDownload(void* curl) {
         return mockRdmUtils->doStopDownload(curl);
     }
