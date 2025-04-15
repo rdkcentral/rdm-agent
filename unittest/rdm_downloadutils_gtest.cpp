@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "mocks/mock_rdm_utils.h"
-#include "mocks/mock_rdm_dwnlutils.h"
 #include "mocks/system_utils.h"
 
 // Declare the C functions with extern "C"
@@ -17,7 +16,7 @@ extern "C" {
 using ::testing::_;
 using ::testing::Return;
 
-MockRdmDwnlUtils* mockRdmUtils = new MockRdmDwnlUtils();
+MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 extern "C"{
     void* doCurlInit() {
         return mockRdmUtils->doCurlInit();
