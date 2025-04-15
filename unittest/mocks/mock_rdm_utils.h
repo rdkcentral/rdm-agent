@@ -10,7 +10,13 @@ extern "C" {
     #include "system_utils.h"
 }
 
-class MockRdmUtils {
+class DeviceUtilsInterface
+{
+    public:
+    virtual void*  doCurlInit() = 0;
+};
+
+class MockRdmUtils: public DeviceUtilsInterface {
 public:
     MOCK_METHOD1(checkFileSystem, INT32(const CHAR*));
     MOCK_METHOD3(findPFile, INT32(const CHAR*, const CHAR*, CHAR*));
