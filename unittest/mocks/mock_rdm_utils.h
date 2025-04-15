@@ -7,6 +7,7 @@ extern "C" {
     #include "rdm_types.h"
     #include "rdm.h"
     #include "rdm_utils.h"
+    #include "system_utils.h"
 }
 
 class MockRdmUtils {
