@@ -288,7 +288,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         return status;
     }
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-#ifndef GTEST_ENABLE
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
@@ -300,7 +299,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     }
 
     doStopDownload(curl);
-#endif
     return status;
 }
 

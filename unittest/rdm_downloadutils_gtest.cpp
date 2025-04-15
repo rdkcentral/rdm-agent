@@ -80,8 +80,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
-    char pAppHome[32] = "/media/apps";
-    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_FAILURE);
+    EXPECT_EQ(rdmDwnlRunPostScripts(NULL), RDM_FAILURE);
 }
 
 // Test rdmUnInstallApps
