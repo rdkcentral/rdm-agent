@@ -133,7 +133,7 @@ int isDataInList(char **pList,char *pData,int count);
 void getStringValueFromFile(char* path, char* strtokvalue, char* string, char* outValue);
 #ifdef __cplusplus
 }
-#ednif
+#endif
 
 #endif /* VIDEO_UTILS_SYSTEM_UTILS_H_ */
 
