@@ -34,7 +34,7 @@ extern "C" {
         return global_mock->bin_to_asciihex(bin, bin_length, asciihex, asciihex_length);
     }
 
-    void dump_buffer(void* buffer, int32_t buffer_size, char* name) {
+   extern "C"  void dump_buffer(void* buffer, int32_t buffer_size, char* name) {
         global_mock->dump_buffer(buffer, buffer_size, name);
     }
 
