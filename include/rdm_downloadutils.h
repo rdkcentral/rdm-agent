@@ -60,6 +60,7 @@ INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
 VOID   rdmDwnlAppCleanUp(CHAR *pAppPath);
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
+INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut, INT32 isMtls);
 INT32  rdmDwnlRunPostScripts(CHAR *pAppHome);
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
 VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);

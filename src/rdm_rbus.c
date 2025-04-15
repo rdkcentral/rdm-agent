@@ -29,7 +29,9 @@
 #include <unistd.h>
 #include <signal.h>
 
+#ifndef GTEST_ENABLE
 #include "rbus.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_rbus.h"
@@ -140,7 +142,10 @@ exit:
         rbusValue_Release(paramValue);
         paramValue = NULL;
     }
-
+    if(stringValue) {
+	free(stringValue);
+	stringValue = NULL;
+    }
     return ret;
 }
 

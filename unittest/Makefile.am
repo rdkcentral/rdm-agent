@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Define the test executables
 bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
-               rdm_download_gtest 
+               rdm_download_gtest rdm_downloadutils_gtest
 
 # Common include directories
 COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include    \
@@ -25,7 +25,7 @@ rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curldownload.c
 rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c
 rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c
-
+rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c
 
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)

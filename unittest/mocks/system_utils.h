@@ -21,10 +21,19 @@
 #define VIDEO_UTILS_SYSTEM_UTILS_H_
 
 #include "rdk_fwdl_utils.h"
+#include "rdm_types.h"
+#include "rdm.h"
+#include "rdm_jsonquery.h"
+#include <cjson/cJSON.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <time.h>
+
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
 
 #define MAX_OUT_BUFF_POPEN 4096
 #define RDK_API_SUCCESS 0
@@ -32,6 +41,39 @@
 #define RDK_FILEPATH_LEN    128
 #define RDK_APP_PATH_LEN   256
 #define RDK_MB_SIZE        (1024 * 1024)
+#define DIRECT_BLOCK_FILENAME "/tmp/.lastdirectfail_cdl"
+
+
+typedef struct credential {
+    char cert_name[64];
+    char cert_type[16];
+    char key_pas[32];
+}MtlsAuth_t;
+
+typedef struct CommonDownloadData {
+    void* pvOut;
+    size_t datasize;        // data size
+    size_t memsize;         // allocated memory size (if applicable)
+} DownloadData;
+
+typedef struct hashParam {
+    char *hashvalue;
+    char *hashtime;
+}hashParam_t;
+
+typedef struct filedwnl {
+        char *pPostFields;
+        char *pHeaderData;
+        DownloadData *pDlData;
+        DownloadData *pDlHeaderData;
+        int chunk_dwnl_retry_time;
+        char url[128];
+        char pathname[64];
+        bool sslverify;
+        hashParam_t *hashData;
+}FileDwnl_t;
+
+typedef cJSON   JSON;
 
 /** Description: File present check.
  *
@@ -64,13 +106,13 @@ int createFile(const char *file_name);
 int eraseTGZItemsMatching(const char *folder, const char* file_name);
 size_t GetHwMacAddress( char *iface, char *pMac, size_t szBufSize );
 /* Filesystem functions */
-unsigned int getFreeSpace(char *path);
-unsigned int checkFileSystem(char *path);
+UINT32 getFreeSpace(const char *path);
+INT32 checkFileSystem(const char *path);
 int  findSize(char *fileName);
 int  findFile(char *dir, char *search);
-int  findPFile(char *dir, char *search, char *out);
+INT32  findPFile(const char *dir, const char *search, char *out);
 int  findPFileAll(char *path, char *search, char **out, int *found_t, int max_list);
-int  emptyFolder(char *dir);
+INT32  emptyFolder(const char *dir);
 int  removeFile(char *filePath);
 int  copyFiles(char *src, char *dst);
 int  fileCheck(char *pFilepath);
@@ -80,7 +122,7 @@ char*  getPartChar(char *fullpath, char delim);
 int  folderCheck(char *path);
 int  tarExtract(char *in_file, char *out_path);
 int  arExtract(char *in_file, char *out_path);
-void   copyCommandOutput (char *cmd, char *out, int len);
+void copyCommandOutput (char *cmd, char *out, int len);
 unsigned int getFileLastModifyTime(char *file_name);
 time_t getCurrentSysTimeSec(void);
 int  getProcessID(char *in_file, char *out_path);
@@ -90,5 +132,8 @@ void  qsString(char *arr[], unsigned int length);
 int strRmDuplicate(char **in, int len);
 int isDataInList(char **pList,char *pData,int count);
 void getStringValueFromFile(char* path, char* strtokvalue, char* string, char* outValue);
-#endif /* VIDEO_UTILS_SYSTEM_UTILS_H_ */
+#ifdef __cplusplus
+}
+#endif
 
+#endif /* VIDEO_UTILS_SYSTEM_UTILS_H_ */

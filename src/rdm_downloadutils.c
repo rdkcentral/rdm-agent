@@ -23,12 +23,18 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#ifndef GTEST_ENABLE
+#include <system_utils.h>
 #include <json_parse.h>
 #include <downloadUtil.h>
-#include <system_utils.h>
-
 #include "codebigUtils.h"
 #include "rdmMgr.h"
+#else
+#include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/rdmMgr.h"
+#endif
+
+
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -41,9 +47,11 @@
 
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
+    UINT32 modification_time = 0;
+#ifndef GTEST_ENABLE
     UINT32 current_time = 0;
     UINT32 last_mod_time = 0;
-    UINT32 modification_time = 0;
+
     INT32  remtime = 0;
 
     last_mod_time = getFileLastModifyTime(file);
@@ -60,14 +68,17 @@ UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
             modification_time = 0;
         }
     }
+#endif
     return modification_time;
 }
 
 INT32 rdmDwnlUpdateURL(CHAR *pUrl)
 {
+    INT32 status = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR dwnl_url[MAX_BUFF_SIZE];
     FILE *fp  = NULL;
-    INT32 status = RDM_SUCCESS;
+
 
     if(fileCheck(RDM_DWNL_URL)) {
         copyFiles(RDM_DWNL_URL, RDM_DWNLSSR_URL);
@@ -108,6 +119,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
         RDMError("RDM download url is not available in both %s and RFC parameter. Exiting...\n", RDM_DWNLSSR_URL);
         status = RDM_FAILURE;
     }
+#endif
     return status;
 }
 
@@ -149,6 +161,7 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 
 VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
 {
+#ifndef GTEST_ENABLE
     INT32  fs_status = RDM_SUCCESS;
 
     fs_status = emptyFolder(pDwnlPath);
@@ -157,10 +170,12 @@ VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
     }
 
     removeFile(pDwnlPath);
+#endif
 }
 
 VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
 {
+#ifndef GTEST_ENABLE
     INT32  fs_status = RDM_SUCCESS;
 
     fs_status = emptyFolder(pAppPath);
@@ -169,6 +184,7 @@ VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
     }
 
     removeFile(pAppPath);
+#endif
 }
 
 VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
@@ -213,8 +229,11 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
 {
     //Read your Cert details here
     strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
+    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
     strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
+    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
+    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
     RDMInfo("success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
     return RDM_SUCCESS;
 }
@@ -240,10 +259,12 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
-    strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url));
-    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname));
+    strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
+    file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
+    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) -1);
     strcat(file_dwnl.pathname, "/");
     strcat(file_dwnl.pathname, pPkgName);
+    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
     strcpy(pOut, file_dwnl.pathname);
 
     if(rdmDwnlIsOCSPEnable()) {
@@ -260,14 +281,13 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
             return RDM_FAILURE;
         }
     }
-
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("Failed init curl\n");
         return status;
     }
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-
+#ifndef GTEST_ENABLE
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
@@ -279,7 +299,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     }
 
     doStopDownload(curl);
-
+#endif
     return status;
 }
 
@@ -331,9 +351,11 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
  * */
 INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
 {
+    INT32 ret = 0;
+#ifndef GTEST_ENABLE
     JSON *pJson = NULL;
     INT8  status[8];
-    INT32 ret = -1;
+    ret = -1;
 
     if (token == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -351,6 +373,7 @@ INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
             ret = 0;
         }
     }
+#endif
     return ret;
 }
 
@@ -405,6 +428,7 @@ VOID rdmMemDLFree(VOID *pvDwnData)
 
 INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 {
+#ifndef GTEST_ENABLE
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
     DIR *dir;
@@ -432,9 +456,11 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
             continue;
         }
 
-        strncpy(filePath, tmp_file, RDM_APP_PATH_LEN);
+        strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
+	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
         strcat(filePath, "/");
         strcat(filePath, entry->d_name);
+	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
 
         RDMInfo("RDM Post script Execution %s\n", filePath);
 
@@ -442,15 +468,16 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
     }
 
     closedir(dir);
-
+#endif
     return RDM_SUCCESS;
 }
-
+#ifndef GTEST_ENABLE
 VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
 {
     rdmDwnlCleanUp(pDwnlPath);
     rdmDwnlAppCleanUp(pAppPath);
 }
+#endif
 
 /** @brief This Function updates the manifest file.
  *
@@ -527,12 +554,13 @@ static INT32 rdmDwnlReadSigFile(CHAR *sig_file, CHAR *pout)
  */
 INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 {
+    INT32 status = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR pkg_file[RDM_APP_PATH_LEN];
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR out_file[RDM_APP_PATH_LEN];
     CHAR dwnl_path[RDM_APP_PATH_LEN];
     CHAR app_home[RDM_APP_PATH_LEN];
-    INT32 status = RDM_SUCCESS;
     INT32 ssl_status = 0;
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
@@ -543,6 +571,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     }
 
     strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+    dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     if(pVer) {
         strcat(dwnl_path, "/v");
         strcat(dwnl_path, pVer);
@@ -559,6 +588,8 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
         if(status) {
             RDMError("Failed to read Signature file: %s\n", pkg_file);
+	    if(out_buf)
+                free(out_buf);
             return status;
         }
     }
@@ -612,7 +643,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     if(out_buf) {
         free(out_buf);
     }
-
+#endif
     return status;
 }
 
@@ -626,6 +657,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
 {
     INT32 ret           = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     INT32 len           = 0;
     INT32 idx           = 0;
 
@@ -670,6 +702,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
     *numOfApps = idx;
 
 error:
+#endif
     return ret;
 }
 
@@ -681,9 +714,11 @@ error:
  **/
 INT32 rdmUnInstallApps(INT32  is_broadband)
 {
+    INT32 status                         = RDM_SUCCESS;
+#ifndef GTEST_ENABLE
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
     CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
-    INT32 status                         = RDM_SUCCESS;
+
     INT32 numOfAppsInstalled             = 0;
     INT32 numOfAppsManifest              = 0;
     INT32 isAppUninstalled               = 0;
@@ -830,7 +865,8 @@ error:
            free(app_manifests[index]);
        }
    }
-
+   free(pApp_det);
+#endif
    return status;
 }
 
@@ -838,6 +874,7 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
                           RDMAPPDetails *pRdmAppDet,
                           INT32 is_broadband)
 {
+#ifndef GTEST_ENABLE
     INT32 ret = RDM_SUCCESS;
 
     if(is_broadband) {
@@ -897,7 +934,7 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     strcat(pRdmAppDet->app_dwnl_url, "/");
     strcat(pRdmAppDet->app_dwnl_url, pRdmAppDet->pkg_name);
-
+#endif
     return RDM_SUCCESS;
 }
 
@@ -936,8 +973,10 @@ INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet)
  * */
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
 {
+    INT32 ret = 0;
+#ifndef GTEST_ENABLE
     JSON *pJson = NULL;
-    INT32 ret = -1;
+    ret = -1;
 
     if (result == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -952,6 +991,6 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
         FreeJson(pJson);
         ret = 0;
     }
-
+#endif
     return ret;
 }
