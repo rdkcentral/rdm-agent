@@ -297,8 +297,9 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         RDMError("Download failed\n");
         status = RDM_FAILURE;
     }
-#endif
+
     doStopDownload(curl);
+#endif
     return status;
 }
 
