@@ -54,4 +54,9 @@ rdm_download_gtest_LDADD = $(COMMON_LDADD)
 rdm_download_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
+rdm_downloadutils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
+rdm_downloadutils_gtest_LDADD = $(COMMON_LDADD)
+rdm_downloadutils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
+rdm_downloadutils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+
 
