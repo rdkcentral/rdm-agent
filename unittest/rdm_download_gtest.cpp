@@ -168,7 +168,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
     
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_,)))
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_)))
         .WillOnce(Return(0));
     
     EXPECT_CALL(*mockRdmUtils, doStopDownload((mockReturnValue)));
