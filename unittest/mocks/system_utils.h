@@ -30,7 +30,10 @@
 #include <dirent.h>
 #include <time.h>
 
-extern "C" {
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
 
 #define MAX_OUT_BUFF_POPEN 4096
 #define RDK_API_SUCCESS 0
@@ -128,9 +131,9 @@ void  qsString(char *arr[], unsigned int length);
 int strRmDuplicate(char **in, int len);
 int isDataInList(char **pList,char *pData,int count);
 void getStringValueFromFile(char* path, char* strtokvalue, char* string, char* outValue);
-
+#ifdef __cplusplus
 }
-
+#ednif
 
 #endif /* VIDEO_UTILS_SYSTEM_UTILS_H_ */
 
