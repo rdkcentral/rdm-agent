@@ -173,25 +173,10 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     hashParam_t defaultHashParam = { "defaultHashValue", "defaultHashTime" };
 
     // Initialize FileDwnl_t object with default values
-    FileDwnl_t mockFileDwnl = {
-    .pPostFields = "defaultPostFields",
-    .pHeaderData = "defaultHeaderData",
-    .pDlData = &defaultDownloadData,
-    .pDlHeaderData = &defaultDownloadHeaderData,
-    .chunk_dwnl_retry_time = 5,
-    .url = "http://default.url",
-    .pathname = "/default/path",
-    .sslverify = false,
-    .hashData = &defaultHashParam
-    };
-
+    FileDwnl_t mockFileDwnl = {.pPostFields = "defaultPostFields", .pHeaderData = "defaultHeaderData", .pDlData = &defaultDownloadData, .pDlHeaderData = &defaultDownloadHeaderData, .chunk_dwnl_retry_time = 5, .url = "http://default.url", .pathname = "/default/path", .sslverify = false, .hashData = &defaultHashParam};
     
     // Initialize MtlsAuth_t object with default values
-    MtlsAuth_t mockAuth = {
-    .cert_name = "defaultCertName",
-    .cert_type = "defaultCertType",
-    .key_pas = "defaultKeyPassword"
-    };
+    MtlsAuth_t mockAuth = {.cert_name = "defaultCertName", .cert_type = "defaultCertType", .key_pas = "defaultKeyPassword"};
     
     unsigned int mockMaxDwnlSpeed = 10;
     char mockDnlStartPos[] = "start_pos";
