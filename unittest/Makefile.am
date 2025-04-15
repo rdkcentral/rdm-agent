@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Define the test executables
 bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
-               rdm_download_gtest rdm_openssl
+               rdm_download_gtest rdm_openssl_gtest
 
 # Common include directories
 COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include    \
