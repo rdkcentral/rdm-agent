@@ -183,10 +183,10 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     int mockHttpCode = 0;
 
 
-    /*EXPECT_CALL(*mockRdmUtils, doCurlInit())
+    EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
 
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &mockFileDwnl, &mockAuth, mockMaxDwnlSpeed, mockDnlStartPos, &mockHttpCode))
+    /*EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(mockReturnValue, &mockFileDwnl, &mockAuth, mockMaxDwnlSpeed, mockDnlStartPos, &mockHttpCode))
         .WillOnce(Return(0));
 
     EXPECT_CALL(*mockRdmUtils, doStopDownload(mockReturnValue));*/
