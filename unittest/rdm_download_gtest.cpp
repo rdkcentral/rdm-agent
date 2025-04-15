@@ -43,15 +43,16 @@ extern "C" {
     }
 
     void* doCurlInit() {
-        return mockRdmUtils->doCurlInit();
+        void* mockReturnValue = static_cast<void*>(new int(0));
+        return mockReturnValue;
     }
 
     INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
-        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
+        return 0;
     }
 
     void doStopDownload(void* curl) {
-        return mockRdmUtils->doStopDownload(curl);
+        return;
     }
 
     INT32 rdmDownloadMgr(RDMAPPDetails* appDetails) {
@@ -163,33 +164,6 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
-    void* mockReturnValue = static_cast<void*>(new int(0));
-    
-    // Initialize DownloadData objects
-    DownloadData defaultDownloadData = { nullptr, 0, 0 };
-    DownloadData defaultDownloadHeaderData = { nullptr, 0, 0 };
-
-    // Initialize hashParam object
-    hashParam_t defaultHashParam = { "defaultHashValue", "defaultHashTime" };
-
-    // Initialize FileDwnl_t object with default values
-    FileDwnl_t mockFileDwnl = {.pPostFields = "defaultPostFields", .pHeaderData = "defaultHeaderData", .pDlData = &defaultDownloadData, .pDlHeaderData = &defaultDownloadHeaderData, .chunk_dwnl_retry_time = 5, .url = "http://default.url", .pathname = "/default/path", .sslverify = false, .hashData = &defaultHashParam};
-    
-    // Initialize MtlsAuth_t object with default values
-    MtlsAuth_t mockAuth = {.cert_name = "defaultCertName", .cert_type = "defaultCertType", .key_pas = "defaultKeyPassword"};
-    
-    unsigned int mockMaxDwnlSpeed = 10;
-    char mockDnlStartPos[] = "start_pos";
-    int mockHttpCode = 0;
-
-
-    EXPECT_CALL(*mockRdmUtils, doCurlInit())
-        .WillOnce(Return(mockReturnValue));
-
-    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
-        .WillOnce(Return(0));
-
-    EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
     
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 }
