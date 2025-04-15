@@ -36,6 +36,7 @@
 #include <secure_wrapper.h>
 #else
 #include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/secure_wrapper.h"
 #endif
 #ifdef LIBRDKCONFIG_BUILD
 #include "rdkconfig.h"
