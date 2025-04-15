@@ -59,7 +59,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 
     delete static_cast<int*>(mockReturnValue);
-    delete mockRdmUtils2;
+    delete mockRdmUtils;
 
 }
 
@@ -71,14 +71,14 @@ TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
 
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
-    char pAppHomw[32] = "/media/apps";
+    char pAppHome[32] = "/media/apps";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
-    char pAppHomw[32] = "/media/apps";
+    char pAppHome[32] = "/media/apps";
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_FAILURE);
 }
 
