@@ -79,7 +79,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
-    char pAppHomw[32] = "/media/apps;
+    char pAppHomw[32] = "/media/apps";
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_FAILURE);
 }
 
