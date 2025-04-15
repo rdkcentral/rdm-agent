@@ -281,14 +281,15 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
             return RDM_FAILURE;
         }
     }
-#ifndef GTEST_ENABLE
+
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("Failed init curl\n");
         return status;
     }
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-
+	curl_ret_code = 0;
+#ifndef GTEST_ENABLE
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
