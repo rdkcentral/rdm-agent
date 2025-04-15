@@ -69,6 +69,7 @@ typedef struct filedwnl {
 
 typedef cJSON   JSON;
 
+extern "C" {
 /** Description: File present check.
  *
  *  @param file_name: The pointer to hold the file name.
@@ -89,7 +90,6 @@ int filePresentCheck(const char *file_name);
  *          RDK_API_FAILURE -1
  *  NOTE: The size_buff should not less than equal zero or greater than 4096 byte
  */
-extern "C"{
 int cmdExec(const char *cmd, char *output, unsigned int size_buff);
 
 int getFileSize(const char *file_name);
