@@ -43,16 +43,15 @@ extern "C" {
     }
 
     void* doCurlInit() {
-        void* mockReturnValue = static_cast<void*>(new int(0));
-        return mockReturnValue;
+        return mockRdmUtils->doCurlInit();
     }
 
     INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
-        return 0;
+        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
     }
 
     void doStopDownload(void* curl) {
-        return;
+        return mockRdmUtils->doStopDownload(curl);
     }
 
     INT32 rdmDownloadMgr(RDMAPPDetails* appDetails) {
@@ -164,6 +163,15 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
+
+    void* mockReturnValue = static_cast<void*>(new int(42)); 
+    EXPECT_CALL(*mockRdmUtils, doCurlInit(())
+        .WillOnce(Return(mockReturnValue));
+    
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload((::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_,))
+        .WillOnce(Return(0));
+    
+    EXPECT_CALL(*mockRdmUtils, doStopDownload((mockReturnValue));
     
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 }
