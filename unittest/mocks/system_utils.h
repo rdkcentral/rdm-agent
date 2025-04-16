@@ -116,7 +116,6 @@ INT32  emptyFolder(const char *dir);
 int  removeFile(char *filePath);
 int  copyFiles(char *src, char *dst);
 int  fileCheck(char *pFilepath);
-char*  getExtension(char *filename);
 char*  getPartStr(char *fullpath, char *delim);
 char*  getPartChar(char *fullpath, char delim);
 int  folderCheck(char *path);
