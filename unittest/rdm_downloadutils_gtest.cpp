@@ -84,7 +84,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-	    .WillReipeatedly(Return(ext));
+	    .WillRepeatedly(Return(ext));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
