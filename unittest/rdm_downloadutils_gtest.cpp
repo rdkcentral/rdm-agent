@@ -37,6 +37,10 @@ extern "C"{
     INT32 findPFile(const char* path, const char* pkg, char* tmp_file) {
         return mockRdmUtils->findPFile(path, pkg, tmp_file);
     }
+
+    char* getExtension(char* filename) {
+        return mockRdmUtils->getExtension(filename);
+    }
 }
 
 // Test rdmDwnlDirect
@@ -75,6 +79,8 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     char pAppHome[32] = "/media/apps";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
+    EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
+	    .WillOnce(Return("sh"));
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 }
 
