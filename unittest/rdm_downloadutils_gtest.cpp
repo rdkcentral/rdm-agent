@@ -87,7 +87,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     //strcpy(static_cast<char*>(mockReturnValue), "sh");
 
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-    	    .WillRepeatedly(Return(NULL))
+    	    .WillRepeatedly(Return(NULL));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
