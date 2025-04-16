@@ -64,7 +64,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 
     delete static_cast<int*>(mockReturnValue);
-    delete mockRdmUtils;
+    //delete mockRdmUtils;
 
 }
 
