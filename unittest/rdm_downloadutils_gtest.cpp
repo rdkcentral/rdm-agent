@@ -42,8 +42,8 @@ extern "C"{
     }
 
     char* getExtension(char* filename) {
-        char* ext = new char[3];
-        strcpy(ext, "sh");
+	char* ext = new char[3];
+	strcpy(ext, "sh");
 	return ext;
     }
 }
