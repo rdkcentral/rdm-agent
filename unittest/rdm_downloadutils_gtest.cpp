@@ -77,10 +77,11 @@ TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     char pAppHome[32] = "/media/apps";
+    char ext[3] = "sh";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-	    .WillOnce(Return("sh"));
+	    .WillOnce(Return(ext));
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 }
 
