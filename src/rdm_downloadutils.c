@@ -427,7 +427,6 @@ VOID rdmMemDLFree(VOID *pvDwnData)
 
 INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 {
-#ifndef GTEST_ENABLE
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
     DIR *dir;
@@ -467,7 +466,6 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
     }
 
     closedir(dir);
-#endif
     return RDM_SUCCESS;
 }
 #ifndef GTEST_ENABLE

@@ -14,7 +14,7 @@ AM_CPPFLAGS =  -I$(top_srcdir)/unittest/mocks -I$(top_srcdir)/include -I$(top_sr
 
 # Common libraries
 COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
-               -lpthread -lcurl -lcjson -lssl
+               -lpthread -lcurl -lcjson
 
 # Common compiler flags
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
@@ -25,7 +25,7 @@ rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curldownload.c
 rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c
 rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c
-rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c ../src/rdm_openssl.c
+rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../src/rdm_downloadutils.c
 
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
