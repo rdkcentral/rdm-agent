@@ -437,7 +437,9 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
     strncpy(tmp_file, pAppHome, RDM_APP_PATH_LEN);
     strcat(tmp_file, RDM_POSTSCRIPT_PATH);
 
+    RDMInfo("Before opendir()\n");
     dir = opendir(tmp_file);
+    RDMInfo("After opendir()\n");
 
     if (dir == NULL) {
         RDMError("Error opening directory: %s\n", tmp_file);
