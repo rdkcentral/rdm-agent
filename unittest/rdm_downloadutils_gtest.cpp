@@ -17,8 +17,8 @@ using ::testing::_;
 using ::testing::Return;
 
 MockRdmUtils* mockRdmUtils = new MockRdmUtils();
-char *ext = new char[3];
-strcpy(ext, "sh");
+//char *ext = new char[3];
+//strcpy(ext, "sh");
 
 extern "C"{
     void* doCurlInit() {
@@ -83,11 +83,11 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     //static char ext[3] = "sh";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
-    // void* mockReturnValue = static_cast<void*>(new char[3]);
-    // strcpy(static_cast<char*>(mockReturnValue), "sh");
+    void* mockReturnValue = static_cast<void*>(new char[3]);
+    strcpy(static_cast<char*>(mockReturnValue), "sh");
 
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-	    .WillRepeatedly(Return(ext));
+	    .WillRepeatedly(Return(mockReturnValue));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
