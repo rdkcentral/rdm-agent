@@ -457,7 +457,8 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
         if (extension == NULL)
 	    RDMInfo("Extension is NULl !\n");
 
-        if(strcmp(getExtension(entry->d_name), "sh")) {
+        if(strcmp(extension, "sh")) {
+	    RDMInfo("Not an sh extension\n");
             continue;
         }
 	RDMInfo("After getExtension()\n");
