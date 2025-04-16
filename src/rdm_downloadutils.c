@@ -452,9 +452,11 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
             entry->d_type == DT_DIR) {
             continue;
         }
+	RDMInfo("Before getExtension()\n");
         if(strcmp(getExtension(entry->d_name), "sh")) {
             continue;
         }
+	RDMInfo("After getExtension()\n");
 
         strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
 	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
@@ -464,7 +466,9 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 
         RDMInfo("RDM Post script Execution %s\n", filePath);
 
+	RDMInfo("Before copyCommandOutput()\n");
         copyCommandOutput (filePath, NULL, 0);
+	RDMInfo("After copyCommandOutput()\n");
     }
 
     closedir(dir);
