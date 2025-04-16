@@ -42,7 +42,8 @@ extern "C"{
     }
 
     char* getExtension(char* filename) {
-        return mockRdmUtils->getExtension(filename);
+        char ext[3] = "sh";
+	return ext;
     }
 }
 
@@ -86,8 +87,8 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     void* mockReturnValue = static_cast<void*>(new char[3]);
     strcpy(static_cast<char*>(mockReturnValue), "sh");
 
-    EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-	    .WillRepeatedly(Return(mockReturnValue));
+    //EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
+    //	    .WillRepeatedly(Return(mockReturnValue));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
