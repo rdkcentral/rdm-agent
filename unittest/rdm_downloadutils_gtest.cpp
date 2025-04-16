@@ -55,7 +55,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
     INT32 isMtls = 0;
 
-    void* mockReturnValue = static_cast<void*>(new int(42)); 
+    void* mockReturnValue = static_cast<void*>(new int(0)); 
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
         .WillOnce(Return(mockReturnValue));
  
@@ -77,17 +77,16 @@ TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     char pAppHome[32] = "/media/apps";
-    char* ext = new char[3];
-    strcpy(ext, "sh");
+    static char ext[3] = "sh";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-	    .WillRepeatedly(Return(NULL));
+	    .WillRepeatedly(Return(ext));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
-    delete[] ext;
+    //delete[] ext;
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
