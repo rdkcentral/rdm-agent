@@ -454,7 +454,7 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
         }
 	RDMInfo("Before getExtension()\n");
 	const char* extension = getExtension(entry->d_name);
-        if (extension == nullptr)
+        if (extension == NULL)
 	    RDMInfo("Extension is NULl !\n");
 
         if(strcmp(getExtension(entry->d_name), "sh")) {
