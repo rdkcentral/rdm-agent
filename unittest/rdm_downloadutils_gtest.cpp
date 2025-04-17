@@ -43,6 +43,9 @@ extern "C"{
     }
 
     char* getExtension(char* filename) {
+	retStr = (char*)malloc(3 * sizeof(char));
+	strcpy(retStr, "sh");
+	retStr[2] = '\0';
 	return retStr;
     }
 }
@@ -90,9 +93,6 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     if (retStr != nullptr)
         strcpy(retStr, "sh"); // Copy the value "sh" into retStr
 
-    EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-    	    .WillRepeatedly(Return(retStr));
-    
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
     //delete[] ext;
