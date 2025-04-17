@@ -25,6 +25,14 @@ MockRdmOpenssl* global_mock = nullptr;
 
 // Mock function definitions
 extern "C" {
+    int v_secure_system(const char* format, ...) {
+        va_list args;
+        va_start(args, format);
+        vprintf(format, args); // Optionally log the command
+        va_end(args);
+
+        return 0; // Always return success
+    }
     int asciihex_to_bin(const char* asciihex, size_t asciihex_length, uint8_t* bin, size_t* bin_length) {
         return global_mock->asciihex_to_bin(asciihex, asciihex_length, bin, bin_length);
     }
