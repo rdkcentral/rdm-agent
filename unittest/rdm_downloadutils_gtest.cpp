@@ -43,10 +43,20 @@ extern "C"{
     }
 
     char* getExtension(char* filename) {
-	retStr = (char*)malloc(3 * sizeof(char));
-	strcpy(retStr, "sh");
-	retStr[2] = '\0';
-	return retStr;
+	    char *extension;
+
+    if(filename == NULL) {
+        SWLOG_ERROR("Invalid file name\n");
+        return NULL;
+    }
+
+    extension = strrchr(filename, '.');
+
+    if (extension) {
+        return (extension + 1);
+    }
+
+    return NULL;
     }
 }
 
