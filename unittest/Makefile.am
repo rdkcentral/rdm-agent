@@ -14,7 +14,7 @@ AM_CPPFLAGS =  -I$(top_srcdir)/unittest/mocks -I$(top_srcdir)/include -I$(top_sr
 
 # Common libraries
 COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
-               -lpthread -lcurl -lcjson -lssl -lcrypto -lsecure_wrapper
+               -lpthread -lcurl -lcjson -lssl -lcrypto 
 
 # Common compiler flags
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
