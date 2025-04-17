@@ -87,9 +87,9 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     //void* mockReturnValue = static_cast<void*>(new char[3]);
     //strcpy(static_cast<char*>(mockReturnValue), "sh");
     //retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
-    if (retStr != nullptr)
+    /*if (retStr != nullptr)
         strcpy(retStr, "sh"); // Copy the value "sh" into retStr
-
+    */
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
         .WillOnce(Return("sh"));
     EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
