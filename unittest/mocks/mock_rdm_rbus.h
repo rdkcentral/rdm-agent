@@ -1,8 +1,6 @@
 #ifndef MOCK_RDM_RBUS_H
 #define MOCK_RDM_RBUS_H
 
-#include <gmock/gmock.h>
-
 #define RBUS_ERROR_SUCCESS 0
 
 extern "C" {
