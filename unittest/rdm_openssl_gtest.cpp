@@ -153,5 +153,5 @@ TEST(OpenSSLTests, RdmOpensslRsafileSignatureVerify_InvalidInput) {
 
     int result = rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, &reply_msg_len);
 
-    EXPECT_EQ(result, -1);
+    EXPECT_EQ(result, retcode_param_error);
 }
