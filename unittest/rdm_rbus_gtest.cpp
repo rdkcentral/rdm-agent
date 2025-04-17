@@ -12,19 +12,19 @@ MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 
 extern "C"{
     rbusValueType_t rbusValue_GetType(void* paramName) {
-        return mockRdmRbus->rbusValue_GetType();
+        return mockRdmRbus->rbusValue_GetType(paramName);
     }
 
     INT32 rbus_get(void* handle, INT8* val, void* paramName) {
-        return mockRdmRbus->rbus_get();
+        return mockRdmRbus->rbus_get(handle, val, paramName);
     }
 
     bool rbusValue_GetBoolean(void* paramName) {
-        return mockRdmRbus->rbusValue_GetBoolean();
+        return mockRdmRbus->rbusValue_GetBoolean(paramName);
     }
 
     INT8* rbusValue_ToString(void* str, void* paramName, int len) {
-	return mockRdmRbus->rbusValue_ToString();
+	return mockRdmRbus->rbusValue_ToString(str, paramName, len);
     }
 }
 
