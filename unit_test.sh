@@ -33,10 +33,14 @@ echo "*********** Return value of rdm_download_gtest $rdmdown"
 rdmdutils=$?
 echo "*********** Return value of rdm_downloadutils_gtest $rdmdutils"
 
+./rdm_rbus_gtest
+rdmrbus=$?
+echo "*********** Return value of rdm_downloadutils_gtest $rdmrbus"
+
 # List of unit test executables
 
 # Run tests and capture return values
-if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmjson" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdutils" = "0" ]; then
+if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmjson" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdutils" = "0" ] && [ "$rdmrbus" = "0" ]; then
     cd ../
 
     lcov --capture --directory . --output-file coverage.info

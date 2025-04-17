@@ -47,6 +47,7 @@
 INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName)
 {
     INT32 rc  = RBUS_ERROR_SUCCESS;
+#ifndef GTEST_ENABLE
     rbusHandle_t handle;
     INT32 ret = RDM_SUCCESS;
 
@@ -73,7 +74,7 @@ INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName)
     }
 
     *pRDMRbusHandle = (VOID*)handle;
-
+#endif
     return ret;
 }
 
@@ -159,6 +160,7 @@ exit:
 VOID rdmRbusUnInit(VOID *pRDMbusHandle)
 {
     INT32 rc  = RBUS_ERROR_SUCCESS;
+#ifndef GTEST_ENABLE
     rbusHandle_t    handle = pRDMbusHandle;
 
     if(handle == NULL) {
@@ -170,5 +172,5 @@ VOID rdmRbusUnInit(VOID *pRDMbusHandle)
     if(rc != RBUS_ERROR_SUCCESS) {
        RDMError("Unable to Close receiver bus: %d\n", rc);
     }
-
+#endif
 }
