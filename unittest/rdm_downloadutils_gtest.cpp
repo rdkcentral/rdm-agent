@@ -22,9 +22,8 @@ MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 extern char* retStr;
 
 retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
-    if (retStr != nullptr) {
-        strcpy(retStr, "sh"); // Copy the value "sh" into retStr
-    }
+if (retStr != nullptr)
+    strcpy(retStr, "sh"); // Copy the value "sh" into retStr
 
 extern "C"{
     void* doCurlInit() {
