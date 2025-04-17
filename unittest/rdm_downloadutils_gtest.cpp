@@ -83,7 +83,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 
     delete static_cast<int*>(mockReturnValue);
-    delete mockRdmUtils;
+    //delete mockRdmUtils;
 
 }
 
@@ -105,9 +105,10 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     if (retStr != nullptr)
         strcpy(retStr, "sh"); // Copy the value "sh" into retStr
 
+    EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
-    //delete[] ext;
+    delete mockRdmUtils;
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
