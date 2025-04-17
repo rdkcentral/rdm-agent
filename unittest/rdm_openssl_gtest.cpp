@@ -8,7 +8,6 @@ using ::testing::Return;
 extern "C" {
     #include "rdm_types.h"  
     #include "rdm_openssl.h"
-    #include "unittest/mocks/secure_wrapper.h"
    
 }
 
