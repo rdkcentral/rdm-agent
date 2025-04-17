@@ -31,6 +31,8 @@
 
 #ifndef GTEST_ENABLE
 #include "rbus.h"
+#else
+#include "unittest/mocks/mock_rdm_rbus.h"
 #endif
 #include "rdm_types.h"
 #include "rdm.h"
@@ -47,9 +49,9 @@
 INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName)
 {
     INT32 rc  = RBUS_ERROR_SUCCESS;
+    INT32 ret = RDM_SUCCESS;
 #ifndef GTEST_ENABLE
     rbusHandle_t handle;
-    INT32 ret = RDM_SUCCESS;
 
     if (pRDMRbusHandle == NULL ) {
         RDMError("pRDMRbusHandle is NULL \n");
