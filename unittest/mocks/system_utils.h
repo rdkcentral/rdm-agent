@@ -122,6 +122,7 @@ int  folderCheck(char *path);
 int  tarExtract(char *in_file, char *out_path);
 int  arExtract(char *in_file, char *out_path);
 void copyCommandOutput (char *cmd, char *out, int len);
+const char* getExtension(char *filename);
 unsigned int getFileLastModifyTime(char *file_name);
 time_t getCurrentSysTimeSec(void);
 int  getProcessID(char *in_file, char *out_path);

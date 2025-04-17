@@ -21,7 +21,7 @@ public:
     MOCK_METHOD(INT32, doHttpFileDownload, (void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*), ());
     MOCK_METHOD(void, doStopDownload, (void *), ());
     MOCK_METHOD(void, copyCommandOutput, (char*, char*, int), ());
-    MOCK_METHOD(char*, getExtension, (char*), ());
+    MOCK_METHOD(const char*, getExtension, (char*), ());
 
 };
 

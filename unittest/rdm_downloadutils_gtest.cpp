@@ -19,7 +19,7 @@ using ::testing::Return;
 MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 //char *ext = new char[3];
 //strcpy(ext, "sh");
-extern char* retStr;
+//extern char* retStr;
 
 extern "C"{
     void* doCurlInit() {
@@ -42,23 +42,8 @@ extern "C"{
         return mockRdmUtils->findPFile(path, pkg, tmp_file);
     }
 
-    char* getExtension(char* filename) {
-	    char *extension;
-
-    if(filename == NULL) {
-	printf("Filename is NULL");
-        return NULL;
-    }
-
-    extension = strrchr(filename, '.');
-
-    if (extension) {
-	printf("Extension is : %s", extension);
-        return (extension + 1);
-    }
-
-    printf("Extension is NULL");
-    return NULL;
+    const char* getExtension(char *filename) {
+        return mockRdmUtils->getExtension(filename);
     }
 }
 
@@ -101,10 +86,12 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
     //void* mockReturnValue = static_cast<void*>(new char[3]);
     //strcpy(static_cast<char*>(mockReturnValue), "sh");
-    retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
+    //retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
     if (retStr != nullptr)
         strcpy(retStr, "sh"); // Copy the value "sh" into retStr
 
+    EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
+        .WillOnce(Return("sh"));
     EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 

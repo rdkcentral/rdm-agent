@@ -459,14 +459,14 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
 	RDMInfo("Before getExtension()\n");
 	RDMInfo("Entry->d_name = %s\n", entry->d_name);
 	//RDMInfo("getExtension() = %s\n", getExtension(entry->d_name));
-        /*if(strcmp(getExtension(entry->d_name), "sh")) {
+        if(strcmp(getExtension(entry->d_name), "sh")) {
 	    RDMInfo("Not an sh extension\n");
             continue;
-        }*/
-	if (strcmp("sh", strrchr(entry->d_name, '.') + 1)) {
+        }
+	/*if (strcmp("sh", strrchr(entry->d_name, '.') + 1)) {
 	    RDMInfo("Not an sh extension\n");
 	    continue;
-	}
+	}*/
 	RDMInfo("After getExtension()\n");
 
         strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
