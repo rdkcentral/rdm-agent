@@ -43,7 +43,7 @@ extern "C"{
     }
 
     char* getExtension(char* filename) {
-	return mockRdmUtils->getExtension(filename);
+	return retStr;
     }
 }
 
