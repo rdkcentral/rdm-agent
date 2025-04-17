@@ -1,6 +1,12 @@
 AUTOMAKE_OPTIONS = subdir-objects 
 ACLOCAL_AMFLAGS = -I m4
 
+# Check if IS_LIBRDKCONFIG_ENABLED is set
+if IS_LIBRDKCONFIG_ENABLED
+COMMON_CPPFLAGS += $(LIBRDKCONFIG_FLAG)
+COMMON_LDADD += -lrdkconfig -lsecure_wrapper
+endif
+
 # Define the test executables
 bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
                rdm_download_gtest rdm_openssl_gtest
