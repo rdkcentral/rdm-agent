@@ -11,19 +11,19 @@ using ::testing::Return;
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 
 extern "C"{
-    rbusValueType_t rbusValue_GetType(blah) {
+    rbusValueType_t rbusValue_GetType(void* paramName) {
         return mockRdmRbus->rbusValue_GetType();
     }
 
-    INT32 rbus_get(blah, blah, blah) {
+    INT32 rbus_get(void* handle, INT8* val, void* paramName) {
         return mockRdmRbus->rbus_get();
     }
 
-    bool rbusValue_GetBoolean(blah) {
+    bool rbusValue_GetBoolean(void* paramName) {
         return mockRdmRbus->rbusValue_GetBoolean();
     }
 
-    INT8* rbusValue_ToString(blah, blah, blah) {
+    INT8* rbusValue_ToString(void* str, void* paramName, int len) {
 	return mockRdmRbus->rbusValue_ToString();
     }
 }
