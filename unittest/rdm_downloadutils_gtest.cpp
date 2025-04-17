@@ -46,7 +46,6 @@ extern "C"{
 	    char *extension;
 
     if(filename == NULL) {
-        SWLOG_ERROR("Invalid file name\n");
         return NULL;
     }
 
