@@ -46,15 +46,18 @@ extern "C"{
 	    char *extension;
 
     if(filename == NULL) {
+	printf("Filename is NULL");
         return NULL;
     }
 
     extension = strrchr(filename, '.');
 
     if (extension) {
+	printf("Extension is : %s", extension);
         return (extension + 1);
     }
 
+    printf("Extension is NULL");
     return NULL;
     }
 }
