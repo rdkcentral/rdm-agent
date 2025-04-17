@@ -19,6 +19,12 @@ using ::testing::Return;
 MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 //char *ext = new char[3];
 //strcpy(ext, "sh");
+extern char* retStr;
+
+retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
+    if (retStr != nullptr) {
+        strcpy(retStr, "sh"); // Copy the value "sh" into retStr
+    }
 
 extern "C"{
     void* doCurlInit() {
@@ -87,7 +93,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     //strcpy(static_cast<char*>(mockReturnValue), "sh");
 
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
-    	    .WillRepeatedly(Return("some_val"));
+    	    .WillRepeatedly(Return(retStr));
     
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 

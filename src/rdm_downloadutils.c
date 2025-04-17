@@ -45,6 +45,10 @@
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
 
+#ifdef GTEST_ENABLE
+char* retStr = NULL;
+#endif
+
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
     UINT32 modification_time = 0;
