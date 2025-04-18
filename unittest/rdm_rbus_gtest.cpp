@@ -72,7 +72,7 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessString) {
     EXPECT_CALL(*mockRdmRbus, rbus_get(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(RBUS_ERROR_SUCCESS));
 
-    MOCK_METHOD(INT8*, rbusValue_ToString, (void*, void*, int), ())
+    EXPECT_CALL(*mockRdmRbus, rbusValue_ToString(::testing::_, ::testing::_, ::testing::_))
 	.WillOnce(Return("Some_Value"));
 
     EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue), RDM_SUCCESS);
