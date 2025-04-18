@@ -128,13 +128,16 @@ INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue )
         }
     }
     else if(rbusValueType == RBUS_STRING){
+	RDMInfo("Inside if(rbusValueType == RBUS_STRING)\n");
         stringValue   = rbusValue_ToString(paramValue, NULL, 0);
+	RDMInfo("After rbusValue_ToString())\n");
         if(stringValue == NULL) {
             RDMError("Unable to get url\n");
             ret = RDM_FAILURE;
             goto exit;
         }
         else {
+	    RDMInfo("Before strcpy())\n");
             strcpy( rdm_ver, stringValue);
             RDMInfo("RDM URL: %s\n", stringValue);
         }
