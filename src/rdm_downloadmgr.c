@@ -207,8 +207,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 {
     INT32 status = RDM_SUCCESS;
-#ifndef GTEST_ENABLE
     INT32 rdm_status = RDM_DL_NOERROR;
+#ifndef GTEST_ENABLE
     CHAR ipk_file[RDM_APP_PATH_LEN];
     /* Download the File Package  if not already downloaded */
     if(pRdmAppDet->dwld_status) {
