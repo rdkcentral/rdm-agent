@@ -16,7 +16,7 @@ extern "C"{
         return mockRdmRbus->rbusValue_GetType(paramName);
     }
 
-    INT32 rbus_get(void* handle, INT8* val, void* paramName) {
+    INT32 rbus_get(void* handle, INT8* val, void** paramName) {
         return mockRdmRbus->rbus_get(handle, val, paramName);
     }
 
@@ -26,6 +26,10 @@ extern "C"{
 
     INT8* rbusValue_ToString(void* str, void* paramName, int len) {
 	return mockRdmRbus->rbusValue_ToString(str, paramName, len);
+    }
+
+    void rbusValue_Release(void* ptr) {
+	return mockRdmRbus->rbusValue_Release(ptr);
     }
 }
 
@@ -45,6 +49,8 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessBool) {
     //MOCK_METHOD(INT8*, rbusValue_ToString, (void*, void*, int), ());
     EXPECT_CALL(*mockRdmRbus, rbusValue_GetBoolean(::testing::_))
         .WillOnce(Return(true));
+
+    EXPECT_CALL(*mockRdmRbus, rbusValue_Release(::testing::_));
 
     EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue), RDM_SUCCESS);
 
