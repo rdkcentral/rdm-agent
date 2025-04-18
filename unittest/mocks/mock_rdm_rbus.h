@@ -1,11 +1,9 @@
 #ifndef MOCK_RDM_RBUS_H
 #define MOCK_RDM_RBUS_H
 
-extern "C" {
-    #include "rdm_types.h"
-    #include "rdm_utils.h"
-    #include "rdm_rbus.h"
-}
+#include "rdm_types.h"
+#include "rdm_utils.h"
+#include "rdm_rbus.h"
 
 typedef enum
 {
