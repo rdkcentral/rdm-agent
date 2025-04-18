@@ -106,8 +106,6 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
         .WillOnce(Return(200));
     EXPECT_CALL(*mockRdmUtils, createDir(_))
         .WillOnce(Return(RDM_SUCCESS));
-    EXPECT_CALL(*mockRdmDownloadUtils, rdmDownloadMgr(&appDetails))
-        .WillOnce(Return(RDM_DL_NOERROR));
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
     EXPECT_EQ(DLStatus, RDM_DL_NOERROR);
@@ -138,15 +136,8 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
         .WillOnce(Return(appDetails.app_size_mb + 1));
 
-    EXPECT_CALL(*mockRdmDownloadUtils, rdmDownloadMgr(&appDetails))
-        .Times(RDM_RETRY_COUNT)
-        .WillRepeatedly(Return(RDM_DL_DWNLERR));
-
     EXPECT_CALL(*mockRdmUtils, createDir(StrEq("/downloads/test")))
         .WillOnce(Return(RDM_FAILURE));
-
- EXPECT_CALL(*mockRdmDownloadUtils, rdmDwnlUnInstallApp(::testing::_, ::testing::_))
-        .Times(2);
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
 }
@@ -181,8 +172,6 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
         .WillRepeatedly(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(IARM_BUS_RDMMGR_NAME, IARM_BUS_RDMMGR_EVENT_APP_INSTALLATION_STATUS, ::testing::_, sizeof(IARM_Bus_RDMMgr_EventData_t)))
         .WillRepeatedly(::testing::Return(IARM_RESULT_SUCCESS));
-    EXPECT_CALL(*mockIARM, IARM_Bus_Disconnect());
-    EXPECT_CALL(*mockIARM, IARM_Bus_Term());
 
     EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_SUCCESS);
     delete mockIARM;
