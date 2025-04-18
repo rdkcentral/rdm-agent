@@ -22,7 +22,8 @@ public:
     MOCK_METHOD(void, doStopDownload, (void *), ());
     MOCK_METHOD(void, copyCommandOutput, (char*, char*, int), ());
     MOCK_METHOD(const char*, getExtension, (char*), ());
-
+    MOCK_METHOD(int, tarExtract, (char*, char*), ());
+    MOCK_METHOD(int, fileCheck, (char*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
