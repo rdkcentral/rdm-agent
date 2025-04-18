@@ -2,6 +2,10 @@
 #include <gmock/gmock.h>
 #include "mocks/mock_rdm_rbus.h"
 
+extern "C" {
+    #include "rdm_rbus.h"
+}
+
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
 #define GTEST_DEFAULT_RESULT_FILENAME "rdmdownload_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
