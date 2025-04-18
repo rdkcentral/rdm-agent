@@ -3,6 +3,8 @@
 #include "rdm_utils.h"
 #include "rdm_rbus.h"
 
+#define RBUS_ERROR_SUCCESS 0
+
 typedef enum
 {
     RBUS_BOOLEAN  = 0x500,  /**< bool true or false */
@@ -26,7 +28,7 @@ typedef enum
     RBUS_NONE
 } rbusValueType_t;
 
-struct rbusValue_t
+typedef struct rbusValue_t
 {
     union
     {
@@ -45,11 +47,11 @@ struct rbusValue_t
         double                  f64;
     } d;
     rbusValueType_t type;
-};
+} rbusValue_t;
 
-struct rbusHandle_t
+typedef struct rbusHandle_t
 {
   char*                 componentName;
   int32_t               componentId;
-};
+} rbusHandle_t;
 
