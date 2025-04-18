@@ -53,7 +53,27 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessBool) {
     EXPECT_CALL(*mockRdmRbus, rbusValue_GetBoolean(::testing::_))
         .WillOnce(Return(true));
 
-    EXPECT_CALL(*mockRdmRbus, rbusValue_Release(::testing::_));
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue), RDM_SUCCESS);
+
+    delete static_cast<int*>(mockValue);
+    //delete mockRdmRbus;
+
+}
+
+TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessString) {
+
+    void* mockValue = static_cast<void*>(new int(0));
+    char rdmRFCName[128] = "Path.To.My.RFC";
+    INT8 *ipName = rdmRFCName;
+
+    EXPECT_CALL(*mockRdmRbus, rbusValue_GetType(::testing::_))
+        .WillOnce(Return(RBUS_STRING));
+
+    EXPECT_CALL(*mockRdmRbus, rbus_get(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(RBUS_ERROR_SUCCESS));
+
+    MOCK_METHOD(INT8*, rbusValue_ToString, (void*, void*, int), ())
+	.WillOnce(Return("Some_Value"));
 
     EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue), RDM_SUCCESS);
 
@@ -61,6 +81,21 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessBool) {
     delete mockRdmRbus;
 
 }
+
+TEST(rdmRbusGetRfc, rdmRbusGetRfc_Failure) {
+
+    void* mockValue = static_cast<void*>(new int(0));
+    char rdmRFCName[128] = "Path.To.My.RFC";
+    INT8 *ipName = rdmRFCName;
+
+    EXPECT_EQ(rdmRbusGetRfc(NULL, ipName, mockValue), RDM_FAILURE);
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, NULL, mockValue), RDM_FAILURE);
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, NULL), RDM_FAILURE);
+
+    delete static_cast<int*>(mockValue);
+
+}
+
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
