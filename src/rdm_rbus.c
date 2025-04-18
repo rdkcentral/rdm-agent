@@ -35,7 +35,7 @@
 #include "rdm_rbus.h"
 #include "rdm_utils.h"
 #else
-#include "unittest/mocks/mock_rdm_rbus.h"
+#include "unittest/mocks/mock_rdm_rbustypes.h"
 #endif
 #include "rdm.h"
 /** @brief This Function initializes rbus.
