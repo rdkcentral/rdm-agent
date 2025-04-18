@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "mocks/mock_rdm_rbus.h"
+
+extern "C" {
+    #include "mocks/mock_rdm_rbus.h"
+}
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
 #define GTEST_DEFAULT_RESULT_FILENAME "rdmdownload_gtest_report.json"
