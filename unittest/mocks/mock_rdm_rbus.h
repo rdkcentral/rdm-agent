@@ -1,8 +1,6 @@
 #ifndef MOCK_RDM_RBUS_H
 #define MOCK_RDM_RBUS_H
 
-#define RBUS_ERROR_SUCCESS 0
-
 extern "C" {
     #include "rdm_types.h"
     #include "rdm_utils.h"

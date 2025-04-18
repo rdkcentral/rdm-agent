@@ -31,13 +31,13 @@
 
 #ifndef GTEST_ENABLE
 #include "rbus.h"
+#include "rdm_types.h"
+#include "rdm_rbus.h"
+#include "rdm_utils.h"
 #else
 #include "unittest/mocks/mock_rdm_rbus.h"
 #endif
-#include "rdm_types.h"
 #include "rdm.h"
-#include "rdm_rbus.h"
-#include "rdm_utils.h"
 /** @brief This Function initializes rbus.
  *
  *  @param[in/out]  ppRDMRbusHandle  rbus handle
