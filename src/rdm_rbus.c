@@ -138,6 +138,7 @@ INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue )
         }
         else {
 	    RDMInfo("Before strcpy())\n");
+	    RDMInfo("RDM URL: %s\n", stringValue);
             strcpy( rdm_ver, stringValue);
             RDMInfo("RDM URL: %s\n", stringValue);
         }
