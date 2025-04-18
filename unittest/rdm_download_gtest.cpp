@@ -22,6 +22,7 @@ using ::testing::StrEq;
 
 MockRdmUtils* mockRdmUtils;
 MockRdmDownloadUtils* mockRdmDownloadUtils;
+MockIARM* mockIARM = new mockIARM();
 extern "C"{
     INT32 checkFileSystem(const char* path) {
         return mockRdmUtils->checkFileSystem(path);
@@ -184,6 +185,7 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
     EXPECT_CALL(*mockIARM, IARM_Bus_Term());
 
     EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_SUCCESS);
+    delete mockIARM;
 }
 
 int main(int argc, char** argv) {
