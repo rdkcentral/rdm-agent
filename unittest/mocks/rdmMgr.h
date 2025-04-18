@@ -84,7 +84,6 @@ typedef struct _RDMMgr_EventData_t {
 	} rdm_pkg_info;
 } IARM_Bus_RDMMgr_EventData_t;
 
-
 #ifdef __cplusplus
 }
 #endif

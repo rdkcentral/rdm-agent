@@ -53,8 +53,8 @@ extern "C"{
         return mockRdmUtils->fileCheck(tmpFile);
     }
 
-    INT32 rdmDownloadMgr(RDMAPPDetails* appDetails) {
-        return mockRdmDownloadUtils->rdmDownloadMgr(appDetails);
+    const char* getExtension(char *filename) {
+        return mockRdmUtils->getExtension(filename);
     }
 
     VOID rdmDwnlUnInstallApp(CHAR* dwnl_path, CHAR* home_path) {
