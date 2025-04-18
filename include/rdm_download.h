@@ -45,5 +45,5 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus);
 INT32 rdmDownloadVerApp(RDMAPPDetails *pRdmAppDet);
 INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet);
 INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet);
-
+INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet);
 #endif //_RDM_DOWNLOAD_H_

@@ -9,6 +9,7 @@ extern "C" {
     #include "rdm_download.h"
     #include "rdm_types.h"
     #include "mocks/libIBus.h"
+    #include "mocks/rdmMgr.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
@@ -21,7 +22,7 @@ using ::testing::StrEq;
 
 MockRdmUtils* mockRdmUtils;
 MockRdmDownloadUtils* mockRdmDownloadUtils;
-MockIARM* mockIARM = new mockIARM();
+MockIARM* mockIARM = new MockIARM();
 extern "C"{
     INT32 checkFileSystem(const char* path) {
         return mockRdmUtils->checkFileSystem(path);
