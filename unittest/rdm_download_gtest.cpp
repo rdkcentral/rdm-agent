@@ -3,7 +3,6 @@
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
 #include "mocks/mock_iarm_bus.h"
-#include "unittest/mocks/libIBus.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
