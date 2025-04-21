@@ -126,6 +126,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     appDetails.app_size_kb = 100;
     CHAR pkg_file[RDM_APP_PATH_LEN];
 
+    system("touch /etc/rdm/test_app_cpemanifest");
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
     
