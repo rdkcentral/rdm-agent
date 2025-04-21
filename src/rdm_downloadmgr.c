@@ -92,7 +92,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
-	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
 	    strcat(app_file, "/");
 	    strcat(app_file, pRdmAppDet->app_name);
 	    strcat(app_file, ".tar");
