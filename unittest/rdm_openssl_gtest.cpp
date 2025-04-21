@@ -19,6 +19,7 @@ public:
     MOCK_METHOD(int, bin_to_asciihex, (const uint8_t* bin, size_t bin_length, char* asciihex, size_t* asciihex_length));
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256_pkg_components, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
+    MOCK_METHOD(int, prepare_sig_file, (CHAR* sig_file)); // Add this line for `prepare_sig_file`
 };
 
 // Global mock object
@@ -51,6 +52,10 @@ extern "C" {
     
     int rdm_openssl_file_hash_sha256_pkg_components(const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len) {
         return global_mock->rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, buffer_len);
+    }
+   
+   int prepare_sig_file(CHAR* sig_file) {
+        return global_mock->prepare_sig_file(sig_file); // Mock implementation for `prepare_sig_file`
     }
 }
 
@@ -93,6 +98,38 @@ TEST(OpenSSLTests, RdmOpensslFileHashSha256PkgComponents_InvalidInput) {
     global_mock = nullptr;
 }
 
+// Example test for `prepare_sig_file`
+TEST(OpenSSLTests, PrepareSigFile_ValidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    CHAR* sig_file = (CHAR*)"test_sig_file.txt";
+
+    EXPECT_CALL(mock, prepare_sig_file(sig_file))
+        .Times(1)
+        .WillOnce(testing::Return(0));
+
+    int result = prepare_sig_file(sig_file);
+
+    EXPECT_EQ(result, 0);
+    global_mock = nullptr;
+}
+
+TEST(OpenSSLTests, PrepareSigFile_InvalidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    CHAR* sig_file = nullptr; // Invalid input
+
+    EXPECT_CALL(mock, prepare_sig_file(sig_file))
+        .Times(1)
+        .WillOnce(testing::Return(1));
+
+    int result = prepare_sig_file(sig_file);
+
+    EXPECT_EQ(result, 1);
+    global_mock = nullptr;
+}
 
 TEST(OpenSSLTests, AsciiHexToBin_ValidInput) {
     MockRdmOpenssl mock;
