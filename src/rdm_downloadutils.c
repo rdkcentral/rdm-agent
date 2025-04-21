@@ -578,17 +578,21 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
 
+    RDMInfo("ONE\n");
+
     if(out_buf == NULL) {
         RDMError("Failed to allocate memory\n");
         return RDM_FAILURE;
     }
 
+    RDMInfo("TWO\n");
     strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
     dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     if(pVer) {
         strcat(dwnl_path, "/v");
         strcat(dwnl_path, pVer);
     }
+    RDMInfo("THREE\n");
     strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
     if(pVer) {
         strcat(app_home, "/v");
@@ -596,6 +600,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(app_home, "/package");
     }
 
+    RDMInfo("FOUR\n");
     if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
         /* Read the signature file */
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
@@ -607,6 +612,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         }
     }
 
+    RDMInfo("FIVE\n");
     if(pRdmAppDet->sig_type == RDM_SIG_TYPE_KMS) {
         status = rdmDecryptKey(RDM_KMS_PUB_KEY);
 
@@ -622,20 +628,26 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(out_file, pRdmAppDet->app_name);
         strcat(out_file, "_cpemanifest");
 
+	RDMInfo("FIVE.ONE\n");
         status = rdmDwnlUpdateManifest(tmp_file, out_file,
                                        app_home,
                                        dwnl_path);
+	RDMInfo("FIVE.TWO\n");
         if(status) {
             RDMWarn("Failed to process manifest file\n");
         }
         else {
+	    RDMInfo("FIVE.THREE\n");
 
             rdmInitSslLib();
+
+	    RDMInfo("FIVE.FOUR\n");
 
             ssl_status = rdmOpensslRsafileSignatureVerify(out_file, -1,
                                                           out_buf,
                                                           RDM_KMS_PUB_KEY, tmp_file,
                                                           &outputMsgLen);
+	    RDMInfo("FIVE.FIVE\n");
 
             if (ssl_status == retcode_success) {
                 RDMInfo("RSA Signature Validation Success\n");
@@ -647,15 +659,19 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     }
     else if(pRdmAppDet->sig_type == RDM_SIG_TYPE_OPENSSL) {
       /*In the script, there is no call for this sig type. So not handled*/
+	    RDMInfo("SIX\n");
     }
     else {
+	    RDMInfo("SEVEN\n");
         RDMError("Unknown Signature Type\n");
         status = RDM_FAILURE;
     }
 
+    RDMInfo("EIGHT\n");
     if(out_buf) {
         free(out_buf);
     }
+    RDMInfo("NINE\n");
     return status;
 }
 
