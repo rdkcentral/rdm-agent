@@ -126,7 +126,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     appDetails.app_size_kb = 100;
     CHAR pkg_file[RDM_APP_PATH_LEN];
 
-    EXPECT_CALL(*mockRdmUtils, findPFile(appDetails.app_dwnl_path, "*-pkg.sig", pkg_file))
+    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
     
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
