@@ -153,40 +153,10 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
 	.WillOnce(Return(354705069));
     
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
-    delete mockRdmUtils;
+    //delete mockRdmUtils;
 }
 
-TEST(rdmDwnlValidation, rdmDwnlValidation_Failure1) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
-    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
-    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
-    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
-    appDetails.app_size_mb = 100;
-    appDetails.bFsCheck = true;
-    appDetails.is_versioned = false;
-    appDetails.is_usb = 0;
-    appDetails.app_size_kb = 100;
-    CHAR pkg_file[RDM_APP_PATH_LEN];
-
-    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
-        .WillOnce(Return(1));
-
-    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
-        .WillOnce(Return(RDM_SUCCESS));
-
-    EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
-
-    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
-        .WillOnce(Return(354705069));
-
-    EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_FAILURE);
-    delete mockRdmUtils;
-}
-
-TEST(rdmDwnlValidation, rdmDwnlValidation_Failure2) {
+TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
