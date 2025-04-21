@@ -657,7 +657,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                                                           RDM_KMS_PUB_KEY, tmp_file,
                                                           &outputMsgLen);
 	    RDMInfo("FIVE.FIVE\n");
-
+	    RDMInfo("ssl_status: %d\n", ssl_status);
             if (ssl_status == retcode_success) {
                 RDMInfo("RSA Signature Validation Success\n");
             } else {
