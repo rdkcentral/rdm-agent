@@ -18,6 +18,7 @@ public:
     MOCK_METHOD(int, asciihex_to_bin, (const char* asciihex, size_t asciihex_length, uint8_t* bin, size_t* bin_length));
     MOCK_METHOD(int, bin_to_asciihex, (const uint8_t* bin, size_t bin_length, char* asciihex, size_t* asciihex_length));
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
+    MOCK_METHOD(int, rdm_openssl_file_hash_sha256_pkg_components, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
 };
 
 // Global mock object
@@ -46,8 +47,51 @@ extern "C" {
     int rdm_openssl_file_hash_sha256(const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len) {
         return global_mock->rdm_openssl_file_hash_sha256(data_file, file_len, hash_buffer, buffer_len);
     }
+
+    
+    int rdm_openssl_file_hash_sha256_pkg_components(const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len) {
+        return global_mock->rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, buffer_len);
+    }
 }
 
+TEST(OpenSSLTests, RdmOpensslFileHashSha256PkgComponents_ValidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    const char* data_file = "valid_manifest.txt"; // Simulate a valid manifest file
+    size_t file_len = 1024; // Example file length
+    uint8_t hash_buffer[SHA256_DIGEST_LENGTH] = {0};
+    int32_t buffer_len = SHA256_DIGEST_LENGTH;
+
+    EXPECT_CALL(mock, rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, &buffer_len))
+        .Times(1)
+        .WillOnce(testing::Return(0));
+
+    int result = rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, &buffer_len);
+
+    EXPECT_EQ(result, 0);
+    EXPECT_EQ(buffer_len, SHA256_DIGEST_LENGTH); // Ensure buffer length is correct
+    global_mock = nullptr;
+}
+
+TEST(OpenSSLTests, RdmOpensslFileHashSha256PkgComponents_InvalidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    const char* data_file = nullptr; // Simulate invalid input
+    size_t file_len = 0;
+    uint8_t hash_buffer[SHA256_DIGEST_LENGTH] = {0};
+    int32_t buffer_len = SHA256_DIGEST_LENGTH;
+
+    EXPECT_CALL(mock, rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, &buffer_len))
+        .Times(1)
+        .WillOnce(testing::Return(retcode_param_error));
+
+    int result = rdm_openssl_file_hash_sha256_pkg_components(data_file, file_len, hash_buffer, &buffer_len);
+
+    EXPECT_EQ(result, retcode_param_error);
+    global_mock = nullptr;
+}
 
 
 TEST(OpenSSLTests, AsciiHexToBin_ValidInput) {
