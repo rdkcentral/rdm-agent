@@ -603,7 +603,9 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     RDMInfo("FOUR\n");
     if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
         /* Read the signature file */
+	    RDMInfo("FOUR.ONE\n");
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
+	RDMInfo("FOUR.TWO\n");
         if(status) {
             RDMError("Failed to read Signature file: %s\n", pkg_file);
 	    if(out_buf)
