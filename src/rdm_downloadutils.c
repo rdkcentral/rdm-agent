@@ -541,6 +541,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
 
     RDMInfo("FIVE.ONE.FIVE\n");
     fprintf(fpout, "%s/pkg_padding", padding);
+    RDMInfo("FIVE.ONE.SIX\n");
 error:
     if(fpin) {
         fclose(fpin);
@@ -551,7 +552,7 @@ error:
     if(buff) {
         free(buff);
     }
-    RDMInfo("FIVE.ONE.SIX\n");
+    RDMInfo("FIVE.ONE.SEVEN\n");
     return status;
 }
 
