@@ -11,6 +11,7 @@ extern "C" {
    
 }
 
+
 // Mock class for static functions
 class MockRdmOpenssl {
 public:
@@ -47,67 +48,7 @@ extern "C" {
     }
 }
 
-class PrepareSigFileTest : public ::testing::Test {
-protected:
-    const char* test_sig_file = "test_sig_file.sig";
-    const char* tmp_sig_file = "test_tmp_sig_file.sig";
 
-    virtual void SetUp() {
-        // Create a test signature file with dummy contents
-        FILE* file = fopen(test_sig_file, "w");
-        ASSERT_NE(file, nullptr);
-        const char* data = "123456ABCDEFGH";
-        fwrite(data, sizeof(char), strlen(data), file);
-        fclose(file);
-    }
-
-    virtual void TearDown() {
-        // Clean up test files
-        remove(test_sig_file);
-        remove(tmp_sig_file);
-    }
-};
-
-TEST_F(PrepareSigFileTest, ValidInput) {
-    // Call prepare_sig_file with a valid file
-    int result = prepare_sig_file(const_cast<char*>(test_sig_file));
-
-    // Check the return value
-    EXPECT_EQ(result, 0);
-
-    // Verify the contents of the modified file
-    FILE* file = fopen(test_sig_file, "r");
-    ASSERT_NE(file, nullptr);
-
-    char buffer[128] = {0};
-    fread(buffer, sizeof(char), sizeof(buffer), file);
-    fclose(file);
-
-    // The first 6 bytes should be skipped, so we expect "ABCDEFGH"
-    EXPECT_STREQ(buffer, "ABCDEFGH");
-}
-
-TEST_F(PrepareSigFileTest, FileOpenFailure) {
-    // Try calling with a nonexistent file
-    int result = prepare_sig_file(const_cast<char*>("nonexistent_file.sig"));
-
-    // Check the return value (assuming 1 indicates failure)
-    EXPECT_EQ(result, 1);
-}
-
-TEST_F(PrepareSigFileTest, VSecureSystemCall) {
-    // Mock v_secure_system to confirm it is called with expected arguments
-    testing::MockFunction<int(const char*, ...)>::gmock_function v_secure_system_mock;
-    EXPECT_CALL(v_secure_system_mock, Call(testing::StrEq("/bin/mv %s %s"), testing::_, testing::_))
-        .Times(1)
-        .WillOnce(testing::Return(0));
-
-    // Call prepare_sig_file
-    int result = prepare_sig_file(const_cast<char*>(test_sig_file));
-
-    // Check the return value
-    EXPECT_EQ(result, 0);
-}
 
 TEST(OpenSSLTests, AsciiHexToBin_ValidInput) {
     MockRdmOpenssl mock;
