@@ -93,9 +93,11 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
 	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
+	    app_file[sizeof(app_file) - 1] = '\0';
 	    strcat(app_file, "/");
 	    strcat(app_file, pRdmAppDet->app_name);
 	    strcat(app_file, ".tar");
+	    app_file[sizeof(app_file) - 1] = '\0';
 
 	    status = tarExtract(app_file, pRdmAppDet->app_home);
 	    if(status) {
