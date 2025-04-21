@@ -551,7 +551,7 @@ error:
     if(buff) {
         free(buff);
     }
-
+    RDMInfo("FIVE.ONE.SIX\n");
     return status;
 }
 
