@@ -110,7 +110,7 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
 }
 
 // Test rdmDwnlValidation
-/*
+
 TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
@@ -126,7 +126,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     appDetails.app_size_kb = 100;
 
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
-}*/
+}
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
