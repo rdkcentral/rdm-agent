@@ -520,7 +520,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     RDMInfo("FIVE.ONE.TWO\n");
 
     fpout = fopen(pOutManifest, "w");
-    if(fpin == NULL) {
+    if(fpout == NULL) {
         RDMError("Unable to open output file: %s\n", pOutManifest);
         status = RDM_FAILURE;
         goto error;
@@ -635,6 +635,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(out_file, "/");
         strcat(out_file, pRdmAppDet->app_name);
         strcat(out_file, "_cpemanifest");
+	RDMInfo("out_file: %s\n", out_file);
 
 	RDMInfo("FIVE.ONE\n");
         status = rdmDwnlUpdateManifest(tmp_file, out_file,
