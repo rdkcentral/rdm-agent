@@ -53,6 +53,10 @@ extern "C"{
     INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const CHAR *vkey_file, CHAR *reply_msg, INT32 *reply_msg_len) {
 	return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, reply_msg_len);
     }
+
+    INT32 rdmDecryptKey(CHAR *outKey) {
+	return mockRdmUtils->rdmDecryptKey(outKey);
+    }
 }
 
 // Test rdmDwnlDirect
@@ -139,6 +143,9 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
+
+    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
+	.WillOnce(Return(RDM_SUCCESS));
 
     EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
 

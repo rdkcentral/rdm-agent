@@ -26,6 +26,7 @@ public:
     MOCK_METHOD(int, fileCheck, (char*), ());
     MOCK_METHOD(void, rdmInitSslLib, (), ());
     MOCK_METHOD(INT32, rdmOpensslRsafileSignatureVerify, (const CHAR*, size_t, const CHAR*, const CHAR*, CHAR*, INT32*), ());
+    MOCK_METHOD(INT32, rdmDecryptKey, (CHAR*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
