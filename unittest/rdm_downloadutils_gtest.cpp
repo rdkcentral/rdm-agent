@@ -95,7 +95,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
     EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
 
-    delete mockRdmUtils;
+    //delete mockRdmUtils;
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
@@ -124,8 +124,13 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     appDetails.is_versioned = false;
     appDetails.is_usb = 0;
     appDetails.app_size_kb = 100;
+    CHAR pkg_file[RDM_APP_PATH_LEN];
 
+    EXPECT_CALL(*mockRdmUtils, findPFile(appDetails.app_dwnl_path, "*-pkg.sig", pkg_file))
+        .WillOnce(Return(1));
+    
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
+    delete mockRdmUtils;
 }
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
