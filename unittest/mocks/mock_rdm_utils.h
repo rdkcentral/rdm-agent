@@ -24,6 +24,8 @@ public:
     MOCK_METHOD(const char*, getExtension, (char*), ());
     MOCK_METHOD(int, tarExtract, (char*, char*), ());
     MOCK_METHOD(int, fileCheck, (char*), ());
+    MOCK_METHOD(void, rdmInitSslLib, (), ());
+    MOCK_METHOD(INT32, rdmOpensslRsafileSignatureVerify, (const CHAR*, size_t, const CHAR*, const CHAR*, CHAR*, INT32*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H

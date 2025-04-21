@@ -45,6 +45,13 @@ extern "C"{
     const char* getExtension(char *filename) {
         return mockRdmUtils->getExtension(filename);
     }
+
+    void rdmInitSslLib() {
+	return mockRdmUtils->rdmInitSslLib();
+    }
+
+    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const CHAR *vkey_file, CHAR *reply_msg, INT32 *reply_msg_len) {
+	return mockRdmUtils->(data_file, file_len, sig_file, vkey_file, reply_msg, reply_msg_len);
 }
 
 // Test rdmDwnlDirect
@@ -128,9 +135,14 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
 
     system("mkdir -p /etc/rdm && touch /etc/rdm/test_app_cpemanifest");
     system("mkdir -p /home/test/ && touch /home/test/test_app_cpemanifest");
-    system("touch /tmp/rdmconfig.file && echo MyPubKey >> /tmp/rdmconfig.file");
+    
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
+
+    EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
+
+    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+	.WillOnce(Return(RDM_SUCCESS));
     
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
     delete mockRdmUtils;
