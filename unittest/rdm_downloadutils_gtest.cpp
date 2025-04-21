@@ -150,7 +150,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
 
     EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
-	.WillOnce(Return(RDM_SUCCESS));
+	.WillOnce(Return(354705069));
     
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
     delete mockRdmUtils;
