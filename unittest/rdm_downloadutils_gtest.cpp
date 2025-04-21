@@ -127,6 +127,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     CHAR pkg_file[RDM_APP_PATH_LEN];
 
     system("mkdir -p /etc/rdm && touch /etc/rdm/test_app_cpemanifest");
+    system("mkdir -p /home/test/ && touch /home/test/test_app_cpemanifest");
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
     

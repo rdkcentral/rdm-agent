@@ -510,7 +510,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     FILE *fpin;
     FILE *fpout;
     INT32 status = RDM_SUCCESS;
-    CHAR *buff;
+    CHAR *buff = NULL;
     RDMInfo("FIVE.ONE.ONE\n");
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
