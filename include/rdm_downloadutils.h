@@ -62,6 +62,7 @@ INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOu
 INT32  rdmDwnlIsOCSPEnable(void);
 #ifdef GTEST_ENABLE
 INT32  rdmDwnlGetCert(MtlsAuth_t*);
+INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
 #endif
 INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);

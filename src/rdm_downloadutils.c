@@ -511,12 +511,13 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     FILE *fpout;
     INT32 status = RDM_SUCCESS;
     CHAR *buff;
-
+    RDMInfo("FIVE.ONE.ONE\n");
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
         RDMError("Unable to open input file: %s\n", pInManifest);
         return RDM_FAILURE;
     }
+    RDMInfo("FIVE.ONE.TWO\n");
 
     fpout = fopen(pOutManifest, "w");
     if(fpin == NULL) {
@@ -524,6 +525,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
         status = RDM_FAILURE;
         goto error;
     }
+    RDMInfo("FIVE.ONE.THREE\n");
 
     buff = calloc(MAX_BUFF_SIZE, 1);
     if(buff == NULL) {
@@ -531,11 +533,13 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
         status = RDM_FAILURE;
         goto error;
     }
+    RDMInfo("FIVE.ONE.FOUR\n");
 
     while (fgets(buff, MAX_BUFF_SIZE, fpin)) {
         fprintf(fpout, "%s/%s", update, buff);
     }
 
+    RDMInfo("FIVE.ONE.FIVE\n");
     fprintf(fpout, "%s/pkg_padding", padding);
 error:
     if(fpin) {
