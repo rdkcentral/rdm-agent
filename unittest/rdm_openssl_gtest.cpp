@@ -12,6 +12,13 @@ extern "C" {
 }
 
 
+
+#define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdmopenssl_gtest_report.json"
+#define GTEST_REPORT_FILEPATH_SIZE 256
+
+
+
 // Mock class for static functions
 class MockRdmOpenssl {
 public:
@@ -20,6 +27,7 @@ public:
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
     MOCK_METHOD(int, rdm_openssl_file_hash_sha256_pkg_components, (const char* data_file, size_t file_len, uint8_t* hash_buffer, int32_t* buffer_len));
     MOCK_METHOD(int, prepare_sig_file, (CHAR* sig_file)); // Add this line for `prepare_sig_file`
+    MOCK_METHOD(int, prepare_app_manifest, (CHAR* etc_manifest_file, CHAR* cache_manifest_file, CHAR* padding_file, CHAR* prefix));
 };
 
 // Global mock object
@@ -57,6 +65,11 @@ extern "C" {
    int prepare_sig_file(CHAR* sig_file) {
         return global_mock->prepare_sig_file(sig_file); // Mock implementation for `prepare_sig_file`
     }
+
+    int prepare_app_manifest(CHAR* etc_manifest_file, CHAR* cache_manifest_file, CHAR* padding_file, CHAR* prefix) {
+        return global_mock->prepare_app_manifest(etc_manifest_file, cache_manifest_file, padding_file, prefix);
+    }  
+
 }
 
 TEST(OpenSSLTests, RdmOpensslFileHashSha256PkgComponents_ValidInput) {
@@ -236,4 +249,42 @@ TEST(OpenSSLTests, RdmOpensslRsafileSignatureVerify_InvalidInput) {
     int result = rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, &reply_msg_len);
 
     EXPECT_EQ(result, retcode_param_error);
+}
+
+TEST(OpenSSLTests, PrepareAppManifest_ValidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    CHAR* etc_manifest_file = (CHAR*)"valid_manifest.txt";
+    CHAR* cache_manifest_file = (CHAR*)"cache_manifest.txt";
+    CHAR* padding_file = (CHAR*)"padding_file.txt";
+    CHAR* prefix = (CHAR*)"/prefix/";
+
+    EXPECT_CALL(mock, prepare_app_manifest(etc_manifest_file, cache_manifest_file, padding_file, prefix))
+        .Times(1)
+        .WillOnce(testing::Return(0));
+
+    int result = prepare_app_manifest(etc_manifest_file, cache_manifest_file, padding_file, prefix);
+
+    EXPECT_EQ(result, 0);
+    global_mock = nullptr;
+}
+
+TEST(OpenSSLTests, PrepareAppManifest_InvalidInput) {
+    MockRdmOpenssl mock;
+    global_mock = &mock;
+
+    CHAR* etc_manifest_file = nullptr;  // Invalid input
+    CHAR* cache_manifest_file = (CHAR*)"cache_manifest.txt";
+    CHAR* padding_file = (CHAR*)"padding_file.txt";
+    CHAR* prefix = (CHAR*)"/prefix/";
+
+    EXPECT_CALL(mock, prepare_app_manifest(etc_manifest_file, cache_manifest_file, padding_file, prefix))
+        .Times(1)
+        .WillOnce(testing::Return(1));
+
+    int result = prepare_app_manifest(etc_manifest_file, cache_manifest_file, padding_file, prefix);
+
+    EXPECT_EQ(result, 1);
+    global_mock = nullptr;
 }
