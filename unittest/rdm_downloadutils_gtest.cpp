@@ -128,7 +128,7 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
 
     system("mkdir -p /etc/rdm && touch /etc/rdm/test_app_cpemanifest");
     system("mkdir -p /home/test/ && touch /home/test/test_app_cpemanifest");
-    system("touch /tmp/rdmconfig.file");
+    system("touch /tmp/rdmconfig.file && echo MyPubKey >> /tmp/rdmconfig.file");
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
     
