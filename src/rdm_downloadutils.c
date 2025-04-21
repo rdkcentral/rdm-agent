@@ -540,6 +540,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     }
 
     RDMInfo("FIVE.ONE.FIVE\n");
+    RDMInfo("padding = %s\n", padding);
     fprintf(fpout, "%s/pkg_padding", padding);
     RDMInfo("FIVE.ONE.SIX\n");
 error:
