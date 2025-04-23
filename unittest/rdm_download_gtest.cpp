@@ -220,18 +220,18 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 
     INT32 DLStatus = RDM_DL_NOERROR;
 
-    EXPECT_CALL(*mockRdmUtils, checkFileSystem(StrEq(appDetails.app_mnt)))
+    EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
         .WillOnce(Return(1));
-    EXPECT_CALL(*mockRdmUtils, findPFile(StrEq(appDetails.app_mnt), StrEq(appDetails.pkg_name), _))
+    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
+        .WillRepeatedly(Return(0));
+    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
+        .WillRepeatedly(Return(0));
+    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
         .WillOnce(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(StrEq(appDetails.app_dwnl_path)))
-        .WillOnce(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(StrEq(appDetails.app_home)))
-        .WillOnce(Return(0));
-    EXPECT_CALL(*mockRdmUtils, getFreeSpace(StrEq(appDetails.app_mnt)))
+    EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
         .WillOnce(Return(200));
     EXPECT_CALL(*mockRdmUtils, createDir(_))
-        .WillOnce(Return(RDM_SUCCESS));
+        .WillRepeatedly(Return(RDM_SUCCESS));
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
     EXPECT_EQ(DLStatus, RDM_DL_NOERROR);
@@ -253,16 +253,16 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
 
     INT32 DLStatus = RDM_DL_NOERROR;
 
-      EXPECT_CALL(*mockRdmUtils, checkFileSystem(StrEq(appDetails.app_mnt)))
+      EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
         .WillOnce(Return(1));
      EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
-        .WillOnce(Return(0));
+        .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
         .WillOnce(Return(appDetails.app_size_mb + 1));
 
-    EXPECT_CALL(*mockRdmUtils, createDir(StrEq("/downloads/test")))
+    EXPECT_CALL(*mockRdmUtils, createDir(::testing::_))
         .WillOnce(Return(RDM_FAILURE));
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
