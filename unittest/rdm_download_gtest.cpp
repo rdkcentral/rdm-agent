@@ -21,6 +21,7 @@
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
 #include "mocks/mock_iarm_bus.h"
+#include "mocks/system_utils.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
@@ -28,6 +29,7 @@ extern "C" {
     #include "rdm_types.h"
     #include "mocks/libIBus.h"
     #include "mocks/rdmMgr.h"
+    #include "rdm_downloadutils.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
@@ -73,6 +75,14 @@ extern "C"{
 
     const char* getExtension(char *filename) {
         return mockRdmUtils->getExtension(filename);
+    }
+
+    int copyFiles(char *dest, char *src) {
+        return mockRdmUtils->copyFiles(dest, src);
+    }
+
+    int removeFile(char *file) {
+        return mockRdmUtils->removeFile(file);
     }
 }
 

@@ -30,9 +30,7 @@ extern "C" {
 
 class MockRdmDownloadUtils {
 public:
-        MOCK_METHOD1(rdmDownloadMgr, int(RDMAPPDetails*));
-        MOCK_METHOD2(rdmDwnlUnInstallApp, void(const char*, const char*));
-        MOCK_METHOD1(rdmDownloadVerApp, int(RDMAPPDetails*));
+    // Define any mock functions here
 };
 
 #endif // MOCK_RDM_DOWNLOADUTILS_H
