@@ -179,8 +179,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		tmp_file[sizeof(tmp_file) - 1] = '\0';
                 strcat(tmp_file, "/data.tar.xz");
+		tmp_file[sizeof(tmp_file) - 1] = '\0';
 
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
