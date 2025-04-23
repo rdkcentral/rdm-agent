@@ -21,12 +21,15 @@
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/system_utils.h"
 #include "mocks/mock_rdm_rbus.h"
+#include "mocks/mock_iarm_bus.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
     #include "rdm_download.h"
     #include "rdm_types.h"
     #include "rdm_downloadutils.h"
+    #include "mocks/libIBus.h"
+    #include "mocks/rdmMgr.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
