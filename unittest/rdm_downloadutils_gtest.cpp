@@ -167,6 +167,10 @@ extern "C"{
 	return mockRdmUtils->rdmJSONGetLen(pfName, pLen);
     }
 
+    INT32 rdmJSONGetAppDetName(CHAR *pName, RDMAPPDetails *pRdmAppDet) {
+	return mockRdmUtils->rdmJSONGetAppDetName(pName, pRdmAppDet);
+    }
+
     unsigned int getFileLastModifyTime(CHAR *file) {
         return mockRdmUtils->getFileLastModifyTime(file);
     }
@@ -256,6 +260,8 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetLen(::testing::_, ::testing::_))
 	.WillRepeatedly(Return(RDM_SUCCESS));
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppNames(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(::testing::_, ::testing::_))
 	.WillRepeatedly(Return(RDM_SUCCESS));
     EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
 }

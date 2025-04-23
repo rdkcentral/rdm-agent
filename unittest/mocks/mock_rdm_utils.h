@@ -60,6 +60,7 @@ public:
     MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
     MOCK_METHOD(INT32, rdmJSONGetLen, (CHAR*, INT32*), ());
     MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32, CHAR*), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppDetName, (CHAR*, RDMAPPDetails*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
