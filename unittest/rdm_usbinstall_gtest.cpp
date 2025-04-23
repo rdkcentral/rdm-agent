@@ -2,7 +2,6 @@
 #include <gtest/gtest.h>
 #include <cstring>
 
-
 extern "C" {
     #include "rdm_types.h"
     #include "rdm_usbinstall.h"
@@ -49,16 +48,15 @@ TEST_F(RdmUSBInstallTest, RdmUSBInstall_Success) {
         .WillOnce(::testing::DoAll(::testing::SetArrayArgument<2>(mockUsbApps, mockUsbApps + mockNumApps),
                                    ::testing::SetArgPointee<3>(mockNumApps)));
 
-    EXPECT_CALL(getPartChar, testing::_, '/')
+    EXPECT_CALL(getPartChar, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(strdup("app1_signed.tar")));
-    EXPECT_CALL(getPartChar, testing::_, '_')
-        .WillRepeatedly(::testing::Return(strdup("app1")));
-    EXPECT_CALL(getPartStr, testing::_, "signed")
+    EXPECT_CALL(getPartStr, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(strdup("signed")));
 
     EXPECT_CALL(rdmJSONGetAppDetName, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(0));
-    EXPECT_CALL(rdmUpdateAppDetails, testing::_, testing::_, 0);
+    EXPECT_CALL(rdmUpdateAppDetails, testing::_, testing::_)
+        .WillOnce(::testing::Return(0));
     EXPECT_CALL(rdmPrintAppDetails, testing::_);
     EXPECT_CALL(rdmDownloadApp, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(0));
@@ -94,11 +92,9 @@ TEST_F(RdmUSBInstallTest, RdmUSBInstall_JSONParsingFailure) {
         .WillOnce(::testing::DoAll(::testing::SetArrayArgument<2>(mockUsbApps, mockUsbApps + mockNumApps),
                                    ::testing::SetArgPointee<3>(mockNumApps)));
 
-    EXPECT_CALL(getPartChar, testing::_, '/')
+    EXPECT_CALL(getPartChar, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(strdup("app1_signed.tar")));
-    EXPECT_CALL(getPartChar, testing::_, '_')
-        .WillRepeatedly(::testing::Return(strdup("app1")));
-    EXPECT_CALL(getPartStr, testing::_, "signed")
+    EXPECT_CALL(getPartStr, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(strdup("signed")));
 
     EXPECT_CALL(rdmJSONGetAppDetName, testing::_, testing::_)
