@@ -138,6 +138,8 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
 }
 
+
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
