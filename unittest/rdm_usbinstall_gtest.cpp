@@ -1,22 +1,26 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-using ::testing::Return; 
 #include <cstring>
-#include <openssl/evp.h>
 
-// Include the header file for the functions being tested
+
 extern "C" {
-    #include "rdm_types.h"  
+    #include "rdm_types.h"
     #include "rdm_usbinstall.h"
-   
 }
-
-
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
 #define GTEST_DEFAULT_RESULT_FILENAME "rdmusbinstall_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
+#define MAX_BUFF_SIZE 256  // Define MAX_BUFF_SIZE if not defined elsewhere
 
+// Mock declarations for functions being tested
+MOCK_FUNCTION5(findPFileAll, int(const char*, const char*, char*[], int*, int));
+MOCK_FUNCTION2(getPartChar, char*(const char*, char));
+MOCK_FUNCTION2(getPartStr, char*(const char*, const char*));
+MOCK_FUNCTION2(rdmJSONGetAppDetName, int(const char*, char*));
+MOCK_FUNCTION3(rdmUpdateAppDetails, int(RDMHandle*, const char*, int));
+MOCK_FUNCTION1(rdmPrintAppDetails, void(const char*));
+MOCK_FUNCTION2(rdmDownloadApp, int(const char*, const char*));
 
 // Test fixture class
 class RdmUSBInstallTest : public ::testing::Test {
@@ -41,22 +45,22 @@ TEST_F(RdmUSBInstallTest, RdmUSBInstall_Success) {
     char* mockUsbApps[RDM_MAX_USB_APP] = { strdup("app1_signed.tar"), strdup("app2_signed.tar") };
     int mockNumApps = 2;
 
-    EXPECT_CALL(findPFileAll, (usbPath, RDM_USB_TAR_SEARCH, ::testing::_, ::testing::_, RDM_MAX_USB_APP))
+    EXPECT_CALL(findPFileAll, testing::_, testing::_, testing::_, testing::_, testing::_)
         .WillOnce(::testing::DoAll(::testing::SetArrayArgument<2>(mockUsbApps, mockUsbApps + mockNumApps),
                                    ::testing::SetArgPointee<3>(mockNumApps)));
 
-    EXPECT_CALL(getPartChar, (::testing::_, '/'))
+    EXPECT_CALL(getPartChar, testing::_, '/')
         .WillRepeatedly(::testing::Return(strdup("app1_signed.tar")));
-    EXPECT_CALL(getPartChar, (::testing::_, '_'))
+    EXPECT_CALL(getPartChar, testing::_, '_')
         .WillRepeatedly(::testing::Return(strdup("app1")));
-    EXPECT_CALL(getPartStr, (::testing::_, "signed"))
+    EXPECT_CALL(getPartStr, testing::_, "signed")
         .WillRepeatedly(::testing::Return(strdup("signed")));
 
-    EXPECT_CALL(rdmJSONGetAppDetName, (::testing::_, ::testing::_))
+    EXPECT_CALL(rdmJSONGetAppDetName, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(0));
-    EXPECT_CALL(rdmUpdateAppDetails, (&rdmHandle, ::testing::_, 0));
-    EXPECT_CALL(rdmPrintAppDetails, (::testing::_));
-    EXPECT_CALL(rdmDownloadApp, (::testing::_, ::testing::_))
+    EXPECT_CALL(rdmUpdateAppDetails, testing::_, testing::_, 0);
+    EXPECT_CALL(rdmPrintAppDetails, testing::_);
+    EXPECT_CALL(rdmDownloadApp, testing::_, testing::_)
         .WillRepeatedly(::testing::Return(0));
 
     int result = rdmUSBInstall(&rdmHandle, &appDetails, usbPath);
@@ -73,7 +77,7 @@ TEST_F(RdmUSBInstallTest, RdmUSBInstall_Success) {
 TEST_F(RdmUSBInstallTest, RdmUSBInstall_NoAppsFound) {
     int mockNumApps = 0;
 
-    EXPECT_CALL(findPFileAll, (usbPath, RDM_USB_TAR_SEARCH, ::testing::_, ::testing::_, RDM_MAX_USB_APP))
+    EXPECT_CALL(findPFileAll, testing::_, testing::_, testing::_, testing::_, testing::_)
         .WillOnce(::testing::SetArgPointee<3>(mockNumApps));
 
     int result = rdmUSBInstall(&rdmHandle, &appDetails, usbPath);
@@ -86,18 +90,18 @@ TEST_F(RdmUSBInstallTest, RdmUSBInstall_JSONParsingFailure) {
     char* mockUsbApps[RDM_MAX_USB_APP] = { strdup("app1_signed.tar") };
     int mockNumApps = 1;
 
-    EXPECT_CALL(findPFileAll, (usbPath, RDM_USB_TAR_SEARCH, ::testing::_, ::testing::_, RDM_MAX_USB_APP))
+    EXPECT_CALL(findPFileAll, testing::_, testing::_, testing::_, testing::_, testing::_)
         .WillOnce(::testing::DoAll(::testing::SetArrayArgument<2>(mockUsbApps, mockUsbApps + mockNumApps),
                                    ::testing::SetArgPointee<3>(mockNumApps)));
 
-    EXPECT_CALL(getPartChar, (::testing::_, '/'))
+    EXPECT_CALL(getPartChar, testing::_, '/')
         .WillRepeatedly(::testing::Return(strdup("app1_signed.tar")));
-    EXPECT_CALL(getPartChar, (::testing::_, '_'))
+    EXPECT_CALL(getPartChar, testing::_, '_')
         .WillRepeatedly(::testing::Return(strdup("app1")));
-    EXPECT_CALL(getPartStr, (::testing::_, "signed"))
+    EXPECT_CALL(getPartStr, testing::_, "signed")
         .WillRepeatedly(::testing::Return(strdup("signed")));
 
-    EXPECT_CALL(rdmJSONGetAppDetName, (::testing::_, ::testing::_))
+    EXPECT_CALL(rdmJSONGetAppDetName, testing::_, testing::_)
         .WillOnce(::testing::Return(1)); // Simulate failure
 
     int result = rdmUSBInstall(&rdmHandle, &appDetails, usbPath);
