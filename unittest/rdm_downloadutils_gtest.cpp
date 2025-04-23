@@ -159,6 +159,14 @@ extern "C"{
         return mockRdmUtils->rdmDecryptKey(outKey);
     }
 
+    INT32 rdmJSONGetAppNames(INT32 idx, CHAR *pAppName) {
+        return mockRdmUtils->rdmJSONGetAppNames(idx, pAppName);
+    }
+
+    INT32 rdmJSONGetLen (CHAR const* pfName, INT32 *pLen) {
+	return mockRdmUtils->rdmJSONGetLen(pfName, pLen);
+    }
+
     unsigned int getFileLastModifyTime(CHAR *file) {
         return mockRdmUtils->getFileLastModifyTime(file);
     }
@@ -244,7 +252,11 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
 // Test rdmUnInstallApps
 TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     int isBroadband = 0;
-    system("mkdir -p /etc/rdm/ && touch /etc/rdm/rdm-manifest.json && echo \"Some package data here\" > /etc/rdm/rdm-manifest.json");
+    system("mkdir -p /media/apps");
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetLen(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppNames(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
     EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
 }
 

@@ -58,6 +58,8 @@ public:
     MOCK_METHOD(int, findPFileAll, (char*, char*, char**, int*, int), ());
     MOCK_METHOD(void, qsString, (char**, unsigned int), ());
     MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
+    MOCK_METHOD(INT32, rdmJSONGetLen, (CHAR*, INT32*), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32, CHAR*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
