@@ -74,7 +74,7 @@ extern "C"{
         return mockRdmRbus->rbus_open(handle, name);
     }
 
-    INT32 rbus_close(void* hanlde) {
+    INT32 rbus_close(void* handle) {
         return mockRdmRbus->rbus_close(handle);
     }
 
