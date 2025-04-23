@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2023 Comcast Cable Communications Management, LLC
  *
@@ -260,6 +261,7 @@ INT32 rdmJSONQuery(CHAR const* pfName,
                 }
             }
             strncpy(pOut, t, strlen(t));
+	    pOut[strlen(t)] = '\0';  // Ensure null termination
             free(s);
         }
         cJSON_Delete(item);
@@ -420,7 +422,8 @@ INT32 rdmJSONGetAppDetName(CHAR          *pName,
     ret = rdmJSONQuery(RDM_MANIFEST, json_path, pRdmAppDet->dwld_method_controller);
     if(ret) {
         RDMWarn("Unable to get dwld_method_controller\n");
-        strncpy(pRdmAppDet->dwld_method_controller, "None", sizeof(pRdmAppDet->dwld_method_controller));
+        strncpy(pRdmAppDet->dwld_method_controller, "None", sizeof(pRdmAppDet->dwld_method_controller) - 1);
+	pRdmAppDet->dwld_method_controller[sizeof(pRdmAppDet->dwld_method_controller) - 1] = '\0'; //Null terminate the string
     }
 
     snprintf(json_path, RDM_JSONPATH_LEN, "%s/%s/%s", RDM_MANIFEST_PATH, pName, RDM_JSONQ_PKGNAME);
@@ -466,3 +469,4 @@ INT32 rdmJSONGetAppDetName(CHAR          *pName,
 
     return ret;
 }
+

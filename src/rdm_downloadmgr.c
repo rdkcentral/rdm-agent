@@ -67,12 +67,14 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     }
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
-	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+	    tmp_file[sizeof(tmp_file) - 1] = '\0';
 	    strcat(tmp_file, "/");
 	    strcat(tmp_file, pRdmAppDet->app_name);
 	    strcat(tmp_file, "_");
 	    strcat(tmp_file, pRdmAppDet->pkg_ver);
 	    strcat(tmp_file, ".tar");
+	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
 
 	    if(fileCheck(tmp_file)) {
 		    RDMInfo("tmp_file = %s\n", tmp_file);
@@ -90,10 +92,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
-	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
+	    app_file[sizeof(app_file) - 1] = '\0';
 	    strcat(app_file, "/");
 	    strcat(app_file, pRdmAppDet->app_name);
 	    strcat(app_file, ".tar");
+	    app_file[sizeof(app_file) - 1] = '\0';
 
 	    status = tarExtract(app_file, pRdmAppDet->app_home);
 	    if(status) {
@@ -117,10 +121,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         status = RDM_FAILURE;
     }
 
-    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
 
     if(fileCheck(tmp_file)) {
         RDMInfo("Package already extracted\n");
@@ -130,8 +136,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         CHAR *extn = NULL;
         INT32 is_lxc = 0;
 
-        strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+        strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+	tmp_file[sizeof(tmp_file) - 1] = '\0';
         strcat(tmp_file, "/packages.list");
+	tmp_file[sizeof(tmp_file) - 1] = '\0';
 
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
@@ -171,8 +179,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
+                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		tmp_file[sizeof(tmp_file) - 1] = '\0';
                 strcat(tmp_file, "/data.tar.xz");
+		tmp_file[sizeof(tmp_file) - 1] = '\0';
 
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
@@ -214,7 +224,19 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
         if(pRdmAppDet->is_usb) {
 
-            snprintf(pRdmAppDet->app_dwnl_filepath, sizeof(pRdmAppDet->app_dwnl_filepath), "%s/%s", pRdmAppDet->app_dwnl_path, pRdmAppDet->pkg_name);
+	    size_t path_len = strlen(pRdmAppDet->app_dwnl_path);
+            size_t name_len = strlen(pRdmAppDet->pkg_name);
+            size_t total_len = path_len + name_len + 2; // +2 for '/' and null terminator
+
+            if (total_len < sizeof(pRdmAppDet->app_dwnl_filepath)) {
+                memmove(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path, path_len);
+                pRdmAppDet->app_dwnl_filepath[path_len] = '/';
+                memmove(pRdmAppDet->app_dwnl_filepath + path_len + 1, pRdmAppDet->pkg_name, name_len + 1); // +1 to include null terminator
+
+            } else {
+                RDMError("Failed to copy download paths\n");
+		return RDM_FAILURE;
+            }
 
             status = copyFiles(pRdmAppDet->app_usb, pRdmAppDet->app_dwnl_filepath);
             if(status) {
