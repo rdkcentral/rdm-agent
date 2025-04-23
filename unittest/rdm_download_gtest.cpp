@@ -73,6 +73,7 @@ extern "C"{
 
     const char* getExtension(char *filename) {
         return mockRdmUtils->getExtension(filename);
+    }
 }
 
 class RDMDownloadTest : public ::testing::Test {
