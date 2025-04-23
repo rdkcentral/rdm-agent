@@ -54,6 +54,10 @@ public:
     MOCK_METHOD(size_t, GetJsonVal, (JSON*, char*, char*, size_t), ());
     MOCK_METHOD(int, FreeJson, (JSON*), ());
     MOCK_METHOD(int, isDataInList, (char**, char*, int), ());
+    MOCK_METHOD(int, strSplit, (char*, char*, char**, int), ());
+    MOCK_METHOD(int, findPFileAll, (char*, char*, char**, int*, int), ());
+    MOCK_METHOD(void, qsString, (char**, unsigned int), ());
+    MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
 };
 
 #endif // MOCK_RDM_UTILS_H

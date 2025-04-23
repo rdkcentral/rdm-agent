@@ -111,6 +111,22 @@ extern "C"{
         return mockRdmUtils->removeFile(file);
     }
 
+        int strSplit(char *in, char *tok, char **out, int len) {
+        return mockRdmUtils->strSplit(in, tok, out, len);
+    }
+
+    int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
+        return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
+    }
+
+    void qsString(char *arr[], unsigned int length) {
+        return mockRdmUtils->qsString(arr, length);
+    }
+
+    int strRmDuplicate(char **in, int len) {
+        return mockRdmUtils->strRmDuplicate(in, len);
+    }
+
     void* doCurlInit() {
         return mockRdmUtils->doCurlInit();
     }
