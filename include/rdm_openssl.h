@@ -69,4 +69,6 @@ INT32 rdmDecryptKey(CHAR *out_key);
 
 VOID rdmInitSslLib(VOID);
 
+void dump_buffer(void *buffer, INT32 buffer_size, CHAR *name);
+
 #endif //_RDM_TYPES_H_

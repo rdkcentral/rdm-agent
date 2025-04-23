@@ -16,23 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef MOCK_IARM_BUS_H
-#define MOCK_IARM_BUS_H
+#ifndef MOCK_RDM_RBUS_H
+#define MOCK_RDM_RBUS_H
 
 #include <gmock/gmock.h>
-#include "rdm_types.h" // Ensure this header includes the definition for IARM_Result_t and other types
+#include "mock_rdm_rbustypes.h"
 
-extern "C" {
-    #include "mocks/libIBus.h"
-}
-
-class MockIARM {
+class MockRdmRbus {
 public:
-    MOCK_METHOD(IARM_Result_t, IARM_Bus_Init, (const char*), ());
-    MOCK_METHOD(IARM_Result_t, IARM_Bus_Connect, (), ());
-    MOCK_METHOD0(IARM_Bus_Disconnect, IARM_Result_t());
-    MOCK_METHOD0(IARM_Bus_Term, IARM_Result_t());
-    MOCK_METHOD(IARM_Result_t, IARM_Bus_BroadcastEvent, (const char*, IARM_EventId_t, void*, size_t), ());
+    MOCK_METHOD(rbusValueType_t, rbusValue_GetType, (void*), ());
+    MOCK_METHOD(INT32, rbus_get, (void*, INT8*, void*), ());
+    MOCK_METHOD(const INT8*, rbusValue_ToString, (void*, void*, int), ());
+    MOCK_METHOD(bool, rbusValue_GetBoolean, (void*), ());
+    MOCK_METHOD(void, rbusValue_Release, (void*), ());
+    MOCK_METHOD(INT32, rbus_checkStatus, (), ());
+    MOCK_METHOD(INT32, rbus_open, (void*, INT8*), ());
+    MOCK_METHOD(INT32, rbus_close, (void*), ());
 };
 
-#endif // MOCK_IARM_BUS_H
+#endif // MOCK_RDM_RBUS_H
+

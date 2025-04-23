@@ -16,7 +16,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include "rdmMgr.h"
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -24,7 +23,13 @@
 #include "rdm_download.h"
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#include "rdmMgr.h"
+#else
+#include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/rdmMgr.h"
+#endif
 
 static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
 {
@@ -170,7 +175,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     is_lxc = 1;
                 }
 
-                status = arExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+                status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,

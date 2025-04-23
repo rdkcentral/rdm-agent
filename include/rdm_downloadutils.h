@@ -19,6 +19,10 @@
 #ifndef _RDM_DOWNLOADUTILS_H_
 #define _RDM_DOWNLOADUTILS_H_
 
+#ifdef GTEST_ENABLE
+#include "../unittest/mocks/system_utils.h"
+#endif
+
 //Define required file paths here
 #define RDM_DWNL_URL            "/path/to/my/url/file"
 #define RDM_DWNLSSR_URL         "/path/to/my/url/file"
@@ -59,6 +63,10 @@ INT32  rdmDwnlIsOCSPEnable(void);
 INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
 VOID   rdmDwnlAppCleanUp(CHAR *pAppPath);
+#ifdef GTEST_ENABLE
+INT32  rdmDwnlGetCert(MtlsAuth_t*);
+INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
+#endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
 INT32  rdmDwnlRunPostScripts(CHAR *pAppHome);
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
@@ -67,6 +75,7 @@ INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
 INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
 VOID   rdmMemDLFree(VOID *pvDwnData);
 INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
+INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut, INT32 isMtls);
 INT32 rdmUnInstallApps(INT32 is_broadband );
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,

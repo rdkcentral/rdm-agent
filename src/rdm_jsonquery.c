@@ -186,6 +186,7 @@ INT32 rdmJSONGetLen(CHAR const* pfName,
 
     cJSON* item = NULL;
 
+    RDMInfo("Manifest: %s\n", pfName);
     if (!pfName) {
         RDMError("Invalid file name\n");
         return RDM_FAILURE;
