@@ -22,6 +22,7 @@
 #include "mocks/mock_rdm_downloadutils.h"
 #include "mocks/mock_iarm_bus.h"
 #include "mocks/system_utils.h"
+#include "mocks/mock_rdm_rbus.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
@@ -41,15 +42,48 @@ using ::testing::StrEq;
 
 
 MockRdmUtils* mockRdmUtils;
+MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
 extern "C"{
+    rbusValueType_t rbusValue_GetType(void* paramName) {
+        return mockRdmRbus->rbusValue_GetType(paramName);
+    }
+
+    INT32 rbus_get(void* handle, INT8* val, void** paramName) {
+        return mockRdmRbus->rbus_get(handle, val, paramName);
+    }
+
+    bool rbusValue_GetBoolean(void* paramName) {
+        return mockRdmRbus->rbusValue_GetBoolean(paramName);
+    }
+
+    INT8* rbusValue_ToString(void* str, void* paramName, int len) {
+        return mockRdmRbus->rbusValue_ToString(str, paramName, len);
+    }
+
+    void rbusValue_Release(void* ptr) {
+        return mockRdmRbus->rbusValue_Release(ptr);
+    }
+
+    INT32 rbus_checkStatus() {
+        return mockRdmRbus->rbus_checkStatus();
+    }
+
+    INT32 rbus_open(void* handle, INT8 *name) {
+        return mockRdmRbus->rbus_open(handle, name);
+    }
+
+    INT32 rbus_close(void* hanlde) {
+        return mockRdmRbus->rbus_close(handle);
+    }
+
     INT32 checkFileSystem(const char* path) {
         return mockRdmUtils->checkFileSystem(path);
     }
 
     INT32 findPFile(const char* path, const char* pkg, char* tmp_file) {
-	strcpy(tmp_file, "/media/apps/rdm/downloads/MyPkg/MyPkg_1.0-signed.tar");
+        strcpy(tmp_file, "/media/apps/rdm/downloads/MyPkg/MyPkg_1.0-signed.tar");
         return mockRdmUtils->findPFile(path, pkg, tmp_file);
     }
 
@@ -83,6 +117,62 @@ extern "C"{
 
     int removeFile(char *file) {
         return mockRdmUtils->removeFile(file);
+    }
+
+    void* doCurlInit() {
+        return mockRdmUtils->doCurlInit();
+    }
+
+    INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode) {
+        return mockRdmUtils->doHttpFileDownload(in_curl, pfile_dwnl, auth, max_dwnl_speed, dnl_start_pos, out_httpCode);
+    }
+
+    void doStopDownload(void* curl) {
+        return mockRdmUtils->doStopDownload(curl);
+    }
+
+    void copyCommandOutput(char *filePath, char *fileOut, int len) {
+        return mockRdmUtils->copyCommandOutput(filePath, fileOut, len);
+    }
+
+    void rdmInitSslLib() {
+        return mockRdmUtils->rdmInitSslLib();
+    }
+
+    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const CHAR *vkey_file, CHAR *reply_msg, INT32 *reply_msg_len) {
+        return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, reply_msg_len);
+    }
+
+    INT32 rdmDecryptKey(CHAR *outKey) {
+        return mockRdmUtils->rdmDecryptKey(outKey);
+    }
+
+    unsigned int getFileLastModifyTime(CHAR *file) {
+        return mockRdmUtils->getFileLastModifyTime(file);
+    }
+
+    time_t getCurrentSysTimeSec() {
+        return mockRdmUtils->getCurrentSysTimeSec();
+    }
+
+    int folderCheck(char *dir) {
+        return mockRdmUtils->folderCheck(dir);
+    }
+
+    JSON* ParseJsonStr(char *pJsonStr) {
+        return mockRdmUtils->ParseJsonStr(pJsonStr);
+    }
+
+    size_t GetJsonVal(JSON *pJson, char *pValToGet, char *pOutputVal, size_t maxlen) {
+        return mockRdmUtils->GetJsonVal(pJson, pValToGet, pOutputVal, maxlen);
+    }
+
+    int FreeJson(JSON *pJson) {
+        return mockRdmUtils->FreeJson(pJson);
+    }
+
+    int isDataInList(char **pList, char *pData, int count) {
+        return mockRdmUtils->isDataInList(pList, pData, count);
     }
 }
 
