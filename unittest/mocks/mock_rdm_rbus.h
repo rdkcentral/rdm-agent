@@ -16,23 +16,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef MOCK_RDM_DOWNLOADUTILS_H
-#define MOCK_RDM_DOWNLOADUTILS_H
+#ifndef MOCK_RDM_RBUS_H
+#define MOCK_RDM_RBUS_H
 
 #include <gmock/gmock.h>
+#include "mock_rdm_rbustypes.h"
 
-extern "C" {
-    #include "rdm_types.h"
-    #include "rdm.h"
-    #include "rdm_utils.h"
-    #include "rdm_downloadutils.h"
-}
-
-class MockRdmDownloadUtils {
+class MockRdmRbus {
 public:
-        MOCK_METHOD1(rdmDownloadMgr, int(RDMAPPDetails*));
-        MOCK_METHOD2(rdmDwnlUnInstallApp, void(const char*, const char*));
-        MOCK_METHOD1(rdmDownloadVerApp, int(RDMAPPDetails*));
+    MOCK_METHOD(rbusValueType_t, rbusValue_GetType, (void*), ());
+    MOCK_METHOD(INT32, rbus_get, (void*, INT8*, void*), ());
+    MOCK_METHOD(const INT8*, rbusValue_ToString, (void*, void*, int), ());
+    MOCK_METHOD(bool, rbusValue_GetBoolean, (void*), ());
+    MOCK_METHOD(void, rbusValue_Release, (void*), ());
+    MOCK_METHOD(INT32, rbus_checkStatus, (), ());
+    MOCK_METHOD(INT32, rbus_open, (void*, INT8*), ());
+    MOCK_METHOD(INT32, rbus_close, (void*), ());
 };
 
-#endif // MOCK_RDM_DOWNLOADUTILS_H
+#endif // MOCK_RDM_RBUS_H
+
