@@ -40,6 +40,7 @@ using ::testing::Return;
 
 MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
+MockIARM* mockIARM = new MockIARM();
 extern "C"{
     rbusValueType_t rbusValue_GetType(void* paramName) {
         return mockRdmRbus->rbusValue_GetType(paramName);
@@ -311,6 +312,8 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
 
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_FAILURE);
     delete mockRdmUtils;
+    delete mockIARM;
+    delete mockRdmRbus;
 }
 
 int main(int argc, char** argv) {
