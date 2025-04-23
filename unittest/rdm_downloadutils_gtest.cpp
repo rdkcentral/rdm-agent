@@ -244,7 +244,7 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
 // Test rdmUnInstallApps
 TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     int isBroadband = 0;
-    system("mkdir -p /etc/rdm/ && touch /etc/rdm/rdm-manifest.json");
+    system("mkdir -p /etc/rdm/ && touch /etc/rdm/rdm-manifest.json && echo \"Some package data here\" > /etc/rdm/rdm-manifest.json");
     EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
 }
 
