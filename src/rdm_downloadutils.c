@@ -478,7 +478,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     FILE *fpin;
     FILE *fpout;
     INT32 status = RDM_SUCCESS;
-    CHAR *buff;
+    CHAR *buff = NULL;
 
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
