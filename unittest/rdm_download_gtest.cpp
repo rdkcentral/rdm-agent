@@ -221,15 +221,15 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     INT32 DLStatus = RDM_DL_NOERROR;
 
     EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
-        .WillOnce(Return(1));
+        .WillRepeatedly(Return(1));
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillOnce(Return(0));
+        .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
-        .WillOnce(Return(200));
+        .WillRepeatedly(Return(200));
     EXPECT_CALL(*mockRdmUtils, createDir(_))
         .WillRepeatedly(Return(RDM_SUCCESS));
 
@@ -254,16 +254,16 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     INT32 DLStatus = RDM_DL_NOERROR;
 
       EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
-        .WillOnce(Return(1));
+        .WillRepeatedly(Return(1));
      EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
-        .WillOnce(Return(appDetails.app_size_mb + 1));
+        .WillRepeatedly(Return(appDetails.app_size_mb + 1));
 
     EXPECT_CALL(*mockRdmUtils, createDir(::testing::_))
-        .WillOnce(Return(RDM_FAILURE));
+        .WillRepeatedly(Return(RDM_FAILURE));
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
 }
