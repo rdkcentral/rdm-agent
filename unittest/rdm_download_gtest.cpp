@@ -215,7 +215,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
     appDetails.app_size_mb = 100;
     appDetails.bFsCheck = true;
-    appDetails.is_versioned = false;
+    appDetails.is_versioned = true;
     appDetails.is_usb = 0;
 
     INT32 DLStatus = RDM_DL_NOERROR;
