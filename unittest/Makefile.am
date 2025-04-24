@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Define the test executables
 bin_PROGRAMS = rdm_main_gtest rdm_curl_gtest rdm_utils_gtest rdm_json_gtest \
-               rdm_download_gtest 
+               rdm_download_gtest rdm_usbinstall_gtest 
 
 # Common include directories
 COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I/usr/include -I../include -I../mocks -I../src -I../include    \
@@ -25,7 +25,7 @@ rdm_curl_gtest_SOURCES = rdm_curl_gtest.cpp  ../src/rdm_curldownload.c
 rdm_utils_gtest_SOURCES = rdm_utils_gtest.cpp mocks/mock_iarm_bus.cpp  ../src/rdm_utils.c
 rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp ../src/rdm_download.c
-
+rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp mocks/mock_rdm_utils.cpp \ mocks/mock_rdm_jsonquery.cpp \ mocks/mock_rdm_download.cpp \ ../src/rdm_usbinstall.c
 
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
@@ -53,5 +53,10 @@ rdm_download_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_download_gtest_LDADD = $(COMMON_LDADD)
 rdm_download_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+
+rdm_usbinstall_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
+rdm_usbinstall_gtest_LDADD = $(COMMON_LDADD)
+rdm_usbinstall_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
+rdm_usbinstall_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 
 
