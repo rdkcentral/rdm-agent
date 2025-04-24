@@ -23,12 +23,16 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
 #include <json_parse.h>
 #include <downloadUtil.h>
 #include "codebigUtils.h"
 #include "rdmMgr.h"
-
+#else
+#include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/rdmMgr.h"
+#endif
 
 #include "rdm_types.h"
 #include "rdm.h"
@@ -474,7 +478,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     FILE *fpin;
     FILE *fpout;
     INT32 status = RDM_SUCCESS;
-    CHAR *buff;
+    CHAR *buff = NULL;
 
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
@@ -483,7 +487,7 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     }
 
     fpout = fopen(pOutManifest, "w");
-    if(fpin == NULL) {
+    if(fpout == NULL) {
         RDMError("Unable to open output file: %s\n", pOutManifest);
         status = RDM_FAILURE;
         goto error;

@@ -23,7 +23,11 @@
 #include "rdm_download.h"
 #include "rdm_downloadutils.h"
 #include "rdm_downloadverapp.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#else
+#include "unittest/mocks/system_utils.h"
+#endif
 
 static INT32 rdmDwnlVAVerifyApp(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 {

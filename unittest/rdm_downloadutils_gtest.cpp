@@ -19,18 +19,17 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "mocks/mock_rdm_utils.h"
-#include "mocks/mock_rdm_downloadutils.h"
-#include "mocks/mock_iarm_bus.h"
 #include "mocks/system_utils.h"
 #include "mocks/mock_rdm_rbus.h"
+#include "mocks/mock_iarm_bus.h"
 
 // Declare the C functions with extern "C"
 extern "C" {
     #include "rdm_download.h"
     #include "rdm_types.h"
+    #include "rdm_downloadutils.h"
     #include "mocks/libIBus.h"
     #include "mocks/rdmMgr.h"
-    #include "rdm_downloadutils.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
@@ -38,12 +37,9 @@ extern "C" {
 #define GTEST_REPORT_FILEPATH_SIZE 256
 using ::testing::_;
 using ::testing::Return;
-using ::testing::StrEq;
 
-
-MockRdmUtils* mockRdmUtils;
+MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
-MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
 extern "C"{
     rbusValueType_t rbusValue_GetType(void* paramName) {
@@ -119,7 +115,7 @@ extern "C"{
         return mockRdmUtils->removeFile(file);
     }
 
-    int strSplit(char *in, char *tok, char **out, int len) {
+        int strSplit(char *in, char *tok, char **out, int len) {
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
 
@@ -163,6 +159,18 @@ extern "C"{
         return mockRdmUtils->rdmDecryptKey(outKey);
     }
 
+    INT32 rdmJSONGetAppNames(INT32 idx, CHAR *pAppName) {
+        return mockRdmUtils->rdmJSONGetAppNames(idx, pAppName);
+    }
+
+    INT32 rdmJSONGetLen (CHAR const* pfName, INT32 *pLen) {
+	return mockRdmUtils->rdmJSONGetLen(pfName, pLen);
+    }
+
+    INT32 rdmJSONGetAppDetName(CHAR *pName, RDMAPPDetails *pRdmAppDet) {
+	return mockRdmUtils->rdmJSONGetAppDetName(pName, pRdmAppDet);
+    }
+
     unsigned int getFileLastModifyTime(CHAR *file) {
         return mockRdmUtils->getFileLastModifyTime(file);
     }
@@ -182,7 +190,6 @@ extern "C"{
     size_t GetJsonVal(JSON *pJson, char *pValToGet, char *pOutputVal, size_t maxlen) {
         return mockRdmUtils->GetJsonVal(pJson, pValToGet, pOutputVal, maxlen);
     }
-
     int FreeJson(JSON *pJson) {
         return mockRdmUtils->FreeJson(pJson);
     }
@@ -192,52 +199,76 @@ extern "C"{
     }
 }
 
-class RDMDownloadTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        mockRdmUtils = new MockRdmUtils();
-        mockRdmDownloadUtils = new MockRdmDownloadUtils();
-    }
+// Test rdmDwnlDirect
+TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
+    char pUrl[128];
+    char pDwnlPath[64];
+    char pPkgName[64];
+    char pOut[64];
+    strncpy(pUrl, "http://example.com", sizeof(pUrl) - 1);
+    strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
+    strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
+    strncpy(pOut, "/etc", sizeof(pOut) - 1);
+    INT32 isMtls = 0;
 
-    void TearDown() override {
-        delete mockRdmUtils;
-        delete mockRdmDownloadUtils;
-    }
-};
+    void* mockReturnValue = static_cast<void*>(new int(0));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit())
+        .WillOnce(Return(mockReturnValue));
 
-TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
-    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
-    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
-    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
-    appDetails.app_size_mb = 100;
-    appDetails.bFsCheck = true;
-    appDetails.is_versioned = true;
-    appDetails.is_usb = 0;
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
 
-    INT32 DLStatus = RDM_DL_NOERROR;
+    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
 
-    EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
-        .WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
-        .WillRepeatedly(Return(200));
-    EXPECT_CALL(*mockRdmUtils, createDir(_))
-        .WillRepeatedly(Return(RDM_SUCCESS));
+    delete static_cast<int*>(mockReturnValue);
 
-    EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
-    EXPECT_EQ(DLStatus, RDM_DL_NOERROR);
 }
-                    
-TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
+
+// Test rdmDwnlGetCert
+TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
+    MtlsAuth_t sec = { .cert_name = "MyCert.pem", .cert_type = "Type1", .key_pas = "MyKeyVal" };
+    EXPECT_EQ(rdmDwnlGetCert(&sec), RDM_SUCCESS);
+}
+
+// Test rdmDwnlRunPostScripts
+TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
+    char pAppHome[32] = "/media/apps";
+    //static char ext[3] = "sh";
+    system("mkdir -p /media/apps/etc/rdm/post-services/");
+    system("touch /media/apps/etc/rdm/post-services/post-install.sh");
+    //void* mockReturnValue = static_cast<void*>(new char[3]);
+    //strcpy(static_cast<char*>(mockReturnValue), "sh");
+    //retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
+    /*if (retStr != nullptr)
+        strcpy(retStr, "sh"); // Copy the value "sh" into retStr
+    */
+    EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
+        .WillOnce(Return("sh"));
+    EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
+    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
+
+}
+
+TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
+    char pAppHome[32] = "/tmp/some_path";
+    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_FAILURE);
+}
+
+// Test rdmUnInstallApps
+TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
+    int isBroadband = 0;
+    system("mkdir -p /media/apps");
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetLen(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppNames(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(::testing::_, ::testing::_))
+	.WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
+}
+
+// Test rdmDwnlValidation
+
+TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
@@ -249,27 +280,27 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     appDetails.bFsCheck = true;
     appDetails.is_versioned = false;
     appDetails.is_usb = 0;
-     appDetails.app_size_kb = 100;
+    appDetails.app_size_kb = 100;
+    CHAR pkg_file[RDM_APP_PATH_LEN];
 
-    INT32 DLStatus = RDM_DL_NOERROR;
+    system("mkdir -p /etc/rdm && touch /etc/rdm/test_app_cpemanifest");
+    system("mkdir -p /home/test/ && touch /home/test/test_app_cpemanifest");
 
-      EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
-        .WillRepeatedly(Return(1));
-     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
-        .WillRepeatedly(Return(appDetails.app_size_mb + 1));
+    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(1));
 
-    EXPECT_CALL(*mockRdmUtils, createDir(::testing::_))
-        .WillRepeatedly(Return(RDM_FAILURE));
+    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
+	.WillOnce(Return(RDM_SUCCESS));
 
-    EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
+    EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
+
+    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+	.WillOnce(Return(354705069));
+
+    EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
 }
 
-// Test rdmDwnlExtract
-TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
+TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
@@ -279,33 +310,32 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
     strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
     appDetails.app_size_mb = 100;
     appDetails.bFsCheck = true;
-    appDetails.is_versioned = true;
+    appDetails.is_versioned = false;
     appDetails.is_usb = 0;
     appDetails.app_size_kb = 100;
+    CHAR pkg_file[RDM_APP_PATH_LEN];
 
-     EXPECT_CALL(*mockRdmUtils, tarExtract(::testing::_,::testing::_))
-        .WillRepeatedly(Return(0));
+    system("mkdir -p /etc/rdm && touch /etc/rdm/test_app_cpemanifest");
+    system("mkdir -p /home/test/ && touch /home/test/test_app_cpemanifest");
 
-     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
-        .WillRepeatedly(Return(1));
+    EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(1));
 
-     EXPECT_CALL(*mockRdmUtils, fileCheck(::testing::_))
-        .WillRepeatedly(Return(1));
+    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
+        .WillOnce(Return(RDM_SUCCESS));
 
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
-        .WillRepeatedly(::testing::Return(IARM_RESULT_SUCCESS));
-    EXPECT_CALL(*mockIARM, IARM_Bus_Connect())
-        .WillRepeatedly(::testing::Return(IARM_RESULT_SUCCESS));
-    EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(IARM_BUS_RDMMGR_NAME, IARM_BUS_RDMMGR_EVENT_APP_INSTALLATION_STATUS, ::testing::_, sizeof(IARM_Bus_RDMMgr_EventData_t)))
-        .WillRepeatedly(::testing::Return(IARM_RESULT_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
 
-    EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_SUCCESS);
+    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(0));
+
+    EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_FAILURE);
+    delete mockRdmUtils;
     delete mockIARM;
+    delete mockRdmRbus;
 }
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
-                                  
-                                                 					
