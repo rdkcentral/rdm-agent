@@ -4,6 +4,7 @@
 extern "C" {
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 #include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
 #include "rdm_types.h"
@@ -24,7 +25,7 @@ extern "C" {
 #endif
 using ::testing::_;
 using ::testing::Return;
-
+extern "C" {
 void RDMError(const char  *fmt, ...) {
 va_list args;
 va_start(args, fmt);
@@ -37,6 +38,7 @@ va_list args;
 va_start(args, fmt);
 vfprintf(stderr, fmt, args);
 va_end(args);
+}
 }
 
 
