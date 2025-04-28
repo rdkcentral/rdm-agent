@@ -2,6 +2,8 @@
 #include <gmock/gmock.h>
 
 extern "C" {
+#include "unittest/mocks/libIBus.h"
+#include "unittest/mocks/rdmMgr.h"
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
