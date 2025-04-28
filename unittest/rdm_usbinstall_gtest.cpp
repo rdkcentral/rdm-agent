@@ -2,9 +2,9 @@
 #include <gmock/gmock.h>
 
 extern "C" {
-#include "rdm_usbinstall.h"
 #include "rdm.h"
 #include "rdm_types.h"
+#include "rdm_usbinstall.h"
 #include <string.h>
 }
 
