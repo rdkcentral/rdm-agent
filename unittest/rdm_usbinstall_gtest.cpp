@@ -86,8 +86,8 @@ int rdmDownloadApp(RDMAPPDetails *details, int *download_status) {
     return mock_download_fail ? -1 : 0;
 }
 
-void RDMError(const char *fmt, ...) {}
-void RDMWarn(const char *fmt, ...) {}
+//void RDMError(const char *fmt, ...) {}
+//void RDMWarn(const char *fmt, ...) {}
 
 } // extern "C"
 
