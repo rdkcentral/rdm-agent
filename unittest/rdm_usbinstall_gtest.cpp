@@ -14,8 +14,32 @@ extern "C" {
 #include <string.h>
 }
 
+
+#ifdef RDMError
+#undef RDMError
+#endif
+
+#ifdef RDMWarn
+#undef RDMWarn
+#endif
 using ::testing::_;
 using ::testing::Return;
+
+void RDMError(const char  *fmt, ...) {
+va_list args;
+va_start(args, fmt);
+vfprintf(stderr, fmt, args);
+va_end(args);
+}
+
+void RDMWarn(const char  *fmt, ...) {
+va_list args;
+va_start(args, fmt);
+vfprintf(stderr, fmt, args);
+va_end(args);
+}
+
+
 
 // Mock dependencies
 extern "C" {
