@@ -83,6 +83,10 @@ void rdmPrintAppDetails(RDMAPPDetails *details) {}
 
 int rdmDownloadApp(RDMAPPDetails *details, int *download_status) {
     *download_status = mock_download_fail ? 0 : 1;
+    if (!mock_download_fail) {
+        details->dwld_status =1;
+        details->is_usb =1;
+    }
     return mock_download_fail ? -1 : 0;
 }
 
