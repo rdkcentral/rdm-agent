@@ -31,6 +31,7 @@ extern "C" {
     #include "mocks/libIBus.h"
     #include "mocks/rdmMgr.h"
     #include "rdm_downloadutils.h"
+    #include "rdm_downloadverapp.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
