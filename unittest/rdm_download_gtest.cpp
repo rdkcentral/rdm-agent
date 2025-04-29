@@ -249,7 +249,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered) {
     strcpy(appDet.pkg_ver, "1.0.0 -v1.0.0 -v2.0.0");
 
     // Setup mocks
-    EXPECT_CALL(mockRdmUtils, findPFileAll(_, _, _, _, _))
+    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
         .WillOnce([](const char*, const char*, char** out, int* num, int max) {
             out[0] = strdup("/test/app/home/v1.0.0/package/manifest.json");
             out[1] = strdup("/test/app/home/v2.0.0/package/manifest.json");
