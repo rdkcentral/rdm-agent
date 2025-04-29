@@ -61,7 +61,7 @@ rdmopenssl=$?
 echo "*********** Return value of rdm_openssl_gtest $rdmopenssl"
 
 ./rdm_usbinstall_gtest
-rdmopenssl=$?
+rdmusbinstall=$?
 echo "*********** Return value of rdm_usbinstall_gtest $rdmusbinstall"
 
 # List of unit test executables
