@@ -69,13 +69,7 @@ char* getPartStr(char *str, const char *substr) {
     return strstr(str, substr);
 }
 
-int rdmJSONGetAppDetName(char *app_name, RDMAPPDetails *app_details) {
-    if (mock_json_fail)
-        return -1;
 
-    strncpy(app_details->pkg_name, mock_pkg_mismatch ? "different_pkg" : "app_test", sizeof(app_details->pkg_name));
-    return 0;
-}
 
 void rdmUpdateAppDetails(RDMHandle *handle, RDMAPPDetails *details, int flag) {}
 
