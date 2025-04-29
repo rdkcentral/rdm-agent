@@ -35,6 +35,8 @@ public:
     MOCK_METHOD1(emptyFolder, INT32(const CHAR*));
     MOCK_METHOD1(getFreeSpace, UINT32(const CHAR*));
     MOCK_METHOD1(createDir, INT32(const CHAR*));
+    MOCK_METHOD(int, rdmJSONQuery, (const char*, const char*, char*), ());
+    MOCK_METHOD(int, rdmDwnlValidation, (const char*), ());
     MOCK_METHOD(void*, doCurlInit, (), ());
     MOCK_METHOD(INT32, doHttpFileDownload, (void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*), ());
     MOCK_METHOD(void, doStopDownload, (void *), ());
