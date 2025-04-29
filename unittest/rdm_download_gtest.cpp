@@ -237,6 +237,29 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
     EXPECT_EQ(DLStatus, RDM_DL_NOERROR);
 }
+
+
+TEST_F(RDMDownloadTest, rdmDownloadVerApp_Success) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.pkg_name, "TestPkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+
+    char mockFile[] = "/media/apps/rdm/downloads/TestPkg/TestPkg_1.0-signed.tar";
+    char ext[] = ".tar";
+
+    EXPECT_CALL(*mockRdmUtils, findPFile(_, _, _))
+        .WillOnce(DoAll(SetArgPointee<2>(*mockFile), Return(0)));
+    EXPECT_CALL(*mockRdmUtils, fileCheck(StrEq(mockFile)))
+        .WillOnce(Return(1));
+    EXPECT_CALL(*mockRdmUtils, getExtension(mockFile))
+        .WillOnce(Return(ext));
+    EXPECT_CALL(*mockRdmUtils, tarExtract(_, _))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, removeFile(mockFile))
+        .WillOnce(Return(0));
+
+    EXPECT_EQ(rdmDownloadVerApp(&appDetails), RDM_SUCCESS);
+}
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     RDMAPPDetails appDetails = {};
