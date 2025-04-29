@@ -108,6 +108,9 @@ TEST(RdmUSBInstallTest, InstallSuccess) {
     RDMAPPDetails app_details;
     char usb_path[] = "/mnt/usb";
 
+    app_details.dwld_status =1;
+    app_details.is_usb =1;
+
     int result = rdmUSBInstall(&handle, &app_details, usb_path);
 
     EXPECT_EQ(result, RDM_SUCCESS);
