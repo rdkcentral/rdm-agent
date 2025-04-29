@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+
+
+#define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdmusbinstall_gtest_report.json"
+#define GTEST_REPORT_FILEPATH_SIZE 256
+
 extern "C" {
 #include <stdio.h>
 #include <string.h>
