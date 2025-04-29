@@ -257,18 +257,18 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered) {
             return 0;
         });
 
-    EXPECT_CALL(mockRdmUtils, rdmJSONQuery(_, _, _))
+    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
         .Times(2)
         .WillRepeatedly([](const char*, const char*, char* out) {
             strcpy(out, "1.0.0"); // Same version to create duplicates
             return 0;
         });
 
-    EXPECT_CALL(mockRdmUtils, rdmDwnlValidation(_, _))
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
         .WillOnce(Return(1))  // Make one version fail validation
         .WillOnce(Return(0)); // One valid
 
-    EXPECT_CALL(mockRdmUtils, removeFile(_))
+    EXPECT_CALL(*mockRdmUtils, removeFile(_))
         .Times(2); // Should be called for app_home and app_dwnl_path
 
     // Can also expect uninstall function if it's mocked
