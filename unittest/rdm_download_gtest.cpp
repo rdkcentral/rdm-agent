@@ -240,42 +240,34 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 }
 
 
-TEST_F(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered) {
-    RDMAPPDetails appDet;
-    memset(&appDet, 0, sizeof(RDMAPPDetails));
-    strcpy(appDet.app_name, "TestApp");
-    strcpy(appDet.app_home, "/test/app/home");
-    strcpy(appDet.app_dwnl_path, "/test/app/dwnl");
-    strcpy(appDet.pkg_ver, "1.0.0 -v1.0.0 -v2.0.0");
+TEST(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered)
+{
+    RDMAPPDetails appDet = {};
+    appDet.app_name = strdup("TestApp");
+    appDet.app_dwnl_path[0] = '\0'; // to be constructed
+    appDet.app_home[0] = '\0';
 
-    // Setup mocks
-    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce([](const char*, const char*, char** out, int* num, int max) {
-            out[0] = strdup("/test/app/home/v1.0.0/package/manifest.json");
-            out[1] = strdup("/test/app/home/v2.0.0/package/manifest.json");
-            *num = 2;
-            return 0;
-        });
+    // Mock uninstall version data
+    const char* uninstallVersion = strdup("1.0.0");
 
-    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
-        .Times(2)
-        .WillRepeatedly([](const char*, const char*, char* out) {
-            strcpy(out, "1.0.0"); // Same version to create duplicates
-            return 0;
-        });
+    // Mock rdmDwnlVAGetDetails to set uninstall version
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlVAGetDetails(_, _, _, _, _, _, _, _))
+        .WillOnce(Invoke([&](auto, auto, auto, auto, auto, auto, char** uver_list, int* unum_ver) {
+            uver_list[0] = const_cast<char*>(uninstallVersion);
+            *unum_ver = 1;
+        }));
 
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_))
-        .WillOnce(Return(1))  // Make one version fail validation
-        .WillOnce(Return(0)); // One valid
+    // Expect removeFile to be called twice (once for app_dwnl_path and once for app_home)
+    EXPECT_CALL(*mockRdmUtils, removeFile(_)).Times(2);
 
-    EXPECT_CALL(*mockRdmUtils, removeFile(_))
-        .Times(2); // Should be called for app_home and app_dwnl_path
+    // Expect rdmDwnlVAInstall not to run (because fnum_ver = 0)
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlVAInstall(_, _, _)).Times(0);
 
-    // Can also expect uninstall function if it's mocked
-    // EXPECT_CALL(..., rdmDwnlUnInstallApp(_, _)).Times(1);
+    // Execute function
+    int status = rdmDownloadVerApp(&appDet);
+    EXPECT_EQ(status, RDM_SUCCESS);
 
-    int result = rdmDownloadVerApp(&appDet);
-    EXPECT_EQ(result, RDM_SUCCESS);
+    free(uninstallVersion);
 }
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
