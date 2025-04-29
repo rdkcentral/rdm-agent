@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gmock/gmock-actions.h>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
 #include "mocks/mock_iarm_bus.h"
