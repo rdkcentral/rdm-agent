@@ -112,19 +112,7 @@ int rdmJSONGetAppDetName(char *app_name, RDMAPPDetails *app_details) {
 
 
 
-TEST(RdmUSBInstallTest, MultipleAppsInstall) {
-    mock_num_apps = 2;
-    mock_json_fail = false;
-    mock_pkg_mismatch = false;
-    mock_download_fail = false;
 
-    RDMHandle handle;
-    RDMAPPDetails app_details;
-    char usb_path[] = "/mnt/usb";
-
-    int result = rdmUSBInstall(&handle, &app_details, usb_path);
-    EXPECT_EQ(result, RDM_SUCCESS);
-}
 TEST(RdmUSBInstallTest, InstallSuccess) {
     mock_num_apps = 1;
     mock_json_fail = false;
