@@ -264,7 +264,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered) {
             return 0;
         });
 
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_))
         .WillOnce(Return(1))  // Make one version fail validation
         .WillOnce(Return(0)); // One valid
 
