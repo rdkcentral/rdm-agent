@@ -240,26 +240,42 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 }
 
 
-TEST_F(RDMDownloadTest, rdmDownloadVerApp_Success) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.pkg_name, "TestPkg", sizeof(appDetails.pkg_name) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+TEST_F(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered) {
+    RDMAPPDetails appDet;
+    memset(&appDet, 0, sizeof(RDMAPPDetails));
+    strcpy(appDet.app_name, "TestApp");
+    strcpy(appDet.app_home, "/test/app/home");
+    strcpy(appDet.app_dwnl_path, "/test/app/dwnl");
+    strcpy(appDet.pkg_ver, "1.0.0 -v1.0.0 -v2.0.0");
 
-    char mockFile[] = "/media/apps/rdm/downloads/TestPkg/TestPkg_1.0-signed.tar";
-    char ext[] = ".tar";
+    // Setup mocks
+    EXPECT_CALL(mockRdmUtils, findPFileAll(_, _, _, _, _))
+        .WillOnce([](const char*, const char*, char** out, int* num, int max) {
+            out[0] = strdup("/test/app/home/v1.0.0/package/manifest.json");
+            out[1] = strdup("/test/app/home/v2.0.0/package/manifest.json");
+            *num = 2;
+            return 0;
+        });
 
-    EXPECT_CALL(*mockRdmUtils, findPFile(_, _, _))
-        .WillOnce(testing::DoAll(testing::SetArgPointee<2>(mockFile), testing::Return(0)));
-    EXPECT_CALL(*mockRdmUtils, fileCheck(StrEq(mockFile)))
-        .WillOnce(Return(1));
-    EXPECT_CALL(*mockRdmUtils, getExtension(mockFile))
-        .WillOnce(Return(ext));
-    EXPECT_CALL(*mockRdmUtils, tarExtract(_, _))
-        .WillOnce(Return(0));
-    EXPECT_CALL(*mockRdmUtils, removeFile(mockFile))
-        .WillOnce(Return(0));
+    EXPECT_CALL(mockRdmUtils, rdmJSONQuery(_, _, _))
+        .Times(2)
+        .WillRepeatedly([](const char*, const char*, char* out) {
+            strcpy(out, "1.0.0"); // Same version to create duplicates
+            return 0;
+        });
 
-    EXPECT_EQ(rdmDownloadVerApp(&appDetails), RDM_SUCCESS);
+    EXPECT_CALL(mockRdmUtils, rdmDwnlValidation(_, _))
+        .WillOnce(Return(1))  // Make one version fail validation
+        .WillOnce(Return(0)); // One valid
+
+    EXPECT_CALL(mockRdmUtils, removeFile(_))
+        .Times(2); // Should be called for app_home and app_dwnl_path
+
+    // Can also expect uninstall function if it's mocked
+    // EXPECT_CALL(..., rdmDwnlUnInstallApp(_, _)).Times(1);
+
+    int result = rdmDownloadVerApp(&appDet);
+    EXPECT_EQ(result, RDM_SUCCESS);
 }
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
