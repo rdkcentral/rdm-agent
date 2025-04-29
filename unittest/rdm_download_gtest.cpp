@@ -249,7 +249,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Success) {
     char ext[] = ".tar";
 
     EXPECT_CALL(*mockRdmUtils, findPFile(_, _, _))
-        .WillOnce(DoAll(SetArgPointee<2>(*mockFile), Return(0)));
+        .WillOnce(testing::DoAll(testing::SetArgPointee<2>(mockFile), testing::Return(0)));
     EXPECT_CALL(*mockRdmUtils, fileCheck(StrEq(mockFile)))
         .WillOnce(Return(1));
     EXPECT_CALL(*mockRdmUtils, getExtension(mockFile))
