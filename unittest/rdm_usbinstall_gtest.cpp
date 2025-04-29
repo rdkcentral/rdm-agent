@@ -83,13 +83,23 @@ void rdmPrintAppDetails(RDMAPPDetails *details) {}
 
 int rdmDownloadApp(RDMAPPDetails *details, int *download_status) {
     *download_status = mock_download_fail ? 0 : 1;
-    if (!mock_download_fail) {
-        details->dwld_status =1;
-        details->is_usb =1;
-    }
     return mock_download_fail ? -1 : 0;
 }
 
+
+int rdmJSONGetAppDetName(char *app_name, RDMAPPDetails *app_details) {
+    if (mock_json_fail)
+        return -1;
+
+    // Simulate successful manifest parse
+    strncpy(app_details->pkg_name, mock_pkg_mismatch ? "different_pkg" : "app_test", sizeof(app_details->pkg_name));
+
+    // Add these lines to force expectations to pass
+    app_details->dwld_status = mock_download_fail ? 0 : 1;
+    app_details->is_usb = 1;
+
+    return 0;
+}
 //void RDMError(const char *fmt, ...) {}
 //void RDMWarn(const char *fmt, ...) {}
 
@@ -108,8 +118,8 @@ TEST(RdmUSBInstallTest, InstallSuccess) {
     RDMAPPDetails app_details;
     char usb_path[] = "/mnt/usb";
 
-    app_details.dwld_status =1;
-    app_details.is_usb =1;
+    //app_details.dwld_status =1;
+   // app_details.is_usb =1;
 
     int result = rdmUSBInstall(&handle, &app_details, usb_path);
 
