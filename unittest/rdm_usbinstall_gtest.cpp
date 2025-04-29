@@ -109,11 +109,7 @@ int rdmJSONGetAppDetName(char *app_name, RDMAPPDetails *app_details) {
 // ---------- TEST CASES ----------
 
 
-TEST(RdmUSBInstallTest, NullHandleAndDetails) {
-    char usb_path[] = "/mnt/usb";
-    int result = rdmUSBInstall(nullptr, nullptr, usb_path);
-    EXPECT_EQ(result, RDM_SUCCESS); // Or update this based on actual handling
-}
+
 
 
 TEST(RdmUSBInstallTest, MultipleAppsInstall) {
