@@ -27,10 +27,14 @@
 #include <time.h>
 
 #include <curl/curl.h>
-#include <json_parse.h>
+#ifndef GTEST_ENABLE
+#include "json_parse.h"
 #include <downloadUtil.h>
-
 #include "rdmMgr.h"
+#endif
+#ifdef GTEST_ENABLE
+#include "unittest/mocks/rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -109,6 +113,7 @@ static VOID rdmHelp()
  *  @return  status.
  *  @retval  status.
  */
+#ifndef GTEST_ENABLE
 int main(int argc, char* argv[])
 {
     INT32 download_all        = 0;
@@ -350,3 +355,4 @@ error2:
 
     return ret;
 }
+#endif

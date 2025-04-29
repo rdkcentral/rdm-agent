@@ -65,6 +65,11 @@ typedef struct _rdmAppDetails {
     INT32 dwld_status;
 }RDMAPPDetails;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 typedef struct _rdmHandle
 {
     VOID *pRbusHandle;
@@ -74,4 +79,7 @@ typedef struct _rdmHandle
 INT32 rdmInit(RDMHandle *prdmHandle);
 VOID  rdmUnInit(RDMHandle *prdmHandle);
 
+#ifdef __cplusplus
+}
+#endif
 #endif //_RDM_H_
