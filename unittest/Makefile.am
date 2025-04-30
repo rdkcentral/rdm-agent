@@ -29,6 +29,7 @@ COMMON_CPPFLAGS = -std=c++11 -I/usr/include/cjson -I./include  -I../ -I../../ -I
                   -DGTEST_ENABLE
 
 AM_CPPFLAGS =  -I$(top_srcdir)/unittest/mocks -I$(top_srcdir)/include -I$(top_srcdir)/mocks -I$(top_srcdir) -I/usr/include 
+AM_CXXFLAGS = -std=c++14
 
 # Common libraries
 COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
