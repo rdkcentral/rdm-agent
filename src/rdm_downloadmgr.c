@@ -97,12 +97,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
-	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
-	    app_file[sizeof(app_file) - 1] = '\0';
+	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
 	    strcat(app_file, "/");
 	    strcat(app_file, pRdmAppDet->app_name);
 	    strcat(app_file, ".tar");
-	    app_file[sizeof(app_file) - 1] = '\0';
 
 	    status = tarExtract(app_file, pRdmAppDet->app_home);
 	    if(status) {
@@ -126,12 +124,10 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         status = RDM_FAILURE;
     }
 
-    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
 
     if(fileCheck(tmp_file)) {
         RDMInfo("Package already extracted\n");
@@ -141,10 +137,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         CHAR *extn = NULL;
         INT32 is_lxc = 0;
 
-        strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-	tmp_file[sizeof(tmp_file) - 1] = '\0';
+        strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
         strcat(tmp_file, "/packages.list");
-	tmp_file[sizeof(tmp_file) - 1] = '\0';
 
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
@@ -184,10 +178,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
+                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN );
                 strcat(tmp_file, "/data.tar.xz");
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
 
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
