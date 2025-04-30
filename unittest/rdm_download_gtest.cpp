@@ -252,10 +252,17 @@ TEST(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered)
 
     // Mock rdmDwnlVAGetDetails to set uninstall version
     EXPECT_CALL(*mockRdmUtils, rdmDwnlVAGetDetails(_, _, _, _, _, _, _, _))
-        .WillOnce(Invoke([&](auto, auto, auto, auto, auto, auto, char** uver_list, int* unum_ver) {
-            uver_list[0] = const_cast<char*>(uninstallVersion);
-            *unum_ver = 1;
-        }));
+    .WillOnce(testing::Invoke([](RDMAPPDetails*,
+                                 char(*)[1],
+                                 int*,
+                                 char(*)[1],
+                                 int*,
+                                 char(*)[1],
+                                 char** uver_list,
+                                 int* unum_ver) {
+        uver_list[0] = const_cast<char*>("1.0.0");
+        *unum_ver = 1;
+    }));
 
     // Expect removeFile to be called twice (once for app_dwnl_path and once for app_home)
     EXPECT_CALL(*mockRdmUtils, removeFile(_)).Times(2);
