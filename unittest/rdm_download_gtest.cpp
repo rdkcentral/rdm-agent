@@ -243,6 +243,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 TEST(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered)
 {
     RDMAPPDetails appDet = {};
+    strncpy(appDet.app_name,"TestApp", sizeof(appDet.app_name));
     appDet.app_name = strdup("TestApp");
     appDet.app_dwnl_path[0] = '\0'; // to be constructed
     appDet.app_home[0] = '\0';
