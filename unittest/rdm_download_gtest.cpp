@@ -194,6 +194,81 @@ extern "C"{
     }
 }
 
+
+
+using ::testing::NiceMock;
+
+class RdmDownloadVerAppTest : public ::testing::Test {
+protected:
+    NiceMock<MockRdmUtils> mockUtils;
+
+    void SetUp() override {
+        // Default mocks used by rdmDownloadVerApp() internals
+        ON_CALL(mockUtils, rdmJSONGetLen(_, _)).WillByDefault(Return(1));
+        ON_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtils, rdmDwnlValidation(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtils, getFileLastModifyTime(_)).WillByDefault(Return(123456));
+        ON_CALL(mockUtils, getCurrentSysTimeSec()).WillByDefault(Return(123556));
+        ON_CALL(mockUtils, rdmDownloadMgr(_)).WillByDefault(Return(0));
+        ON_CALL(mockUtils, rdmDwnlUnInstallApp(_, _)).WillByDefault(Return());
+    }
+};
+
+TEST_F(RdmDownloadVerAppTest, HandlesSingleValidAppInstall) {
+    // Arrange
+    const char* jsonData = strdup(R"({"versionlist":[{"name":"App1","version":"1.0"}]})");
+
+    EXPECT_CALL(mockUtils, rdmJSONGetLen(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillOnce(Return(0));
+    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillOnce(Return(0));
+
+    EXPECT_CALL(mockUtils, rdmDwnlValidation(_, _)).WillOnce(Return(0));
+    EXPECT_CALL(mockUtils, rdmDownloadMgr(_)).WillOnce(Return(0));
+
+    // Act
+    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
+
+    // Assert
+    EXPECT_EQ(result, 0);
+}
+
+TEST_F(RdmDownloadVerAppTest, SkipsInstallIfVersionIsTooOld) {
+    // Arrange
+    const char* jsonData = strdup(R"({"versionlist":[{"name":"App1","version":"1.0"}]})");
+
+    EXPECT_CALL(mockUtils, getFileLastModifyTime(_)).WillOnce(Return(123456));
+    EXPECT_CALL(mockUtils, getCurrentSysTimeSec()).WillOnce(Return(123456 + 800000)); // Older than threshold
+    EXPECT_CALL(mockUtils, rdmDownloadMgr(_)).Times(0); // Should not be called
+
+    // Act
+    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
+
+    // Assert
+    EXPECT_EQ(result, 0);
+}
+
+TEST_F(RdmDownloadVerAppTest, HandlesUninstallCase) {
+    // Arrange
+    const char* jsonData = strdup(R"({"versionlist":[{"name":"App2","version":""}]})");
+
+    EXPECT_CALL(mockUtils, rdmJSONGetLen(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillOnce(Return(0));
+    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillOnce(Invoke([](char*, RDMAPPDetails* det) {
+        strcpy(det->name, "App2");
+        det->version[0] = '\0'; // empty version = uninstall
+        return 0;
+    }));
+
+    EXPECT_CALL(mockUtils, rdmDwnlUnInstallApp(_, _)).Times(1);
+
+    // Act
+    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
+
+    // Assert
+    EXPECT_EQ(result, 0);
+}
+
 class RDMDownloadTest : public ::testing::Test {
 protected:
     void SetUp() override {
