@@ -32,30 +32,29 @@ class MockRdmUtils {
 public:
 
     // mockRdmDownloadMgr.h
-MOCK_FUNCTION(int, rdmDownloadMgr, (RDMAPPDetails*), ());
-MOCK_FUNCTION(void, rdmDwnlUnInstallApp, (const char*, const 
-    MOCK_METHOD1(checkFileSystem, INT32(const CHAR*));
-    MOCK_METHOD3(findPFile, INT32(const CHAR*, const CHAR*, CHAR*));
-    MOCK_METHOD1(emptyFolder, INT32(const CHAR*));
-    MOCK_METHOD1(getFreeSpace, UINT32(const CHAR*));
-    MOCK_METHOD1(createDir, INT32(const CHAR*));
-    MOCK_METHOD(int, rdmJSONQuery, (const char*, const char*, char*), ());
-    MOCK_METHOD(int, rdmDwnlValidation, (const char*), ());
-    MOCK_METHOD(void*, doCurlInit, (), ());
-    MOCK_METHOD(INT32, doHttpFileDownload, (void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*), ());
-    MOCK_METHOD(void, doStopDownload, (void *), ());
-    MOCK_METHOD(void, copyCommandOutput, (char*, char*, int), ());
-    MOCK_METHOD(const char*, getExtension, (char*), ());
+MOCK_METHOD(INT32, checkFileSystem, (const CHAR*), ());
+    MOCK_METHOD(INT32, findPFile, (const CHAR*, const CHAR*, CHAR*), ());
+    MOCK_METHOD(INT32, emptyFolder, (const CHAR*), ());
+    MOCK_METHOD(UINT32, getFreeSpace, (const CHAR*), ());
+    MOCK_METHOD(INT32, createDir, (const CHAR*), ());
     MOCK_METHOD(int, tarExtract, (char*, char*), ());
     MOCK_METHOD(int, fileCheck, (char*), ());
+    MOCK_METHOD(const char*, getExtension, (char*), ());
+    MOCK_METHOD(int, copyFiles, (char*, char*), ());
+    MOCK_METHOD(int, removeFile, (char*), ());
+    MOCK_METHOD(int, folderCheck, (char*), ());
+
+    MOCK_METHOD(void*, doCurlInit, (), ());
+    MOCK_METHOD(INT32, doHttpFileDownload, (void*, FileDwnl_t*, MtlsAuth_t*, unsigned int, char*, int*), ());
+    MOCK_METHOD(void, doStopDownload, (void*), ());
+    MOCK_METHOD(void, copyCommandOutput, (char*, char*, int), ());
     MOCK_METHOD(void, rdmInitSslLib, (), ());
     MOCK_METHOD(INT32, rdmOpensslRsafileSignatureVerify, (const CHAR*, size_t, const CHAR*, const CHAR*, CHAR*, INT32*), ());
     MOCK_METHOD(INT32, rdmDecryptKey, (CHAR*), ());
     MOCK_METHOD(unsigned int, getFileLastModifyTime, (CHAR*), ());
     MOCK_METHOD(time_t, getCurrentSysTimeSec, (), ());
-    MOCK_METHOD(int, copyFiles, (char*, char*), ());
-    MOCK_METHOD(int, folderCheck, (char*), ());
-    MOCK_METHOD(int, removeFile, (char*), ());
+
+    // JSON-related
     MOCK_METHOD(JSON*, ParseJsonStr, (char*), ());
     MOCK_METHOD(size_t, GetJsonVal, (JSON*, char*, char*, size_t), ());
     MOCK_METHOD(int, FreeJson, (JSON*), ());
@@ -64,11 +63,21 @@ MOCK_FUNCTION(void, rdmDwnlUnInstallApp, (const char*, const
     MOCK_METHOD(int, findPFileAll, (char*, char*, char**, int*, int), ());
     MOCK_METHOD(void, qsString, (char**, unsigned int), ());
     MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
+
+    // Additional utility functions
     MOCK_METHOD(INT32, rdmJSONGetLen, (CHAR*, INT32*), ());
     MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32, CHAR*), ());
     MOCK_METHOD(INT32, rdmJSONGetAppDetName, (CHAR*, RDMAPPDetails*), ());
 
-    MOCK_FUNCTION(int, rdmDwnlValidation, (RDMAPPDetails*, char*), ());
+    // rdm_downloadutils-specific
+    MOCK_METHOD(int, rdmJSONQuery, (const char*, const char*, char*), ());
+    MOCK_METHOD(int, rdmDwnlValidation, (const char*), ());
+    MOCK_METHOD(int, rdmDwnlValidation, (RDMAPPDetails*, char*), ());
+
+    // Add these two for rdmDownloadVerApp() support
+    MOCK_METHOD(int, rdmDownloadMgr, (RDMAPPDetails*), ());
+    MOCK_METHOD(void, rdmDwnlUnInstallApp, (const char*, const char*), ());
+    
 };
 
 #endif // MOCK_RDM_UTILS_H
