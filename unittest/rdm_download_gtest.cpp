@@ -215,23 +215,31 @@ protected:
     }
 };
 
-TEST_F(RdmDownloadVerAppTest, HandlesSingleValidAppInstall) {
-    // Arrange
-    const char* jsonData = strdup(R"({"versionlist":[{"name":"App1","version":"1.0"}]})");
+TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
+{
+    using ::testing::_;
+    using ::testing::Return;
+    using ::testing::Invoke;
 
-    EXPECT_CALL(mockUtils, rdmJSONGetLen(_, _)).WillOnce(Return(1));
-    EXPECT_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillOnce(Return(0));
-    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillOnce(Return(0));
+    RDMAPPDetails details = {};
+    strcpy(details.appName, "App2");
+    strcpy(details.appVersion, "1.0");
 
-    EXPECT_CALL(mockUtils, rdmDwnlValidation(_, _)).WillOnce(Return(0));
-    EXPECT_CALL(mockUtils, rdmDownloadMgr(_)).WillOnce(Return(0));
+    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _))
+        .WillOnce(Invoke([](CHAR* json, RDMAPPDetails* det) {
+            strcpy(det->appName, "App2");
+            strcpy(det->appVersion, "1.0");
+            return 0;
+        }));
 
-    // Act
-    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
+    EXPECT_CALL(mockUtils, rdmDwnlValidation(_, _))
+        .WillOnce(Return(-1)); // Simulate validation failure
 
-    // Assert
-    EXPECT_EQ(result, 0);
+    int result = rdmDownloadVerApp(&details);
+
+    EXPECT_EQ(result, -1); // Expect failure
 }
+
 
 TEST_F(RdmDownloadVerAppTest, SkipsInstallIfVersionIsTooOld) {
     // Arrange
