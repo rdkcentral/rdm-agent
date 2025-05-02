@@ -31,18 +31,9 @@ extern "C" {
 class MockRdmUtils {
 public:
 
-    MOCK_METHOD8(rdmDwnlVAGetDetails,
-    void(RDMAPPDetails*,
-         char**,
-         int*,
-         char**,
-         int*,
-         char**,
-         int*,
-         char**,
-         int*));
-    //MOCK_METHOD1(removeFile, void(const char*));
-    MOCK_METHOD3(rdmDwnlVAInstall, int(RDMAPPDetails*, char** , int));
+    // mockRdmDownloadMgr.h
+MOCK_FUNCTION(int, rdmDownloadMgr, (RDMAPPDetails*), ());
+MOCK_FUNCTION(void, rdmDwnlUnInstallApp, (const char*, const 
     MOCK_METHOD1(checkFileSystem, INT32(const CHAR*));
     MOCK_METHOD3(findPFile, INT32(const CHAR*, const CHAR*, CHAR*));
     MOCK_METHOD1(emptyFolder, INT32(const CHAR*));
@@ -76,6 +67,8 @@ public:
     MOCK_METHOD(INT32, rdmJSONGetLen, (CHAR*, INT32*), ());
     MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32, CHAR*), ());
     MOCK_METHOD(INT32, rdmJSONGetAppDetName, (CHAR*, RDMAPPDetails*), ());
+
+    MOCK_FUNCTION(int, rdmDwnlValidation, (RDMAPPDetails*, char*), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
