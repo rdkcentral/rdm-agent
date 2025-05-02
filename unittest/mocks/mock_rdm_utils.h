@@ -31,7 +31,7 @@ extern "C" {
 class MockRdmUtils {
 public:
 
-    MOCK_METHOD8(rdmDwnlVAGetDetails, void(RDMAPPDetails*, char(*)[], int*, char(*)[], int*, char(*)[], char(*)[], int*));
+    MOCK_METHOD8(rdmDwnlVAGetDetails, void(RDMAPPDetails*, char(*)[RDM_MAX_VER_LIST], int*, char(*)[RDM_MAX_VER_LIST], int*, char(*)[], char(*)[RDM_MAX_VER_LIST], int*));
     //MOCK_METHOD1(removeFile, void(const char*));
     MOCK_METHOD3(rdmDwnlVAInstall, int(RDMAPPDetails*, char** , int));
     MOCK_METHOD1(checkFileSystem, INT32(const CHAR*));
