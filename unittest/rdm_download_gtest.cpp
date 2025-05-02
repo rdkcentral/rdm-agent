@@ -240,43 +240,47 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 }
 
 
-TEST(RDMDownloadTest, rdmDownloadVerApp_UninstallPath_Triggered)
-{
-    RDMAPPDetails appDet = {};
-    strncpy(appDet.app_name,"TestApp", sizeof(appDet.app_name));
-    //appDet.app_name = strdup("TestApp");
-    appDet.app_dwnl_path[0] = '\0'; // to be constructed
-    appDet.app_home[0] = '\0';
+TEST_F(RdmDownloadVerAppTest, DownloadApp_UninstallPath_Triggered) {
+    RDMAPPDetails appDet;
+    
+    // Manually initialize appDet fields
+    memset(&appDet, 0, sizeof(RDMAPPDetails));
+    strcpy(appDet.app_name, "TestApp");
+    strcpy(appDet.pkg_ver, "1.0.0 -v2.0.0");
+    strcpy(appDet.app_home, "/tmp/app_home");
+    strcpy(appDet.app_dwnl_path, "/tmp/app_dwnl");
 
-    // Mock uninstall version data
-    const char* uninstallVersion = strdup("1.0.0");
+    // Mock the rdmDwnlVAGetDetails function
+    EXPECT_CALL(mockRdmUtils, rdmDwnlVAGetDetails(_, _, _, _, _, _, _, _, _))
+        .WillOnce(Invoke([](RDMAPPDetails* pDet,
+                            char** ppJver, int* pJnum,
+                            char** ppIver, int* pInum,
+                            char** ppFver, int* pFnum,
+                            char** ppUver, int* pUnum) {
+            *pJnum = 1;
+            ppJver[0] = (char*)malloc(RDM_APP_PATH_LEN);
+            strcpy(ppJver[0], "2.0.0");
 
-    // Mock rdmDwnlVAGetDetails to set uninstall version
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlVAGetDetails(_, _, _, _, _, _, _, _))
-    .WillOnce(testing::Invoke([](RDMAPPDetails*,
-                                 char(*)[1],
-                                 int*,
-                                 char(*)[1],
-                                 int*,
-                                 char(*)[1],
-                                 char** uver_list,
-                                 int* unum_ver) {
-        uver_list[0] = const_cast<char*>("1.0.0");
-        *unum_ver = 1;
-    }));
+            *pInum = 1;
+            ppIver[0] = (char*)malloc(RDM_APP_PATH_LEN);
+            strcpy(ppIver[0], "1.0.0");
 
-    // Expect removeFile to be called twice (once for app_dwnl_path and once for app_home)
-    EXPECT_CALL(*mockRdmUtils, removeFile(_)).Times(2);
+            *pFnum = 1;
+            ppFver[0] = (char*)malloc(RDM_APP_PATH_LEN);
+            strcpy(ppFver[0], "2.0.0");
 
-    // Expect rdmDwnlVAInstall not to run (because fnum_ver = 0)
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlVAInstall(_, _, _)).Times(0);
+            *pUnum = 1;
+            ppUver[0] = (char*)malloc(RDM_APP_PATH_LEN);
+            strcpy(ppUver[0], "1.0.0");
+        }));
 
-    // Execute function
-    int status = rdmDownloadVerApp(&appDet);
-    EXPECT_EQ(status, RDM_SUCCESS);
+    EXPECT_CALL(mockRdmUtils, rdmDwnlVAUnInstall(_, _, _)).Times(1);
+    EXPECT_CALL(mockRdmUtils, rdmDwnlVAInstall(_, _, _)).WillOnce(Return(RDM_SUCCESS));
 
-    free(uninstallVersion);
+    INT32 ret = rdmDownloadVerApp(&appDet);
+    EXPECT_EQ(ret, RDM_SUCCESS);
 }
+
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     RDMAPPDetails appDetails = {};
