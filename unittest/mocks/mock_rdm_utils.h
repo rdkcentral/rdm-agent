@@ -65,9 +65,9 @@ MOCK_METHOD(INT32, checkFileSystem, (const CHAR*), ());
     MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
 
     // Additional utility functions
-    MOCK_METHOD(INT32, rdmJSONGetLen, (CHAR*, INT32*), ());
-    MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32, CHAR*), ());
-    MOCK_METHOD(INT32, rdmJSONGetAppDetName, (CHAR*, RDMAPPDetails*), ());
+  MOCK_METHOD(INT32, rdmJSONGetLen, (const CHAR* fileName, INT32* len), ());
+     MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32 index, CHAR* appName), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppDetName, (const CHAR* appName, RDMAPPDetails* appDetails), ());
 
     // rdm_downloadutils-specific
     MOCK_METHOD(int, rdmJSONQuery, (const char*, const char*, char*), ());
