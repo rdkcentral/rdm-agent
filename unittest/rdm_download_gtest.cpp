@@ -250,12 +250,15 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
             strncpy(version_out, "1.0", RDM_MAX_VER_LIST);
             return 0;
         }));
+
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
+    .WillOnce(Return(0)); // Simulate successful return
+   /* EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
         .WillOnce(Invoke([](const CHAR* json, RDMAPPDetails* det) {
             strncpy(det->app_name, "App2", sizeof(det->app_name) - 1);
             strncpy(det->pkg_ver, "1.0", sizeof(det->pkg_ver) - 1);
             return 0;
-        }));
+        }));*/
 
     EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
         .WillOnce(Return(-1)); // Simulate validation failure
@@ -480,9 +483,13 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
             return 0;
         }));
 
+   EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
+    .Times(1) // Expect exactly one call
+    .WillOnce(Return(0)); // Simulate successful uninstallation
+    
     // Mock uninstallation
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-        .Times(1); // Expect exactly one uninstall operation
+   // EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
+   //     .Times(1); // Expect exactly one uninstall operation
 
     // Mock installation
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
