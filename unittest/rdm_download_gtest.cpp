@@ -457,17 +457,26 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
     delete mockIARM;
 }
 
-TEST_F(RDMDownloadTest, rdmDwnlVAVerifyApp_ValidationFailure) {
+TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
     RDMAPPDetails appDetails = {};
+    strncpy(appDetails.pkg_ver, "1.0 2.0", sizeof(appDetails.pkg_ver) - 1);
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
 
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(&appDetails, "1.0"))
-        .WillOnce(Return(-1)); // Simulate validation failure
+    // Mock version details from manifest
+    EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
+        .WillOnce(Return(2));
 
-    INT32 result = rdmDwnlVAVerifyApp(&appDetails, "1.0");
-    EXPECT_EQ(result, RDM_FAILURE);
+    // Mock installation and uninstallation
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
+        .Times(::testing::AtMost(1));
+    EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
+        .WillRepeatedly(Return(0));
+
+    INT32 status = rdmDownloadVerApp(&appDetails);
+    EXPECT_EQ(status, RDM_SUCCESS);
 }
-
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
