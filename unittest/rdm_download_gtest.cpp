@@ -466,13 +466,32 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
 
     // Mock version details from manifest
     EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
-        .WillOnce(Return(2));
+        .WillOnce(Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
+            output[0] = strdup("1.0");
+            output[1] = strdup("2.0");
+            return 2; // Two versions found
+        }));
 
-    // Mock installation and uninstallation
+    // Mock file search for installed versions
+    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
+        .WillOnce(Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
+            output[0] = strdup("/home/test/v1/package.json");
+            *found = 1; // Simulate one version found
+            return 0;
+        }));
+
+    // Mock uninstallation
     EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-        .Times(::testing::AtMost(1));
+        .Times(1); // Expect exactly one uninstall operation
+
+    // Mock installation
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
-        .WillRepeatedly(Return(0));
+        .WillRepeatedly(Return(0)); // Installation succeeds
+
+    // Mock duplicate removal
+    EXPECT_CALL(*mockRdmUtils, qsString(_, _)).Times(::testing::AnyNumber());
+    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
+        .WillOnce(Return(1)); // Simulate removing duplicate versions
 
     INT32 status = rdmDownloadVerApp(&appDetails);
     EXPECT_EQ(status, RDM_SUCCESS);
