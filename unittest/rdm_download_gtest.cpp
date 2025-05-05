@@ -193,9 +193,6 @@ extern "C"{
         return mockRdmUtils->isDataInList(pList, pData, count);
     }
 
-     int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
-        return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
-    }
 }
 
 
