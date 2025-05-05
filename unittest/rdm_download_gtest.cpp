@@ -125,8 +125,15 @@ extern "C"{
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
 
-    int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
-        return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
+  //  int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
+   //     return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
+   // }
+
+      int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
+        // Populate the output array with a mock file path
+        out[0] = strdup("/media/apps/rdm/downloads/MyPkg/MyPkg_1.0-signed.tar");
+        *found_t = 1;  // Simulate that one file is found
+        return 0;      // Return success
     }
 
     void qsString(char *arr[], unsigned int length) {
