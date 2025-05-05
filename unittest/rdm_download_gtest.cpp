@@ -201,19 +201,23 @@ using ::testing::NiceMock;
 class RdmDownloadVerAppTest : public ::testing::Test {
 protected:
     NiceMock<MockRdmUtils> mockUtilsInstance;
-    mockUtils =&mockUtilsInstance;
+   
 
     void SetUp() override {
+         mockUtils = &mockUtilsInstance;
         // Default mocks used by rdmDownloadVerApp() internals
-        ON_CALL(mockUtils, rdmJSONGetLen(_, _)).WillByDefault(Return(1));
-        ON_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillByDefault(Return(0));
-        ON_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillByDefault(Return(0));
-        ON_CALL(mockUtils, rdmDwnlValidation(_, _)).WillByDefault(Return(0));
-        ON_CALL(mockUtils, getFileLastModifyTime(_)).WillByDefault(Return(123456));
-        ON_CALL(mockUtils, getCurrentSysTimeSec()).WillByDefault(Return(123556));
-        ON_CALL(mockUtils, rdmDownloadMgr(_)).WillByDefault(Return(0));
-        ON_CALL(mockUtils, rdmDwnlUnInstallApp(_, _)).WillByDefault(Return());
+        ON_CALL(*mockUtils, rdmJSONGetLen(_, _)).WillByDefault(Return(1));
+        ON_CALL(*mockUtils, rdmJSONGetAppNames(_, _)).WillByDefault(Return(0));
+        ON_CALL(*mockUtils, rdmJSONGetAppDetName(_, _)).WillByDefault(Return(0));
+        ON_CALL(*mockUtils, rdmDwnlValidation(_, _)).WillByDefault(Return(0));
+        ON_CALL(*mockUtils, getFileLastModifyTime(_)).WillByDefault(Return(123456));
+        ON_CALL(*mockUtils, getCurrentSysTimeSec()).WillByDefault(Return(123556));
+        ON_CALL(*mockUtils, rdmDownloadMgr(_)).WillByDefault(Return(0));
+        ON_CALL*(mockUtils, rdmDwnlUnInstallApp(_, _)).WillByDefault(Return());
     }
+   void TearDown() override {
+       mockUtils = nullptr;
+   }
 };
 
 
