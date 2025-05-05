@@ -439,16 +439,20 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
             *found = 1;
             return 0;
         }));
-
+     
+    // Mock behavior for removing duplicate versions
+    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
+        .WillOnce(Return(1));
+    
     EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
     .Times(1);
     
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
         .WillRepeatedly(Return(0)); // Simulate successful installation
 
-    EXPECT_CALL(*mockRdmUtils, qsString(_, _)).Times(::testing::AnyNumber());
-    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
-        .WillOnce(Return(1)); // Simulate removing duplicate versions
+   // EXPECT_CALL(*mockRdmUtils, qsString(_, _)).Times(::testing::AnyNumber());
+  //  EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
+    //    .WillOnce(Return(1)); // Simulate removing duplicate versions
 
     INT32 status = rdmDownloadVerApp(&appDetails);
     EXPECT_EQ(status, RDM_SUCCESS);
