@@ -222,13 +222,13 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     using ::testing::Invoke;
 
     RDMAPPDetails details = {};
-    strcpy(details.appName, "App2");
-    strcpy(details.appVersion, "1.0");
+    strcpy(details.app_name, "App2");
+    strcpy(details.app_version, "1.0");
 
     EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _))
         .WillOnce(Invoke([](CHAR* json, RDMAPPDetails* det) {
-            strcpy(det->appName, "App2");
-            strcpy(det->appVersion, "1.0");
+            strcpy(det->app_name, "App2");
+            strcpy(det->app_version, "1.0");
             return 0;
         }));
 
