@@ -441,9 +441,8 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
         }));
 
     EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-        .Times(1)
-        .WillOnce(Return(0)); // Simulate successful uninstallation
-
+    .Times(1);
+    
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
         .WillRepeatedly(Return(0)); // Simulate successful installation
 
