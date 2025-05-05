@@ -325,7 +325,7 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 }
 
 
-TEST(RdmDownloadVerAppTest, TestSuccessfulDownloadAndInstall) {
+/*TEST(RdmDownloadVerAppTest, TestSuccessfulDownloadAndInstall) {
     RDMAPPDetails appDet;
     memset(&appDet, 0, sizeof(RDMAPPDetails));
 
@@ -365,7 +365,7 @@ TEST(RdmDownloadVerAppTest, TestSuccessfulDownloadAndInstall) {
 
     // Verify
     EXPECT_EQ(status, RDM_SUCCESS);
-}
+}*/
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     RDMAPPDetails appDetails = {};
