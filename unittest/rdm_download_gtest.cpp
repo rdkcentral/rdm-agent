@@ -230,7 +230,21 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     RDMAPPDetails details = {};
     strncpy(details.app_name, "App2", sizeof(details.app_name) - 1);
     strncpy(details.pkg_ver, "1.0", sizeof(details.pkg_ver) - 1);
+    strncpy(details.app_home, "/valid/path/to/app", sizeof(details.app_home) - 1);
 
+    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
+        .WillOnce(Invoke([](const char*, const char*, char** pkg_json, int* num_ver, int) {
+            pkg_json[0] = strdup("/path/to/valid.json");
+            *num_ver = 1;
+            return 0;
+        }));
+
+    // Mock rdmJSONQuery to populate the app details
+    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
+        .WillOnce(Invoke([](const char*, const char*, char* version_out) {
+            strncpy(version_out, "1.0", RDM_MAX_VER_LIST);
+            return 0;
+        }));
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
         .WillOnce(Invoke([](const CHAR* json, RDMAPPDetails* det) {
             strncpy(det->app_name, "App2", sizeof(det->app_name) - 1);
