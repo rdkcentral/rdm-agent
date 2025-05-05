@@ -232,7 +232,7 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     strncpy(details.pkg_ver, "1.0", sizeof(details.pkg_ver) - 1);
 
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
-        .WillOnce(Invoke([](CHAR* json, RDMAPPDetails* det) {
+        .WillOnce(Invoke([](const CHAR* json, RDMAPPDetails* det) {
             strncpy(det->app_name, "App2", sizeof(det->app_name) - 1);
             strncpy(det->pkg_ver, "1.0", sizeof(det->pkg_ver) - 1);
             return 0;
