@@ -231,10 +231,11 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     strncpy(details.app_name, "App2", sizeof(details.app_name) - 1);
     strncpy(details.pkg_ver, "1.0", sizeof(details.pkg_ver) - 1);
     strncpy(details.app_home, "/valid/path/to/app", sizeof(details.app_home) - 1);
+    strncpy(details.app_dwnl_path, "/downloads/test", sizeof(details.app_dwnl_path) - 1);
 
     EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
         .WillOnce(Invoke([](const char*, const char*, char** pkg_json, int* num_ver, int) {
-            pkg_json[0] = strdup("/path/to/valid.json");
+            pkg_json[0] = strdup("valid/path/to/valid.json");
             *num_ver = 1;
             return 0;
         }));
