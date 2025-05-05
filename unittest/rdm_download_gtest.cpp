@@ -200,7 +200,8 @@ using ::testing::NiceMock;
 
 class RdmDownloadVerAppTest : public ::testing::Test {
 protected:
-    NiceMock<MockRdmUtils> mockUtils;
+    NiceMock<MockRdmUtils> mockUtilsInstance;
+    mockUtils =&mockUtilsInstance;
 
     void SetUp() override {
         // Default mocks used by rdmDownloadVerApp() internals
