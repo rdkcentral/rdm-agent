@@ -125,16 +125,11 @@ extern "C"{
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
 
-  //  int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
-   //     return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
-   // }
-
-      int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
-        // Populate the output array with a mock file path
-        out[0] = strdup("/valid/path/to/valid.json");
-        *found_t = 1;  // Simulate that one file is found
-        return 0;      // Return success
+   int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
+      return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
     }
+
+    
 
     void qsString(char *arr[], unsigned int length) {
         return mockRdmUtils->qsString(arr, length);
