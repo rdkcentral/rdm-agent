@@ -457,6 +457,17 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
     delete mockIARM;
 }
 
+TEST_F(RDMDownloadTest, rdmDwnlVAVerifyApp_ValidationFailure) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(&appDetails, "1.0"))
+        .WillOnce(Return(-1)); // Simulate validation failure
+
+    INT32 result = rdmDwnlVAVerifyApp(&appDetails, "1.0");
+    EXPECT_EQ(result, RDM_FAILURE);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
