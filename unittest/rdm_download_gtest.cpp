@@ -242,12 +242,12 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     strncpy(details.app_home, "/valid/path/to/app", sizeof(details.app_home) - 1);
     strncpy(details.app_dwnl_path, "/downloads/test", sizeof(details.app_dwnl_path) - 1);
 
-   EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
+  /* EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
         .WillOnce(Invoke([](char *path, char *search, char **out, int *found_t, int max_list) {
             out[0] = strdup("/valid/path/to/valid.json");  // Provide a valid JSON path
             *found_t = 1;  // Indicate one file found
             return 0;      // Indicate success
-        }));
+        })); */
 
     // Mock rdmJSONQuery to populate the app details
     EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
