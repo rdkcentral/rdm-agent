@@ -197,6 +197,7 @@ extern "C"{
 
 
 
+
 using ::testing::NiceMock;
 
 class RdmDownloadVerAppTest : public ::testing::Test {
