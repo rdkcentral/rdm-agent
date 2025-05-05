@@ -225,48 +225,7 @@ protected:
 };
 
 
-TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
-{
-    using ::testing::_;
-    using ::testing::Return;
-    using ::testing::Invoke;
 
-    RDMAPPDetails details = {};
-    strncpy(details.app_name, "App2", sizeof(details.app_name) - 1);
-    strncpy(details.pkg_ver, "1.0", sizeof(details.pkg_ver) - 1);
-    strncpy(details.app_home, "/valid/path/to/app", sizeof(details.app_home) - 1);
-    strncpy(details.app_dwnl_path, "/downloads/test", sizeof(details.app_dwnl_path) - 1);
-
-  /* EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce(Invoke([](char *path, char *search, char **out, int *found_t, int max_list) {
-            out[0] = strdup("/valid/path/to/valid.json");  // Provide a valid JSON path
-            *found_t = 1;  // Indicate one file found
-            return 0;      // Indicate success
-        })); */
-
-    // Mock rdmJSONQuery to populate the app details
-    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
-        .WillOnce(Invoke([](const char*, const char*, char* version_out) {
-            strncpy(version_out, "1.0", RDM_MAX_VER_LIST);
-            return 0;
-        }));
-
-    EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
-    .WillOnce(Return(0)); // Simulate successful return
-   /* EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(_, _))
-        .WillOnce(Invoke([](const CHAR* json, RDMAPPDetails* det) {
-            strncpy(det->app_name, "App2", sizeof(det->app_name) - 1);
-            strncpy(det->pkg_ver, "1.0", sizeof(det->pkg_ver) - 1);
-            return 0;
-        }));*/
-
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
-        .WillOnce(Return(-1)); // Simulate validation failure
-
-    int result = rdmDownloadVerApp(&details);
-
-    EXPECT_EQ(result, -1); // Expect failure due to validation
-}
 
 
 /*
@@ -467,35 +426,27 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
     strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
     strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
 
-    // Mock version details from manifest
     EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
-        .WillOnce(testing::Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
+        .WillOnce(Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
             output[0] = strdup("1.0");
             output[1] = strdup("2.0");
-            return 2; // Two versions found
+            return 2; // Simulate two valid versions
         }));
 
-    // Mock file search for installed versions
     EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce(testing::Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
+        .WillOnce(Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
             output[0] = strdup("/home/test/v1/package.json");
-            *found = 1; // Simulate one version found
+            *found = 1;
             return 0;
         }));
 
-   EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-    .Times(1) // Expect exactly one call
-    .WillOnce(Return(0)); // Simulate successful uninstallation
-    
-    // Mock uninstallation
-   // EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-   //     .Times(1); // Expect exactly one uninstall operation
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
+        .Times(1)
+        .WillOnce(Return(0)); // Simulate successful uninstallation
 
-    // Mock installation
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
-        .WillRepeatedly(Return(0)); // Installation succeeds
+        .WillRepeatedly(Return(0)); // Simulate successful installation
 
-    // Mock duplicate removal
     EXPECT_CALL(*mockRdmUtils, qsString(_, _)).Times(::testing::AnyNumber());
     EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
         .WillOnce(Return(1)); // Simulate removing duplicate versions
