@@ -223,16 +223,16 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
 
     RDMAPPDetails details = {};
     strcpy(details.app_name, "App2");
-    strcpy(details.pkg_version, "1.0");
+    strcpy(details.pkg_ver, "1.0");
 
-    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _))
+    EXPECT_CALL(*mockUtils, rdmJSONGetAppDetName(_, _))
         .WillOnce(Invoke([](CHAR* json, RDMAPPDetails* det) {
             strcpy(det->app_name, "App2");
-            strcpy(det->pkg_version, "1.0");
+            strcpy(det->pkg_ver, "1.0");
             return 0;
         }));
 
-    EXPECT_CALL(mockUtils, rdmDwnlValidation(_, _))
+    EXPECT_CALL(*mockUtils, rdmDwnlValidation(_, _))
         .WillOnce(Return(-1)); // Simulate validation failure
 
     int result = rdmDownloadVerApp(&details);
