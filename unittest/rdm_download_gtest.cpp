@@ -215,6 +215,7 @@ protected:
     }
 };
 
+
 TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
 {
     using ::testing::_;
@@ -222,13 +223,13 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
     using ::testing::Invoke;
 
     RDMAPPDetails details = {};
-    strcpy(details.app_name, "App2");
-    strcpy(details.pkg_ver, "1.0");
+    strncpy(details.app_name, "App2", sizeof(details.app_name) - 1);
+    strncpy(details.pkg_version, "1.0", sizeof(details.pkg_version) - 1);
 
     EXPECT_CALL(*mockUtils, rdmJSONGetAppDetName(_, _))
         .WillOnce(Invoke([](CHAR* json, RDMAPPDetails* det) {
-            strcpy(det->app_name, "App2");
-            strcpy(det->pkg_ver, "1.0");
+            strncpy(det->app_name, "App2", sizeof(det->app_name) - 1);
+            strncpy(det->pkg_version, "1.0", sizeof(det->pkg_version) - 1);
             return 0;
         }));
 
@@ -237,8 +238,9 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
 
     int result = rdmDownloadVerApp(&details);
 
-    EXPECT_EQ(result, -1); // Expect failure
+    EXPECT_EQ(result, -1); // Expect failure due to validation
 }
+
 
 
 TEST_F(RdmDownloadVerAppTest, SkipsInstallIfVersionIsTooOld) {
