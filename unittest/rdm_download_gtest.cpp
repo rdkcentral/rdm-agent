@@ -466,7 +466,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
 
     // Mock version details from manifest
     EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
-        .WillOnce(Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
+        .WillOnce(testing::Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
             output[0] = strdup("1.0");
             output[1] = strdup("2.0");
             return 2; // Two versions found
@@ -474,7 +474,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
 
     // Mock file search for installed versions
     EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce(Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
+        .WillOnce(testing::Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
             output[0] = strdup("/home/test/v1/package.json");
             *found = 1; // Simulate one version found
             return 0;
