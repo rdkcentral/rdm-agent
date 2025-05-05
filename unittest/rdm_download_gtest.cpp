@@ -238,7 +238,7 @@ TEST_F(RdmDownloadVerAppTest, HandleSingleInvalidAppInstall_Test)
             return 0;
         }));
 
-    EXPECT_CALL(*mockUtils, rdmDwnlValidation(_, _))
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
         .WillOnce(Return(-1)); // Simulate validation failure
 
     int result = rdmDownloadVerApp(&details);
