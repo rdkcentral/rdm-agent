@@ -444,18 +444,18 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
     EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
         .WillOnce(Return(1));
     
-   // EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-   // .Times(1);
-    
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
         .WillRepeatedly(Return(0)); // Simulate successful installation
 
-   // EXPECT_CALL(*mockRdmUtils, qsString(_, _)).Times(::testing::AnyNumber());
-  //  EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
-    //    .WillOnce(Return(1)); // Simulate removing duplicate versions
-
     INT32 status = rdmDownloadVerApp(&appDetails);
     EXPECT_EQ(status, RDM_SUCCESS);
+}
+
+TEST_F(RDMDownloadTest, HandlesEmptyManifestGracefully) {
+ON_CALL(*mockRdmUtils,rdmJSONGetLen(_,_)).WillByDefault(Return(0));
+
+int result = rdmDownloadVerApp();
+EXPECT_EQ(status, RDM_FAILURE);
 }
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
