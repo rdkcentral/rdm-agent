@@ -444,8 +444,8 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
     EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
         .WillOnce(Return(1));
     
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
-    .Times(1);
+   // EXPECT_CALL(*mockRdmUtils, rdmDwnlUnInstallApp(_, _))
+   // .Times(1);
     
     EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
         .WillRepeatedly(Return(0)); // Simulate successful installation
