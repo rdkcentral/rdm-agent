@@ -452,11 +452,12 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
 }
 
 TEST_F(RDMDownloadTest, HandlesEmptyManifestGracefully) {
-ON_CALL(*mockRdmUtils,rdmJSONGetLen(_,_)).WillByDefault(Return(0));
+    RDMAPPDetails appDetails = {};
+    ON_CALL(*mockRdmUtils,rdmJSONGetLen(_,_)).WillByDefault(Return(0));
 
-int result = rdmDownloadVerApp();
-EXPECT_EQ(status, RDM_FAILURE);
-}
+    INT32 status = rdmDownloadVerApp(&appDetails);
+    EXPECT_EQ(status, RDM_FAILURE);
+ }
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
