@@ -210,7 +210,7 @@ protected:
     void SetUp() override {
          mockRdmUtils = &mockUtilsInstance;
         // Default mocks used by rdmDownloadVerApp() internals
-        ON_CALL(mockUtilsInstance, rdmJSONGetLen(_, _)).WillByDefault(Return(1));
+        ON_CALL(mockUtilsInstance, rdmJSONGetLen(_, _)).WillByDefault(Return(0));
         ON_CALL(mockUtilsInstance, rdmJSONGetAppNames(_, _)).WillByDefault(Return(0));
         ON_CALL(mockUtilsInstance, rdmJSONGetAppDetName(_, _)).WillByDefault(Return(0));
         ON_CALL(mockUtilsInstance, rdmDwnlValidation(_, _)).WillByDefault(Return(0));
