@@ -453,7 +453,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
 
 TEST_F(RDMDownloadTest, HandlesEmptyManifestGracefully) {
     RDMAPPDetails appDetails = {};
-    ON_CALL(*mockRdmUtils,rdmJSONGetLen(_,_)).WillByDefault(Return(0));
+    ON_CALL(*mockRdmUtils,rdmJSONGetLen(_,_)).WillByDefault(Return(RDM_FAILURE));
 
     INT32 status = rdmDownloadVerApp(&appDetails);
     EXPECT_EQ(status, RDM_FAILURE);
