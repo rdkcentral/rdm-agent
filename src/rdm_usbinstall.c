@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <stdbool.h>
+#ifndef GTEST_ENABLE
 #include <json_parse.h>
+#endif
 
 #include "rdm_types.h"
 #include "rdm.h"
@@ -25,7 +27,9 @@
 #include "rdm_usbinstall.h"
 #include "rdm_download.h"
 #include "rdm_downloadutils.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#endif
 
 INT32 rdmUSBInstall(RDMHandle *prdmHandle, RDMAPPDetails *pRdmAppDet, CHAR *pUsbPath)
 {
