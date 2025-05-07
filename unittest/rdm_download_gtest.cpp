@@ -41,6 +41,7 @@ extern "C" {
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
+using ::testing::Invoke;
 
 
 MockRdmUtils* mockRdmUtils = nullptr;
