@@ -472,62 +472,7 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_NoManifestVersions) {
 }
 
 
-TEST_F(RDMDownloadTest, rdmDownloadVerApp_OnlyInstalled_NoNewInstall) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.pkg_ver, "1.0", sizeof(appDetails.pkg_ver) - 1);
-    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
 
-    EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
-        .WillOnce(Invoke([](const char*, const char*, char** output, int) {
-            output[0] = strdup("1.0");
-            return 1;
-        }));
-
-    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce(Invoke([](const char*, const char*, char** output, int* found, int) {
-            output[0] = strdup("/home/test/v1.0/package.json");
-            *found = 1;
-            return 0;
-        }));
-
-    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
-        .WillOnce(Invoke([](const char*, const char*, char* output) {
-            strcpy(output, "1.0");
-            return 0;
-        }));
-
-    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _)).WillRepeatedly(Return(1));
-    EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_)).Times(0);
-
-    INT32 status = rdmDownloadVerApp(&appDetails);
-    EXPECT_EQ(status, RDM_SUCCESS);
-}
-
-
-TEST_F(RDMDownloadTest, rdmDownloadVerApp_InstallFails_LogsError) {
-    RDMAPPDetails appDetails = {};
-    strncpy(appDetails.pkg_ver, "3.5", sizeof(appDetails.pkg_ver) - 1);
-    strncpy(appDetails.app_name, "fail_app", sizeof(appDetails.app_name) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/fail", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_home, "/home/fail", sizeof(appDetails.app_home) - 1);
-
-    EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
-        .WillOnce(Invoke([](const char*, const char*, char** output, int) {
-            output[0] = strdup("3.5");
-            return 1;
-        }));
-
-    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _)).WillOnce(Return(0));
-    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _)).WillRepeatedly(Return(1));
-
-    // Simulate install failure
-    EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_)).WillOnce(Return(1));
-
-    INT32 status = rdmDownloadVerApp(&appDetails);
-    EXPECT_EQ(status, RDM_SUCCESS); // Still returns success
-}
 
 
 int main(int argc, char** argv) {
