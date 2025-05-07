@@ -229,42 +229,7 @@ protected:
 
 
 
-/*
-TEST_F(RdmDownloadVerAppTest, SkipsInstallIfVersionIsTooOld) {
-    // Arrange
-    const char* jsonData = strdup(R"({"versionlist":[{"name":"App1","version":"1.0"}]})");
 
-    EXPECT_CALL(mockUtils, getFileLastModifyTime(_)).WillOnce(Return(123456));
-    EXPECT_CALL(mockUtils, getCurrentSysTimeSec()).WillOnce(Return(123456 + 800000)); // Older than threshold
-    EXPECT_CALL(mockUtils, rdmDownloadMgr(_)).Times(0); // Should not be called
-
-    // Act
-    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
-
-    // Assert
-    EXPECT_EQ(result, 0);
-}
-
-TEST_F(RdmDownloadVerAppTest, HandlesUninstallCase) {
-    // Arrange
-    const char* jsonData = strdup(R"({"versionlist":[{"name":"App2","version":""}]})");
-
-    EXPECT_CALL(mockUtils, rdmJSONGetLen(_, _)).WillOnce(Return(1));
-    EXPECT_CALL(mockUtils, rdmJSONGetAppNames(_, _)).WillOnce(Return(0));
-    EXPECT_CALL(mockUtils, rdmJSONGetAppDetName(_, _)).WillOnce(Invoke([](char*, RDMAPPDetails* det) {
-        strcpy(det->name, "App2");
-        det->version[0] = '\0'; // empty version = uninstall
-        return 0;
-    }));
-
-    EXPECT_CALL(mockUtils, rdmDwnlUnInstallApp(_, _)).Times(1);
-
-    // Act
-    int result = rdmDownloadVerApp(const_cast<char*>(jsonData));
-
-    // Assert
-    EXPECT_EQ(result, 0);
-}*/
 
 class RDMDownloadTest : public ::testing::Test {
 protected:
@@ -312,47 +277,6 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
 }
 
 
-/*TEST(RdmDownloadVerAppTest, TestSuccessfulDownloadAndInstall) {
-    RDMAPPDetails appDet;
-    memset(&appDet, 0, sizeof(RDMAPPDetails));
-
-    // Fill minimal fields for processing
-    strcpy(appDet.app_name, "MyApp");
-    strcpy(appDet.pkg_ver, "pkg-v1 pkg-v2");
-    strcpy(appDet.app_home, "/opt/apps/MyApp");
-    strcpy(appDet.app_dwnl_path, "/tmp/downloads/MyApp");
-
-    // Mock JSON query behavior
-    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
-        .WillOnce([](const char*, const char*, char** pkg_json, int* num, int) {
-            strcpy(pkg_json[0], "/opt/apps/MyApp/v1/package.json");
-            *num = 1;
-        });
-
-    EXPECT_CALL(*mockRdmUtils, rdmJSONQuery(_, _, _))
-        .WillOnce([](const char*, const char*, char* ver_out) {
-            strcpy(ver_out, "v1");
-        });
-
-    EXPECT_CALL(*mockRdmUtils, rdmDwnlValidation(_, _))
-        .WillRepeatedly(Return(0)); // assume validation success
-
-    // Mock uninstall and install behavior
-    EXPECT_CALL(*mockRdmDownloadMgr, rdmDownloadMgr(_))
-        .WillOnce(Return(0)); // install success
-
-    EXPECT_CALL(*mockRdmDownloadMgr, rdmDwnlUnInstallApp(_, _))
-        .Times(::testing::AtMost(1)); // may or may not be called depending on input
-
-    EXPECT_CALL(*mockSystemUtils, removeFile(_))
-        .Times(::testing::AnyNumber());
-
-    // Execute
-    INT32 status = rdmDownloadVerApp(&appDet);
-
-    // Verify
-    EXPECT_EQ(status, RDM_SUCCESS);
-}*/
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     RDMAPPDetails appDetails = {};
