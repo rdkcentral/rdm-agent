@@ -52,6 +52,7 @@ static INT32 rdmDwnlLXCIPKExctact()
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
+    CHAR ip_file[RDM_APP_PATH_LEN];
     INT32 status = RDM_SUCCESS;
 
     /* Extract the package */
@@ -146,6 +147,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         strcat(tmp_file, "/packages.list");
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
 	RDMInfo("tmp_file = %s\n", tmp_file);
+	CHAR *ip_path = NULL:
+	
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
@@ -177,7 +180,11 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     is_lxc = 1;
                 }
                 RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
-                status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		ip_file[sizeof(ip_file) - 1] = '\0';
+        	strcat(ip_file, tmp_file);
+		ip_file[sizeof(ip_file) - 1] = '\0';
+                status = tarExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
