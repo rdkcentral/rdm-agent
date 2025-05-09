@@ -147,7 +147,6 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         strcat(tmp_file, "/packages.list");
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
 	RDMInfo("tmp_file = %s\n", tmp_file);
-	CHAR *ip_path = NULL:
 	
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
