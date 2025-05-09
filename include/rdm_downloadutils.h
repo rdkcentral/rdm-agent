@@ -68,7 +68,7 @@ INT32  rdmDwnlGetCert(MtlsAuth_t*);
 INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
 #endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
-INT32  rdmDwnlRunPostScripts(CHAR *pAppHome);
+INT32  rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app);
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
 VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);
 INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
