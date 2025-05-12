@@ -329,11 +329,16 @@ error1:
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
-        rdmUnInstallApps(is_broadband);
-        ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
-        if(ret) {
-            RDMError("Failed to send the IARM event\n");
-        }
+	if(pApp_det->is_versioned_app) {
+            RDMINFO("Post Installation Successful for %s\n", pApp_det->app_name);
+	    return download_status;
+	} else {
+            rdmUnInstallApps(is_broadband);
+            ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
+            if(ret) {
+               RDMError("Failed to send the IARM event\n");
+            }
+	}
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);
