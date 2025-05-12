@@ -183,7 +183,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		strcat(ip_file, "/");
         	strcat(ip_file, tmp_file);
 		ip_file[sizeof(ip_file) - 1] = '\0';
-                status = tarExtract(ip_file, pRdmAppDet->app_dwnl_path);
+                status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
