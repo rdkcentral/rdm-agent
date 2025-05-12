@@ -180,7 +180,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 }
                 RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
 		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-		ip_file[sizeof(ip_file) - 1] = '\0';
+		strcat(ip_file, "/");
         	strcat(ip_file, tmp_file);
 		ip_file[sizeof(ip_file) - 1] = '\0';
                 status = tarExtract(ip_file, pRdmAppDet->app_dwnl_path);
