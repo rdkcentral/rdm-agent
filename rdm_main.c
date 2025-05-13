@@ -330,7 +330,7 @@ error1:
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
 	if(pApp_det->is_versioned_app) {
-            RDMINFO("Post Installation Successful for %s\n", pApp_det->app_name);
+            RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 	    return download_status;
 	} else {
             rdmUnInstallApps(is_broadband);
