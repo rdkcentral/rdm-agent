@@ -30,7 +30,7 @@ export TOP_DIR=`pwd`
 
 export top_srcdir=`pwd`
 
-cd ./unittest/
+cd unittest/
 
 automake --add-missing
 autoreconf --install
