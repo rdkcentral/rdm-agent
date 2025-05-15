@@ -137,6 +137,15 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 	    rdm_status = "SUCCESS";
 	}
     }
+
+    /* Plugin installation */
+    else if(!strcmp(pRdmAppDet->pkg_type, "plugin")){
+        status = rdmPackageMgr(pRdmAppDet);
+        if(status == RDM_SUCCESS) {
+            rdm_status = "SUCCESS";
+        }
+    }
+
     /* Legacy app installation */
     else {
         INT32 count = 0;
