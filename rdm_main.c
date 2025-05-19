@@ -305,11 +305,13 @@ int main(int argc, char* argv[])
 	    RDMInfo("Install App from custom path: %s\n", app_name);
 	    char *ver = strchr(app_name, ':');
 	    if (ver != NULL) {
-		    strcpy(pApp_det->pkg_ver, ver + 1);
+		    strncpy(pApp_det->pkg_ver, ver + 1, sizeof(pApp_det->pkg_ver) - 1);
+		    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
 	    }
 	    sscanf(app_name, "%[^:]", result);
-	    strcpy(pApp_det->app_name, result);
-	    sprintf(pApp_det->pkg_name, "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+	    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
+            pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
+	    snprintf(pApp_det->pkg_name, sizeof(pApp_det->pkg_name), "%s_%s-signed.tar", result, pApp_det->pkg_ver);
 	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
 	    pApp_det->is_versioned_app = 1;
 
@@ -329,11 +331,16 @@ error1:
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
-        rdmUnInstallApps(is_broadband);
-        ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
-        if(ret) {
-            RDMError("Failed to send the IARM event\n");
-        }
+	if(pApp_det->is_versioned_app) {
+            RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
+	    return download_status;
+	} else {
+            rdmUnInstallApps(is_broadband);
+            ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
+            if(ret) {
+               RDMError("Failed to send the IARM event\n");
+            }
+	}
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);

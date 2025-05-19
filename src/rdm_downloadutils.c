@@ -412,7 +412,7 @@ VOID rdmMemDLFree(VOID *pvDwnData)
     memset(pvDwnData, 0, sizeof(DownloadData));
 }
 
-INT32 rdmDwnlRunPostScripts(CHAR *pAppHome)
+INT32 rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
