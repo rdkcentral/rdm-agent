@@ -30,7 +30,9 @@
 #ifndef GTEST_ENABLE
 #include "json_parse.h"
 #include <downloadUtil.h>
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#endif
 #endif
 #ifdef GTEST_ENABLE
 #include "unittest/mocks/rdmMgr.h"
