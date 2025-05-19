@@ -182,6 +182,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
                 ip_file[sizeof(ip_file) - 1] = '\0';
 		strcat(ip_file, "/");
+		ip_file[sizeof(ip_file) - 1] = '\0';
         	strcat(ip_file, tmp_file);
 		ip_file[sizeof(ip_file) - 1] = '\0';
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
