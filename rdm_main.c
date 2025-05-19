@@ -32,6 +32,8 @@
 #include <downloadUtil.h>
 #ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_UNINSTALL 10
 #endif
 #endif
 #ifdef GTEST_ENABLE
