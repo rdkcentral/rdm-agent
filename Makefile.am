@@ -64,3 +64,7 @@ else
 		 src/rdm_downloadutils.c
   rdm_CFLAGS += -I${top_srcdir}/src/codebig
 endif
+
+if IARMBUS_ENABLE
+  rdm_CFLAGS += -DIARMBUS_SUPPORT
+endif
