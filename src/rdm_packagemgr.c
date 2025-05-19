@@ -129,6 +129,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
     if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
         if (DwnLoc.pvOut != NULL) {
             file_dwnl.pHeaderData = header;
+            file_dwnl.pDlHeaderData = NULL;
             file_dwnl.pPostFields = post_data;
             file_dwnl.pDlData = &DwnLoc;
 
