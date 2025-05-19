@@ -127,7 +127,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 
     /*Clearing pkg type for the usb thunder plugin download*/
     if(pRdmAppDet->is_usb == 1){
-        strcpy(pRdmAppDet->pkg_type, "\0");
+        strncpy(pRdmAppDet->pkg_type, "\0", sizeof(pRdmAppDet->pkg_type));
     }
 
     /* Versioned app installation */
