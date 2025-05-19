@@ -16,8 +16,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #ifndef GTEST_ENABLE
+#ifdef IARMBUS_SUPPORT
 #include "libIBus.h"
 #include "rdmMgr.h"
+#endif
 #else
 #include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
@@ -58,7 +60,7 @@ void RDMLOGInit()
 INT32 rdmIARMEvntSendStatus(UINT8 status)
 {
     INT32 ret = RDM_SUCCESS;
-
+#ifdef IARMBUS_SUPPORT
 //#ifdef PLATFORM_SUPPORTS_RDMMGR
     IARM_Result_t iarmRetCode = IARM_RESULT_SUCCESS;
 
@@ -88,15 +90,17 @@ exit1:
     IARM_Bus_Term();
 exit2:
 //#endif
-
+#endif
     return ret;
 }
 
 INT32 rdmIARMEvntSendPayload(CHAR *pkg_name, CHAR *pkg_ver,
                              CHAR *pkg_path, INT32 pkg_status)
 {
-    IARM_Bus_RDMMgr_EventData_t eventData;
     INT32 ret = RDM_SUCCESS;
+#ifdef IARMBUS_SUPPORT
+    IARM_Bus_RDMMgr_EventData_t eventData;
+
     IARM_Result_t iarmRetCode = IARM_RESULT_SUCCESS;
 
     iarmRetCode = IARM_Bus_Init("AppDownloadEvent");
@@ -136,6 +140,7 @@ INT32 rdmIARMEvntSendPayload(CHAR *pkg_name, CHAR *pkg_ver,
 exit1:
     IARM_Bus_Term();
 exit2:
+#endif
     return ret;
 }
 /** @brief This Function finds the directory inside the directory.
