@@ -63,6 +63,17 @@ AC_ARG_ENABLE([mountutils],
 AM_CONDITIONAL([IS_LIBRDKCONFIG_ENABLED], [test x$IS_LIBRDKCONFIG_ENABLED = xtrue])
 AC_SUBST(LIBRDKCONFIG_FLAG)
 
+
+# IARMBus Support
+AC_ARG_ENABLE([iarmbusSupport],
+[  --enable-iarmbusSupport    Turn on iarmbus support],
+[case "${enableval}" in
+  yes) iarmbusSupport=true ;;
+  no)  iarmbusSupport=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-iarmbusSupport]) ;;
+esac],[iarmbusSupport=false])
+AM_CONDITIONAL([IARMBUS_ENABLE], [test x$iarmbusSupport = xtrue])
+
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
                                 #include <stdio.h>
                                 #undef PACKAGE
