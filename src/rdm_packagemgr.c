@@ -75,14 +75,8 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
             }
 
             RDMError("Packager execution not successful. Cleanup and exit\n");
-
-            if(pRdmAppDet->app_dwnl_path) {
-                removeFile(pRdmAppDet->app_dwnl_path);
-            }
-
-            if(pRdmAppDet->app_home) {
-                removeFile(pRdmAppDet->app_home);
-            }
+            removeFile(pRdmAppDet->app_dwnl_path);
+            removeFile(pRdmAppDet->app_home);
 
             status = RDM_FAILURE;
             break;
