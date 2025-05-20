@@ -25,7 +25,13 @@
 #include "rdm_downloadutils.h"
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_EXTRACT_ERROR 5
+#define RDM_PKG_VALIDATE_ERROR 7
+#define RDM_PKG_INSTALL_COMPLETE 0
+#endif
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/rdmMgr.h"
