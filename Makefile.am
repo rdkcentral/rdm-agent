@@ -40,7 +40,7 @@ rdm_LDFLAGS += -lrdkconfig -lsecure_wrapper
 endif
 
 rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
-               -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lopkg -lrfcapi
+               -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lrfcapi
 
 rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include \
