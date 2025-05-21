@@ -31,7 +31,6 @@ rdm_SOURCES = rdm_main.c                          \
               src/rdm_usbinstall.c                \
               src/rdm_curldownload.c              \
               src/rdm_rbus.c                      \
-              src/rdm_packagemgr.c                \
               $(NULL)
 
 if IS_LIBRDKCONFIG_ENABLED
@@ -54,6 +53,7 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
 		 src/rdm-cpc/rdm/rdm_openssl.c  \
+		 src/rdm-cpc/rdm/rdm_packagemgr.c \
 		 src/rdm-cpc/rdm/rdm_downloadutils.c
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm

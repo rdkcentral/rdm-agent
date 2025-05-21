@@ -138,7 +138,6 @@ int main(int argc, char* argv[])
     RDMHandle     *prdmHandle = NULL;
 
     RDMLOGInit();
-    RDMInfo("Before argc == 1 check\n");
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;

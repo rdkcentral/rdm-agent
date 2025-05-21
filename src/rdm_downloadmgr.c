@@ -152,7 +152,6 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
         strcat(tmp_file, "/packages.list");
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
-	RDMInfo("tmp_file = %s\n", tmp_file);
 	
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
@@ -166,11 +165,9 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 tmp_file[len - 1] = 0;
 
             extn = getExtension(tmp_file);
-	    RDMInfo("extn = %s\n", extn);
 
             if(!strcmp(extn, "tar")) {
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
-		RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
