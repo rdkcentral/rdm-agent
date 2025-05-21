@@ -29,7 +29,11 @@
 #include "rdm_jsonquery.h"
 #include "rdm_downloadutils.h"
 #include "rdm_download.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#else
+#include "unittest/mocks/system_utils.h"
+#endif
 
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
@@ -123,7 +127,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 
     /*Clearing pkg type for the usb thunder plugin download*/
     if(pRdmAppDet->is_usb == 1){
-        strcpy(pRdmAppDet->pkg_type, "\0");
+        strncpy(pRdmAppDet->pkg_type, "\0", sizeof(pRdmAppDet->pkg_type));
     }
 
     /* Versioned app installation */

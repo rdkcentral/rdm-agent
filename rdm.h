@@ -25,7 +25,7 @@
 #define RDM_APPNAME_LEN    128
 #define RDM_JSONPATH_LEN   256
 #define RDM_JSONQ_LEN      10
-#define RDM_DL_PKGNAME_LEN 128
+#define RDM_DL_PKGNAME_LEN 256
 #define RDM_DL_PKGVER_LEN  128
 #define RDM_DL_APPSIZE_LEN 8
 #define RDM_DL_PKGTYPE_LEN 8
@@ -60,9 +60,15 @@ typedef struct _rdmAppDetails {
     INT32 is_codebig;
 #endif
     INT32 is_usb;
+    INT32 is_versioned_app;
     INT32 sig_type;
     INT32 dwld_status;
 }RDMAPPDetails;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct _rdmHandle
 {
@@ -73,4 +79,7 @@ typedef struct _rdmHandle
 INT32 rdmInit(RDMHandle *prdmHandle);
 VOID  rdmUnInit(RDMHandle *prdmHandle);
 
+#ifdef __cplusplus
+}
+#endif
 #endif //_RDM_H_

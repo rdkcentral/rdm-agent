@@ -27,10 +27,14 @@
 #include <time.h>
 
 #include <curl/curl.h>
-#include <json_parse.h>
+#ifndef GTEST_ENABLE
+#include "json_parse.h"
 #include <downloadUtil.h>
-
 #include "rdmMgr.h"
+#endif
+#ifdef GTEST_ENABLE
+#include "unittest/mocks/rdmMgr.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -95,6 +99,7 @@ static VOID rdmHelp()
     RDMInfo("To Install apps from manifset : rdm\n");
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
+    RDMInfo("To Install Versioned app      : rdm -v <app_name>\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -109,12 +114,14 @@ static VOID rdmHelp()
  *  @return  status.
  *  @retval  status.
  */
+#ifndef GTEST_ENABLE
 int main(int argc, char* argv[])
 {
     INT32 download_all        = 0;
     INT32 idx                 = 0;
     INT32 download_status     = 0;
     INT32 download_singleapp  = 0;
+    INT32 download_versionedapp  = 0;
     INT32 usb_install         = 0;
     CHAR  *usb_path           = NULL;
     CHAR  *app_name           = NULL;
@@ -134,7 +141,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -151,6 +158,10 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
+		case 'v':
+		    download_versionedapp = 1;
+		    app_name = optarg;
+		    break;
                 case 'h':
                 default :
                     rdmHelp();
@@ -287,6 +298,33 @@ int main(int argc, char* argv[])
         if(ret) {
             RDMError("Failed to Install APP from USB: %s\n", usb_path);
         }
+    } //usb_install
+
+    else if(download_versionedapp) {
+	    char result[20];
+
+	    RDMInfo("Install App from custom path: %s\n", app_name);
+	    char *ver = strchr(app_name, ':');
+	    if (ver != NULL) {
+		    strncpy(pApp_det->pkg_ver, ver + 1, sizeof(pApp_det->pkg_ver) - 1);
+		    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
+	    }
+	    sscanf(app_name, "%[^:]", result);
+	    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
+            pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
+	    snprintf(pApp_det->pkg_name, sizeof(pApp_det->pkg_name), "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
+	    pApp_det->is_versioned_app = 1;
+
+	    /* Update App paths */
+	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+	    rdmPrintAppDetails(pApp_det);
+	    ret = rdmDownloadApp(pApp_det, &download_status);
+	    if(ret) {
+		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
+            } else {
+	        RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+            }
     }
 
 error1:
@@ -294,11 +332,16 @@ error1:
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
-        rdmUnInstallApps(is_broadband);
-        ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
-        if(ret) {
-            RDMError("Failed to send the IARM event\n");
-        }
+	if(pApp_det->is_versioned_app) {
+            RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
+	    return download_status;
+	} else {
+            rdmUnInstallApps(is_broadband);
+            ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
+            if(ret) {
+               RDMError("Failed to send the IARM event\n");
+            }
+	}
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);
@@ -320,3 +363,4 @@ error2:
 
     return ret;
 }
+#endif
