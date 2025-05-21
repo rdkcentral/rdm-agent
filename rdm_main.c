@@ -230,14 +230,14 @@ int main(int argc, char* argv[])
                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
 
                 if(!strcmp(pApp_det->dwld_method_controller, "RFC")) {
-                    snprintf(rfc_app, sizeof(rfc_app), "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",pApp_det->app_name);
+                    snprintf(rfc_app, sizeof(rfc_app), "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable");
 
                     ret =  rdmRbusGetRfc(prdmHandle->pRbusHandle,
                                          rfc_app,
                                          &app_rfc_status);
 
                     if(ret == RDM_SUCCESS && app_rfc_status == 0) {
-                        RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",idx-1, pApp_det->app_name);
+                        RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",pApp_det->app_name);
                         continue;
                     }
                 }
