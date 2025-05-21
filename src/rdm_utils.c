@@ -44,6 +44,7 @@ void RDMLOGInit()
 #ifdef RDK_LOGGER_ENABLED
     if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
         g_rdk_logger_enabled = 1;
+        RDMInfo("Successfully exited rdk_logger_init()\n");
     }
 #endif
 }
