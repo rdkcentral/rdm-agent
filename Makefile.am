@@ -70,9 +70,9 @@ if USE_CPC
     opensslVerify_LDADD = librdmopenssl.la
   endif
 else
-  rdm_SOURCES += codebig/codebigUtils.c \
-		 rdm_openssl.c \
-		 rdm_downloadutils.c
+  rdm_SOURCES += src/codebig/codebigUtils.c \
+		 src/rdm_openssl.c \
+		 src/rdm_downloadutils.c
   rdm_CFLAGS += -I${top_srcdir}/src/codebig
 endif
 
