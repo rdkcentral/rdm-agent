@@ -52,6 +52,7 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs-hal
 
 if USE_CPC
+  SUBDIRS = src/rdm-cpc/rdm
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
 		 src/rdm-cpc/rdm/rdm_openssl.c  \
 		 src/rdm-cpc/rdm/rdm_downloadutils.c
