@@ -48,6 +48,18 @@ if test "$USE_CPC" = "yes"; then
     AC_DEFINE([USE_CPC], [1], [Define to enable CPC support])
 fi
 
+AC_ARG_ENABLE([rdkv],
+    [AS_HELP_STRING([--enable-rdkv], [Enable RDKV support])],
+    [IS_RDKV="$enableval"],
+    [IS_RDKV=no])
+
+AM_CONDITIONAL([IS_RDKV], [test "$IS_RDKV" = "yes"])
+AC_SUBST(IS_RDKV)
+
+if test "$IS_RDKV" = "yes"; then
+    AC_DEFINE([IS_RDKV], [1], [Define to enable RDKV support])
+fi
+
 # Checks for header files.
 AC_ARG_ENABLE([mountutils],
         AS_HELP_STRING([--enable-mountutils],[enables mountutils replacement (default is no)]),
