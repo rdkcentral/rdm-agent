@@ -30,7 +30,11 @@
 #ifndef GTEST_ENABLE
 #include "json_parse.h"
 #include <downloadUtil.h>
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_UNINSTALL 10
+#endif
 #endif
 #ifdef GTEST_ENABLE
 #include "unittest/mocks/rdmMgr.h"
@@ -134,7 +138,6 @@ int main(int argc, char* argv[])
     RDMHandle     *prdmHandle = NULL;
 
     RDMLOGInit();
-
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;
