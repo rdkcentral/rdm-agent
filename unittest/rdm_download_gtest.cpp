@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <gmock/gmock-actions.h>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
 #include "mocks/mock_iarm_bus.h"
@@ -31,6 +32,7 @@ extern "C" {
     #include "mocks/libIBus.h"
     #include "mocks/rdmMgr.h"
     #include "rdm_downloadutils.h"
+    #include "rdm_downloadverapp.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
@@ -39,9 +41,10 @@ extern "C" {
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
+using ::testing::Invoke;
 
 
-MockRdmUtils* mockRdmUtils;
+MockRdmUtils* mockRdmUtils = nullptr;
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
@@ -123,9 +126,11 @@ extern "C"{
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
 
-    int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
-        return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
+   int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
+      return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
     }
+
+    
 
     void qsString(char *arr[], unsigned int length) {
         return mockRdmUtils->qsString(arr, length);
@@ -190,7 +195,41 @@ extern "C"{
     int isDataInList(char **pList, char *pData, int count) {
         return mockRdmUtils->isDataInList(pList, pData, count);
     }
+
 }
+
+
+
+
+using ::testing::NiceMock;
+
+class RdmDownloadVerAppTest : public ::testing::Test {
+protected:
+    NiceMock<MockRdmUtils> mockUtilsInstance;
+   
+
+    void SetUp() override {
+         mockRdmUtils = &mockUtilsInstance;
+        // Default mocks used by rdmDownloadVerApp() internals
+        ON_CALL(mockUtilsInstance, rdmJSONGetLen(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtilsInstance, rdmJSONGetAppNames(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtilsInstance, rdmJSONGetAppDetName(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtilsInstance, rdmDwnlValidation(_, _)).WillByDefault(Return(0));
+        ON_CALL(mockUtilsInstance, getFileLastModifyTime(_)).WillByDefault(Return(123456));
+        ON_CALL(mockUtilsInstance, getCurrentSysTimeSec()).WillByDefault(Return(123556));
+        ON_CALL(mockUtilsInstance, rdmDownloadMgr(_)).WillByDefault(Return(0));
+        ON_CALL(mockUtilsInstance, rdmDwnlUnInstallApp(_, _)).WillByDefault(Return());
+    }
+   void TearDown() override {
+       mockRdmUtils = nullptr;
+   }
+};
+
+
+
+
+
+
 
 class RDMDownloadTest : public ::testing::Test {
 protected:
@@ -236,6 +275,8 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
     EXPECT_EQ(DLStatus, RDM_DL_NOERROR);
 }
+
+
                     
 TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     RDMAPPDetails appDetails = {};
@@ -302,6 +343,61 @@ TEST_F(RDMDownloadTest, rdmDwnlExtract_Success) {
     EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_SUCCESS);
     delete mockIARM;
 }
+
+TEST_F(RDMDownloadTest, rdmDownloadVerApp_Integration) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.pkg_ver, "1.0 2.0", sizeof(appDetails.pkg_ver) - 1);
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
+
+    EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
+        .WillOnce(testing::Invoke([](const char* input, const char* delimiter, char** output, int max_list) {
+            output[0] = strdup("1.0");
+            output[1] = strdup("2.0");
+            return 2; // Simulate two valid versions
+        }));
+
+    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
+        .WillOnce(testing::Invoke([](const char* path, const char* search, char** output, int* found, int max_list) {
+            output[0] = strdup("/home/test/v1/package.json");
+            *found = 1;
+            return 0;
+        }));
+     
+    // Mock behavior for removing duplicate versions
+    EXPECT_CALL(*mockRdmUtils, strRmDuplicate(_, _))
+        .WillOnce(Return(1));
+    
+    EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_))
+        .WillRepeatedly(Return(0)); // Simulate successful installation
+
+    INT32 status = rdmDownloadVerApp(&appDetails);
+    EXPECT_EQ(status, RDM_SUCCESS);
+}
+
+TEST_F(RDMDownloadTest, rdmDownloadVerApp_NoManifestVersions) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.pkg_ver, "", sizeof(appDetails.pkg_ver) - 1);
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
+
+    EXPECT_CALL(*mockRdmUtils, strSplit(_, _, _, _))
+        .WillOnce(Return(0));  // No versions returned
+
+    EXPECT_CALL(*mockRdmUtils, findPFileAll(_, _, _, _, _))
+        .WillOnce(Return(0)); // No installed versions
+
+    EXPECT_CALL(*mockRdmUtils, rdmDownloadMgr(_)).Times(0);
+
+    INT32 status = rdmDownloadVerApp(&appDetails);
+    EXPECT_EQ(status, RDM_SUCCESS);
+}
+
+
+
+
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);

@@ -232,6 +232,7 @@ TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     char pAppHome[32] = "/media/apps";
+    INT32 versionedapp = 0;    
     //static char ext[3] = "sh";
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
@@ -244,13 +245,14 @@ TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
         .WillOnce(Return("sh"));
     EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
-    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_SUCCESS);
+    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome, versionedapp), RDM_SUCCESS);
 
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
     char pAppHome[32] = "/tmp/some_path";
-    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome), RDM_FAILURE);
+    INT32 versionedapp = 0;
+    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome, versionedapp), RDM_FAILURE);
 }
 
 // Test rdmUnInstallApps

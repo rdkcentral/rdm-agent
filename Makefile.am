@@ -15,10 +15,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-
 AUTOMAKE_OPTIONS = foreign subdir-objects
 
-rdm_CFLAGS += -fPIC -pthread 
+rdm_CFLAGS += -fPIC -pthread
 
 bin_PROGRAMS = rdm
 
@@ -30,6 +29,7 @@ rdm_SOURCES = rdm_main.c                          \
               src/rdm_downloadmgr.c               \
               src/rdm_usbinstall.c                \
               src/rdm_curldownload.c              \
+              src/rdm_packagemgr.c                \
               src/rdm_rbus.c                      \
               $(NULL)
 
@@ -39,7 +39,7 @@ rdm_LDFLAGS += -lrdkconfig -lsecure_wrapper
 endif
 
 rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
-               -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lopkg -lrfcapi
+               -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lrfcapi
 
 rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include \
@@ -52,15 +52,30 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
 
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
-		 src/rdm-cpc/rdm/rdm_openssl.c  \
-		 src/rdm-cpc/rdm/rdm_packagemgr.c \
-		 src/rdm-cpc/rdm/rdm_downloadutils.c
+                 src/rdm-cpc/rdm/rdm_openssl.c  \
+                 src/rdm-cpc/rdm/rdm_downloadutils.c
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
+if IS_RDKV
+  lib_LTLIBRARIES = librdmopenssl.la
+  librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
+if IS_LIBRDKCONFIG_ENABLED
+    librdmopenssl_la_CFLAGS = $(LIBRDKCONFIG_FLAG)
+    librdmopenssl_la_LDFLAGS = -lrdkconfig -lsecure_wrapper -lcrypto -lssl
+endif
+    bin_PROGRAMS += opensslVerify
+    opensslVerify_SOURCES = src/rdm-cpc/rdm/openssl_main.c
+    opensslVerify_LDADD = librdmopenssl.la
+    opensslVerify_LDFLAGS = -lcrypto -lssl
+endif
 else
   rdm_SOURCES += src/codebig/codebigUtils.c \
-		 src/rdm_openssl.c \
-		 src/rdm_downloadutils.c
+                 src/rdm_openssl.c \
+                 src/rdm_downloadutils.c
   rdm_CFLAGS += -I${top_srcdir}/src/codebig
+endif
+
+if IARMBUS_ENABLE
+  rdm_CFLAGS += -DIARMBUS_SUPPORT
 endif

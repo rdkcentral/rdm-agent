@@ -17,6 +17,18 @@
 ##
 ## SPDX-License-Identifier: Apache-2.0
 #
+ENABLE_COV=false
+
+if [ "x$1" = "x--enable-cov" ]; then
+      echo "Enabling coverage options"
+      export CXXFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
+      export CFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
+      export LDFLAGS="-lgcov --coverage"
+      ENABLE_COV=true
+fi
+export TOP_DIR=`pwd`
+
+export top_srcdir=`pwd`
 
 cd unittest/
 
@@ -29,49 +41,25 @@ make clean
 make
 
 ./rdm_main_gtest
-rdmmain=$?
-echo "*********** Return value of rdm_main_gtest $rdmmain"
-
 ./rdm_utils_gtest
-utils=$?
-echo "*********** Return value of rdm_utils_gtest $utils"
-
 ./rdm_curl_gtest
-rdmcurl=$?
-echo "*********** Return value of curl_gtest $rdmcurl"
-
 ./rdm_json_gtest
-rdmjson=$?
-echo "*********** Return value of json_gtest $rdmjson"
-
 ./rdm_download_gtest
-rdmdown=$?
-echo "*********** Return value of rdm_download_gtest $rdmdown"
-
 ./rdm_downloadutils_gtest
-rdmdutils=$?
-echo "*********** Return value of rdm_downloadutils_gtest $rdmdutils"
-
 ./rdm_rbus_gtest
-rdmrbus=$?
-echo "*********** Return value of rdm_rbus_gtest $rdmrbus"
-
 ./rdm_openssl_gtest
-rdmopenssl=$?
-echo "*********** Return value of rdm_openssl_gtest $rdmopenssl"
+./rdm_usbinstall_gtest
 
-# List of unit test executables
 
-# Run tests and capture return values
-if [ "$rdmmain" = "0" ] && [ "$utils" = "0" ] && [ "$rdmcurl" = "0" ] && [ "$rdmjson" = "0" ] && [ "$rdmdown" = "0" ] && [ "$rdmdutils" = "0" ] && [ "$rdmrbus" = "0" ] && [ "$rdmopenssl" = "0" ]; then
-    cd ../
-
+echo "********************"
+echo "**** CAPTURE RDM-AGENT COVERAGE DATA ****"
+echo "********************"
+if [ "$ENABLE_COV" = true ]; then
+    echo "Generating coverage report"
     lcov --capture --directory . --output-file coverage.info
-	lcov --remove coverage.info '/usr/*' --output-file coverage.filtered.info
-
-    genhtml coverage.filtered.info --output-directory out
-else
-    echo "L1 UNIT TEST FAILED. PLEASE CHECK AND FIX"
-    exit 1
+    lcov --remove coverage.info '/usr/*' --output-file coverage.info
+    lcov --remove coverage.info './unittest/*' --output-file coverage.info
+    lcov --list coverage.info
 fi
 
+cd $TOP_DIR

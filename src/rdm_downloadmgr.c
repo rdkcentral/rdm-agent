@@ -25,7 +25,13 @@
 #include "rdm_downloadutils.h"
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_EXTRACT_ERROR 5
+#define RDM_PKG_VALIDATE_ERROR 7
+#define RDM_PKG_INSTALL_COMPLETE 0
+#endif
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/rdmMgr.h"
@@ -52,6 +58,7 @@ static INT32 rdmDwnlLXCIPKExctact()
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
+    CHAR ip_file[RDM_APP_PATH_LEN];
     INT32 status = RDM_SUCCESS;
 
     /* Extract the package */
@@ -145,7 +152,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
         strcat(tmp_file, "/packages.list");
 	tmp_file[sizeof(tmp_file) - 1] = '\0';
-
+	
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
@@ -174,8 +181,14 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 if(rdmDownlLXCCheck(tmp_file, pRdmAppDet->app_name)) {
                     is_lxc = 1;
                 }
-
-                status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
+                RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
+		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+                ip_file[sizeof(ip_file) - 1] = '\0';
+		strcat(ip_file, "/");
+		ip_file[sizeof(ip_file) - 1] = '\0';
+        	strcat(ip_file, tmp_file);
+		ip_file[sizeof(ip_file) - 1] = '\0';
+                status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
@@ -337,7 +350,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                            pRdmAppDet->app_home,
                            RDM_PKG_INSTALL_COMPLETE);
     }
-    rdmDwnlRunPostScripts(pRdmAppDet->app_home);
+    rdmDwnlRunPostScripts(pRdmAppDet->app_home, pRdmAppDet->is_versioned_app);
 
 error:
     return rdm_status;

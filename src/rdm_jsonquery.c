@@ -333,7 +333,8 @@ INT32 rdmJSONGetAppDetID(INT32          idx,
     ret = rdmJSONQuery(RDM_MANIFEST, json_path, pRdmAppDet->dwld_method_controller);
     if(ret) {
         RDMWarn("Unable to get dwld_method_controller\n");
-        strncpy(pRdmAppDet->dwld_method_controller, "None", sizeof(pRdmAppDet->dwld_method_controller));
+	strncpy(pRdmAppDet->dwld_method_controller, "None", sizeof(pRdmAppDet->dwld_method_controller) - 1);
+        pRdmAppDet->dwld_method_controller[sizeof(pRdmAppDet->dwld_method_controller) - 1] = '\0'; //Null terminate the string
     }
 
     snprintf(json_path, RDM_JSONPATH_LEN, "%s/%d/%s", RDM_MANIFEST_PATH, idx, RDM_JSONQ_PKGNAME);
