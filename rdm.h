@@ -79,6 +79,9 @@ typedef struct _rdmHandle
 INT32 rdmInit(RDMHandle *prdmHandle);
 VOID  rdmUnInit(RDMHandle *prdmHandle);
 
+void t2CountNotify(char *marker, int val);
+void t2ValNotify(char *marker, char *val);
+
 #ifdef __cplusplus
 }
 #endif
