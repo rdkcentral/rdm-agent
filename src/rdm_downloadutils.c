@@ -113,6 +113,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
     }
     else {
         RDMError("RDM download url is not available in both %s and RFC parameter. Exiting...\n", RDM_DWNLSSR_URL);
+        t2ValNotify("SYST_ERR_RDMMISSING", RDM_DWNLSSR_URL);
         status = RDM_FAILURE;
     }
     return status;
@@ -607,6 +608,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
             if (ssl_status == retcode_success) {
                 RDMInfo("RSA Signature Validation Success\n");
+                t2CountNotify("RDM_INFO_rsa_valid_signature", 1);
             } else {
                 RDMError("RSA Signature Verification Failed\n");
                 status = RDM_FAILURE;

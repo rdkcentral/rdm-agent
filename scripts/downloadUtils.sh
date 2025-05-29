@@ -368,6 +368,7 @@ sendDownloadRequest()
             if [ -f $DOWNLOAD_LOCATION/$downloadFile ];then
                   log_msg "sendDownloadRequest: Curl partial Download, Failed download for $downloadUrl"
                   rm $DOWNLOAD_LOCATION/$downloadFile
+                  t2ValNotify "SYS_ERR_RDMDown" "$downloadUrl"
             else
                   log_msg "sendDownloadRequest: Curl Download Failed for $downloadUrl"
             fi
