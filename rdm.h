@@ -34,6 +34,10 @@
 #define RDM_TMP_LEN_64     64
 #define MAX_BUFF_SIZE      512
 
+#ifdef T2_EVENT_ENABLED
+#include <telemetry_busmessage_sender.h>
+#endif
+
 typedef struct _rdmAppDetails {
     CHAR  app_name[RDM_APPNAME_LEN];
     CHAR  pkg_name[RDM_DL_PKGNAME_LEN];
