@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
     }
 
 error1:
-    //rdmDwnlCleanUp(pApp_det);
+    rdmDwnlCleanUp(pApp_det);
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
