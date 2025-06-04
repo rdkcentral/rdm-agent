@@ -109,6 +109,23 @@ static VOID rdmHelp()
     RDMInfo("To Print help                 : rdm -h\n");
 }
 
+/* Description: Use for sending telemetry Log
+ * @param marker: use for send marker details
+ * @return : void
+ * */
+void t2CountNotify(char *marker, int val) {
+#ifdef T2_EVENT_ENABLED
+    t2_event_d(marker, val);
+#endif
+}
+
+void t2ValNotify( char *marker, char *val )
+{
+#ifdef T2_EVENT_ENABLED
+    t2_event_s(marker, val);
+#endif
+}
+
 /** @brief Main function
  *
  *  @param[in]  argc   No. of arguments
@@ -289,7 +306,8 @@ int main(int argc, char* argv[])
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
             }
 
-            RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+            RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+            t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
         }
     } //else if (download_singleapp)
 
@@ -334,6 +352,7 @@ error1:
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
+        t2CountNotify("RDM_INFO_AppDownloadSuccess");
 	if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 	    return download_status;
