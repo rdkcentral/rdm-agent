@@ -330,7 +330,6 @@ int main(int argc, char* argv[])
     }
 
 error1:
-    rdmDwnlUnInstallApp(pApp_det->app_dwnl_path, pApp_det->app_home);
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
@@ -347,6 +346,7 @@ error1:
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);
+	rdmUnInstallApps(is_broadband);
     }
 
     ret = rdmIARMEvntSendStatus(download_status);
