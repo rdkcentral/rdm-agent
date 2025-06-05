@@ -330,7 +330,6 @@ int main(int argc, char* argv[])
     }
 
 error1:
-    //rdmDwnlCleanUp(pApp_det);
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
@@ -347,6 +346,11 @@ error1:
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);
+	rdmUnInstallApps(is_broadband);
+	ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
+            if(ret) {
+               RDMError("Failed to send the IARM event\n");
+            }
     }
 
     ret = rdmIARMEvntSendStatus(download_status);
