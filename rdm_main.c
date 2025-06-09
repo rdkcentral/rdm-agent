@@ -352,7 +352,7 @@ error1:
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
-        t2CountNotify("RDM_INFO_AppDownloadSuccess, 1");
+        t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
 	if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 	    return download_status;
