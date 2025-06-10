@@ -114,14 +114,18 @@ static VOID rdmHelp()
  * @return : void
  * */
 void t2CountNotify(char *marker, int val) {
+    RDMInfo("t2CountNotify: Outside the Macro call T2_EVENT_ENABLED\n");
 #ifdef T2_EVENT_ENABLED
+    RDMInfo("t2CountNotify: T2_EVENT Enabled. Sending event marker\n");
     t2_event_d(marker, val);
 #endif
 }
 
 void t2ValNotify( char *marker, char *val )
 {
+RDMInfo("t2ValNotify: Outside the Macro call T2_EVENT_ENABLED\n");
 #ifdef T2_EVENT_ENABLED
+    RDMInfo("t2ValNotify: T2_EVENT Enabled. Sending event marker\n");
     t2_event_s(marker, val);
 #endif
 }
