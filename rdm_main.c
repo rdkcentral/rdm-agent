@@ -66,6 +66,10 @@ INT32 rdmInit(RDMHandle *prdmHandle)
         return RDM_FAILURE;
     }
 
+#ifdef T2_EVENT_ENABLED
+    t2_init("rdm");
+#endif
+
     prdmHandle->pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
     if(prdmHandle->pApp_det == NULL) {
         RDMError("Failed to allocate memory\n");
@@ -90,6 +94,11 @@ INT32 rdmInit(RDMHandle *prdmHandle)
  */
 VOID rdmUnInit(RDMHandle *prdmHandle)
 {
+
+#ifdef T2_EVENT_ENABLED
+    t2_uninit("rdm");
+#endif
+
     rdmRbusUnInit(prdmHandle->pRbusHandle);
     if(prdmHandle->pApp_det) {
         free(prdmHandle->pApp_det);
