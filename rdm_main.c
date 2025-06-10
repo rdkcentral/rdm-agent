@@ -67,7 +67,7 @@ INT32 rdmInit(RDMHandle *prdmHandle)
     }
 
 #ifdef T2_EVENT_ENABLED
-    t2_init("rdm");
+    t2_init("rdmagent");
 #endif
 
     prdmHandle->pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
@@ -96,7 +96,7 @@ VOID rdmUnInit(RDMHandle *prdmHandle)
 {
 
 #ifdef T2_EVENT_ENABLED
-    t2_uninit("rdm");
+    t2_uninit();
 #endif
 
     rdmRbusUnInit(prdmHandle->pRbusHandle);
