@@ -352,7 +352,8 @@ int main(int argc, char* argv[])
 	    if(ret) {
 		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
             } else {
-	        RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+		RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+		t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
             }
     }
 
