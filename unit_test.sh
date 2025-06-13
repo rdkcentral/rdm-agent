@@ -17,6 +17,7 @@
 ##
 ## SPDX-License-Identifier: Apache-2.0
 #
+set -e
 ENABLE_COV=false
 
 if [ "x$1" = "x--enable-cov" ]; then
