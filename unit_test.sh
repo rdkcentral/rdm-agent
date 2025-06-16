@@ -17,6 +17,7 @@
 ##
 ## SPDX-License-Identifier: Apache-2.0
 #
+
 ENABLE_COV=false
 
 if [ "x$1" = "x--enable-cov" ]; then
@@ -27,7 +28,6 @@ if [ "x$1" = "x--enable-cov" ]; then
       ENABLE_COV=true
 fi
 export TOP_DIR=`pwd`
-
 export top_srcdir=`pwd`
 
 cd unittest/
@@ -40,16 +40,31 @@ autoreconf --install
 make clean
 make
 
-./rdm_main_gtest
-./rdm_utils_gtest
-./rdm_curl_gtest
-./rdm_json_gtest
-./rdm_download_gtest
-./rdm_downloadutils_gtest
-./rdm_rbus_gtest
-./rdm_openssl_gtest
-./rdm_usbinstall_gtest
+fail=0
 
+for test in \
+  ./rdm_main_gtest \
+  ./rdm_utils_gtest \
+  ./rdm_curl_gtest \
+  ./rdm_json_gtest \
+  ./rdm_download_gtest \
+  ./rdm_downloadutils_gtest \
+  ./rdm_rbus_gtest \
+  ./rdm_openssl_gtest \
+  ./rdm_usbinstall_gtest
+do
+    $test
+    status=$?
+    if [ $status -ne 0 ]; then
+        echo "Test $test failed with exit code $status"
+        fail=1
+    fi
+done
+
+if [ $fail -ne 0 ]; then
+    echo "Some unit tests failed."
+    exit 1
+fi
 
 echo "********************"
 echo "**** CAPTURE RDM-AGENT COVERAGE DATA ****"
