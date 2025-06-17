@@ -106,6 +106,9 @@ extern "C"{
         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
     }
 
+     int  arExtract(char *filePath, char *appDwnlPath) {
+         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
+    }
     int fileCheck(char* tmpFile) {
         return mockRdmUtils->fileCheck(tmpFile);
     }
