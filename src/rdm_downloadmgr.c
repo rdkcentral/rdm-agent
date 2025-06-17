@@ -64,20 +64,20 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     /* Extract the package */
     status = tarExtract(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path);
     if(status) {
-        RDMError("Failed to extract the package\n");
+        RDMError("rdmDwnlExtract : Failed to extract the package %s\n", pRdmAppDet->app_dwnl_filepath);
         return status;
     }
 
     if(pRdmAppDet->is_versioned_app) {
 	    if(findPFile(pRdmAppDet->app_dwnl_path, "*-signed.tar", tmp_file)) {
 		    /* Extract the package */
-		    RDMInfo("Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+		    RDMInfo("rdmDwnlExtract : Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
 		    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 		    if(status) {
-			    RDMError("Failed to extract the package\n");
+			    RDMError("rdmDwnlExtract : Failed to extract the package %s\n", tmp_file);
 			    return status;
                     }
-		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
+		    RDMInfo("rdmDwnlExtract : Extraction of %s is Successful\n", tmp_file);
             }
 	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 	    tmp_file[sizeof(tmp_file) - 1] = '\0';
@@ -89,19 +89,19 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
 
 	    if(fileCheck(tmp_file)) {
-		    RDMInfo("tmp_file = %s\n", tmp_file);
+		    RDMInfo("rdmDwnlExtract : FileCheck = %s\n", tmp_file);
             }
 
-	    RDMInfo("Extracting %s to %s\n", tmp_file, pRdmAppDet->app_dwnl_path);
+	    RDMInfo("rdmDwnlExtract : Extracting %s to %s\n", tmp_file, pRdmAppDet->app_dwnl_path);
 	    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 	    if(status) {
 		    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
 				    pRdmAppDet->pkg_ver,
 				    pRdmAppDet->app_home,
 				    RDM_PKG_EXTRACT_ERROR);
-		    RDMError("Failed to extract the package: %s\n", tmp_file);
+		    RDMError("rdmDwnlExtract : Failed to extract the package: %s\n", tmp_file);
             }
-	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
+	    RDMInfo("rdmDwnlExtract : Extraction of %s is Successful \n", tmp_file);
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
 	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
@@ -117,15 +117,15 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 				    pRdmAppDet->pkg_ver,
 				    pRdmAppDet->app_home,
 				    RDM_PKG_EXTRACT_ERROR);
-		    RDMError("Failed to extract the package: %s\n", tmp_file);
+		    RDMError("rdmDwnlExtract : Failed to extract the package: %s\n", tmp_file);
             }
     } else {
     if(findPFile(pRdmAppDet->app_dwnl_path, "*-pkg.tar", tmp_file)) {
         /* Extract the package */
-        RDMInfo("Intermediate PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+        RDMInfo("rdmDwnlExtract: Intermediate PKG File : %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
         status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
         if(status) {
-            RDMError("Failed to extract the package\n");
+            RDMError("rdmDwnlExtract : Failed to extract the package\n");
             return status;
         }
     }
@@ -141,7 +141,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     tmp_file[sizeof(tmp_file) - 1] = '\0';
 
     if(fileCheck(tmp_file)) {
-        RDMInfo("Package already extracted\n");
+        RDMInfo("rdmDwnlExtract : %s Package already extracted\n", tmp_file);
     }
     else {
         FILE *fp;
@@ -155,7 +155,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
-            RDMError("Not Found the Packages List file\n");
+            RDMError("rdmDwnlExtract : Not Found the Packages List file\n");
             return RDM_FAILURE;
         }
 
@@ -173,7 +173,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    RDMError("rdmDwnlExtract : Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
             }//tar
@@ -181,7 +181,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 if(rdmDownlLXCCheck(tmp_file, pRdmAppDet->app_name)) {
                     is_lxc = 1;
                 }
-                RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
+                RDMInfo("rdmDwnlExtract : tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
 		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
                 ip_file[sizeof(ip_file) - 1] = '\0';
 		strcat(ip_file, "/");
@@ -194,7 +194,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    RDMError("rdmDwnlExtract : Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
                 strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
@@ -208,7 +208,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    RDMError("rdmDwnlExtract : Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
                 if(is_lxc) {
@@ -216,7 +216,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 }
             } //ipk
             else {
-                RDMWarn("Unknown Package Extension\n");
+                RDMWarn("rdmDwnlExtract : Unknown Package Extension\n");
             }
         } //while ()
         fclose(fp);
@@ -232,11 +232,11 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
     CHAR ipk_file[RDM_APP_PATH_LEN];
     /* Download the File Package  if not already downloaded */
     if(pRdmAppDet->dwld_status) {
-        RDMInfo("File package %s/%s already available\n", pRdmAppDet->app_mnt, pRdmAppDet->pkg_name);
+        RDMInfo("rdmDownloadMgr : File package %s/%s already available\n", pRdmAppDet->app_mnt, pRdmAppDet->pkg_name);
 
         status = rdmDwnlCreateFolder(pRdmAppDet->app_mnt, pRdmAppDet->app_name);
         if(status) {
-            RDMError("Failed to create download paths\n");
+            RDMError("rdmDownloadMgr : Failed to create download paths\n");
             return status;
         }
 
@@ -250,15 +250,14 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                 memmove(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path, path_len);
                 pRdmAppDet->app_dwnl_filepath[path_len] = '/';
                 memmove(pRdmAppDet->app_dwnl_filepath + path_len + 1, pRdmAppDet->pkg_name, name_len + 1); // +1 to include null terminator
-
             } else {
-                RDMError("Failed to copy download paths\n");
+                RDMError("rdmDownloadMgr : Failed to copy download paths\n");
 		return RDM_FAILURE;
             }
 
             status = copyFiles(pRdmAppDet->app_usb, pRdmAppDet->app_dwnl_filepath);
             if(status) {
-                RDMError("Failed to copy from usb\n");
+                RDMError("rdmDownloadMgr : Failed to copy from usb\n");
                 return status;
             }
         }
@@ -266,7 +265,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
     else {
         status = rdmDwnlCreateFolder(pRdmAppDet->app_mnt, pRdmAppDet->app_name);
         if(status) {
-            RDMError("Failed to create download paths\n");
+            RDMError("rdmDownloadMgr : Failed to create download paths\n");
             return status;
         }
 
@@ -276,7 +275,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                                     pRdmAppDet->app_dwnl_filepath,
                                     pRdmAppDet->is_mtls);
         if(status) {
-            RDMError("Failed to download the package\n");
+            RDMError("rdmDownloadMgr : Failed to download the package %s\n", pRdmAppDet->pkg_name);
             rdm_status = RDM_DL_DWNLERR;
             return status;
         }
@@ -284,26 +283,26 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     status = rdmDwnlExtract(pRdmAppDet);
     if(status) {
-        RDMError("Failed to extract the package\n");
+        RDMError("rdmDownloadMgr : Failed to extract the package %s\n", pRdmAppDet->pkg_name);
         rdm_status = RDM_DL_DWNLERR;
         goto error;
     }
 
     if(findPFile(pRdmAppDet->app_dwnl_path, "*.ipk", ipk_file)) {
         /* Remove the ipk file */
-        RDMInfo("Removing %s after Extraction\n", ipk_file);
+        RDMInfo("rdmDownloadMgr : Removing %s after Extraction\n", ipk_file);
         removeFile(ipk_file);
     }
 
-    RDMInfo("Download and Extraction Completed\n");
+    RDMInfo("rdmDownloadMgr : Download and Extraction Completed\n");
 
     if(pRdmAppDet->is_oss) {
-        RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
+        RDMInfo("rdmDownloadMgr : IMAGE_TYPE IS OSS. Signature validation not required\n");
     } else if (pRdmAppDet->is_versioned_app) {
-	 RDMInfo("Signature validation for Versioned APP\n");
+	 RDMInfo("rdmDownloadMgr : Signature validation for Versioned APP\n");
 	 status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
-            RDMError("signature validation failed\n");
+            RDMError("rdmDownloadMgr : signature validation failed\n");
             rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                    pRdmAppDet->pkg_ver,
                                    pRdmAppDet->app_home,
@@ -313,11 +312,11 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             rdm_status = RDM_DL_DWNLERR;
             goto error;
         }
-        RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+        RDMInfo("rdmDownloadMgr : RDM package download success: %s \n", pRdmAppDet->pkg_name);
     } else {
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
-            RDMError("signature validation failed\n");
+            RDMError("rdmDownloadMgr : signature validation failed\n");
             rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                    pRdmAppDet->pkg_ver,
                                    pRdmAppDet->app_home,
@@ -327,14 +326,14 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             rdm_status = RDM_DL_DWNLERR;
             goto error;
         }
-        RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+        RDMInfo("rdmDownloadMgr : RDM package download success: %s \n", pRdmAppDet->pkg_name);
     }
 
     if(pRdmAppDet->is_usb) {
         if(!strcmp(pRdmAppDet->pkg_type, "plugin")){
             status = rdmPackageMgrStateChange(pRdmAppDet);
             if ( status == RDM_FAILURE){
-                RDMError("State Transistion Failed for Plugin USB Download\n");
+                RDMError("rdmDownloadMgr : State Transistion Failed for Plugin USB Download\n");
             }
         }
     }
