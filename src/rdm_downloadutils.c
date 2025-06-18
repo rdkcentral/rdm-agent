@@ -159,7 +159,7 @@ VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
 
     fs_status = emptyFolder(pDwnlPath);
     if(fs_status) {
-        RDMError("rdmDwnlCleanUp Failed : Unable to clean up the folder : %s\n", pDwnlPath);
+        RDMError("RDM Download cleanup  Failed : Unable to clean up the folder : %s\n", pDwnlPath);
     }
 
     removeFile(pDwnlPath);
@@ -171,7 +171,7 @@ VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
 
     fs_status = emptyFolder(pAppPath);
     if(fs_status) {
-        RDMError("rdmDwnlAppCleanup Failed : Unable to clean up the folder : %s\n", pAppPath);
+        RDMError("RDM Application download Cleanup Failed : Unable to clean up the folder : %s\n", pAppPath);
     }
 
     removeFile(pAppPath);
@@ -187,7 +187,7 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         char line[256];
         size_t buffer_index = 0;
 
-        RDMInfo("rdmRemvDwnlAppInfo: File [%s] open successfull for cleanup\n", pDwnlInfoFile);
+        RDMInfo("RDM remove application: File [%s] open successfull for cleanup\n", pDwnlInfoFile);
         fseek(fp_met, 0, SEEK_SET);
         while (fgets(line, sizeof(line), fp_met)) {
             if(strncmp(line, pAppName, strlen(pAppName)) != 0 ){
@@ -205,7 +205,7 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         fclose(fp_met);
         }
     else{
-            RDMInfo("rdmRemvDwnlAppInfo Failed : Unable to open file %s", pDwnlInfoFile);
+            RDMInfo("RDM remove application Failed : Unable to open file %s", pDwnlInfoFile);
         }
 }
 
@@ -224,7 +224,7 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
     sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
     sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
-    RDMInfo("rdmDwnlGetCert success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
+    RDMInfo("RDM download certificate success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
     return RDM_SUCCESS;
 }
 
@@ -395,7 +395,7 @@ INT32 rdmMemDLAlloc(VOID *pvDwnData, size_t szDataSize)
         }
         else {
             pDwnData->memsize = 0;
-            RDMError( "rdmMemDLAlloc: Failed to allocate memory for XCONF download\n" );
+            RDMError( "Failed to allocate memory for XCONF download\n" );
         }
     }
 
@@ -482,20 +482,20 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
 
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
-        RDMError("rdmDwnlUpdateManifest Failed : Unable to open input file: %s\n", pInManifest);
+        RDMError("Failed : Unable to open input file: %s\n", pInManifest);
         return RDM_FAILURE;
     }
 
     fpout = fopen(pOutManifest, "w");
     if(fpout == NULL) {
-        RDMError("rdmDwnlUpdateManifest Failed : Unable to open output file: %s\n", pOutManifest);
+        RDMError("Failed : Unable to open output file: %s\n", pOutManifest);
         status = RDM_FAILURE;
         goto error;
     }
 
     buff = calloc(MAX_BUFF_SIZE, 1);
     if(buff == NULL) {
-        RDMError("rdmDwnlUpdateManifest Failed : Unable to allocate memory\n");
+        RDMError("Failed : Unable to allocate memory\n");
         status = RDM_FAILURE;
         goto error;
     }
@@ -547,7 +547,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
 
     if(out_buf == NULL) {
-        RDMError("rdmDwnlValidation Failed : Unable to allocate memory\n");
+        RDMError("RDM Validation Failed : Unable to allocate memory\n");
         return RDM_FAILURE;
     }
 
@@ -568,7 +568,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         /* Read the signature file */
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
         if(status) {
-            RDMError("rdmDwnlValidation Failed : Unable to read Signature file: %s\n", pkg_file);
+            RDMError("RDM< Validation Failed : Unable to read Signature file: %s\n", pkg_file);
 	    if(out_buf)
                 free(out_buf);
             return status;
@@ -578,7 +578,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     if(pRdmAppDet->sig_type == RDM_SIG_TYPE_KMS) {
         status = rdmDecryptKey(RDM_KMS_PUB_KEY);
 
-        RDMInfo("rdmDwnlValidation : Validate the Package\n");
+        RDMInfo("Validate the Package\n");
 
         strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
         strcat(tmp_file, "/");
@@ -594,7 +594,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                                        app_home,
                                        dwnl_path);
         if(status) {
-            RDMWarn("rdmDwnlValidation Failed : Unable to process manifest file\n");
+            RDMWarn("RDM Validation Failed : Unable to process manifest file\n");
         }
         else {
 
@@ -606,9 +606,9 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
                                                           &outputMsgLen);
 
             if (ssl_status == retcode_success) {
-                RDMInfo("rdmDwnlValidation : RSA Signature Validation Success\n");
+                RDMInfo("RSA Signature Validation Success\n");
             } else {
-                RDMError("rdmDwnlValidation : RSA Signature Verification Failed\n");
+                RDMError("RSA Signature Verification Failed\n");
                 status = RDM_FAILURE;
             }
         }
@@ -617,7 +617,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
       /*In the script, there is no call for this sig type. So not handled*/
     }
     else {
-        RDMError("rdmDwnlValidation Failed : Unknown Signature Type\n");
+        RDMError("Failed : Unknown Signature Type\n");
         status = RDM_FAILURE;
     }
 
@@ -643,7 +643,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
     ret = rdmJSONGetLen(RDM_MANIFEST, &len);
 
     if(ret || len == 0) {
-        RDMError("rdmGetManifestApps Failed : Invalid json file\n");
+        RDMError("Failed : Invalid json file\n");
         goto error;
     }
 
@@ -652,7 +652,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
         pAppsInManifest[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
 
         if(pAppsInManifest[idx] == NULL){
-            RDMError("rdmGetManifestApps Failed : Memory Allocation failed for pAppsInManifest");
+            RDMError("Failed : Memory Allocation failed for pAppsInManifest");
             ret = RDM_FAILURE;
             break;
         }
@@ -672,7 +672,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
         idx += 1;
 
         if(idx >= len) {
-            RDMWarn("rdmGetManifestApps : Reached end of manifest file\n");
+            RDMWarn("Reached end of manifest file\n");
             break;
         }
 
@@ -952,7 +952,7 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
     ret = -1;
 
     if (result == NULL || pJsonStr == NULL) {
-        RDMError( "rdmJRPCResultData : Parameter is NULL\n");
+        RDMError( "Parameter is NULL\n");
         return ret;
     }
 
@@ -960,7 +960,7 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
 
     if( pJson != NULL ) {
         GetJsonVal(pJson, "result",result,result_size);
-        RDMInfo( "rdmJRPCResultData : result: %s\n", result);
+        RDMInfo( "result: %s\n", result);
         FreeJson(pJson);
         ret = 0;
     }

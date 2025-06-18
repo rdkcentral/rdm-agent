@@ -47,10 +47,10 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
 
             if(fileCheck(dwndlocation)) {
                 filesize = findSize(dwndlocation);
-                RDMInfo("rdmPkgDwnlValidation : Size Info After Download %s %ld\n",dwndlocation,filesize);
+                RDMInfo("Size Info After Download %s %ld\n",dwndlocation,filesize);
             }
 
-            RDMInfo("rdmPkgDwnlValidation : RSA Signature Validation Success for %s package\n",pRdmAppDet->app_name);
+            RDMInfo("RSA Signature Validation Success for %s package\n",pRdmAppDet->app_name);
 
             removeFile(PACKAGE_SIGN_VERIFY_SUCCESS);
             break;
@@ -61,22 +61,22 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
                 (loopcount == MAX_LOOP_COUNT)) {
 
             if(fileCheck(PACKAGE_DOWNLOAD_FAILED)) {
-                RDMError("rdmPkgDwnlValidation : %s package download failed\n",pRdmAppDet->app_name);
+                RDMError("%s package download failed\n",pRdmAppDet->app_name);
                 removeFile(PACKAGE_DOWNLOAD_FAILED);
             }
             else if(fileCheck(PACKAGE_EXTRACTION_FAILED)) {
-                RDMError("rdmPkgDwnlValidation : %s package extraction failed\n",pRdmAppDet->app_name);
+                RDMError("%s package extraction failed\n",pRdmAppDet->app_name);
                 removeFile(PACKAGE_EXTRACTION_FAILED);
             }
             else if(fileCheck(PACKAGE_SIGN_VERIFY_FAILED)) {
-                RDMError("rdmPkgDwnlValidation : %s package signature verification failed\n",pRdmAppDet->app_name);
+                RDMError("%s package signature verification failed\n",pRdmAppDet->app_name);
                 removeFile(PACKAGE_SIGN_VERIFY_FAILED);
             }
             else{
-                RDMError("rdmPkgDwnlValidation : Max time reached. Failure in processing %s package\n",pRdmAppDet->app_name);
+                RDMError("Max time reached. Failure in processing %s package\n",pRdmAppDet->app_name);
             }
 
-            RDMError("rdmPkgDwnlValidation : Packager execution not successful. Cleanup and exit\n");
+            RDMError("Packager execution not successful. Cleanup and exit\n");
             removeFile(pRdmAppDet->app_dwnl_path);
             removeFile(pRdmAppDet->app_home);
 
@@ -84,7 +84,6 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
             break;
         }
         else{
-            RDMInfo("rdmPkgDwnlValidation : loop %d\n",loopcount);
             loopcount = loopcount + 1;
             sleep(6);
         }
@@ -120,7 +119,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
 
     snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"1234567890\",\"method\":\"Packager.1.install\",\"params\":{\"package\":\"%s\",\"version\":\"1.0\",\"architecture\":\"arm\"}}",pUrl);
 
-    RDMInfo("rdmPkgDwnlApplication : post_data: [%s]\n jsondata: [%s]\n token: [%s]\n", post_data, jsondata, token);
+    RDMInfo("post_data: [%s]\n jsondata: [%s]\n token: [%s]\n", post_data, jsondata, token);
 
     if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
         if (DwnLoc.pvOut != NULL) {
@@ -137,17 +136,17 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
 
             curl = doCurlInit();
             if(curl == NULL) {
-                RDMError("rdmPkgDwnlApplication : CurlInit Failed\n");
+                RDMError("CurlInit Failed\n");
                 status = RDM_FAILURE;
                goto exit;
             }
             else{
                 curl_ret_code = getJsonRpcData(curl, &file_dwnl, p_token_header, &httpCode);
 
-                RDMInfo("rdmPkgDwnlApplication : curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
+                RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
 
                 if(curl_ret_code && httpCode != 200) {
-                    RDMError("rdmPkgDwnlApplication : Download failed\n");
+                    RDMError("RDM Package Download failed\n");
                     status = RDM_FAILURE;
                 }
 
@@ -155,12 +154,12 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
             }
         } //if (DwnLoc.pvOut)
         else{
-            RDMError("rdmPkgDwnlApplication : Failed to allocate memory pvOut\n");
+            RDMError("Failed to allocate memory pvOut\n");
             status = RDM_FAILURE;
         }
     } //if(rdmMemDLAlloc)
     else {
-        RDMError("rdmPkgDwnlApplication : Failed to allocate Memory for the Dwnld Loc\n");
+        RDMError("Failed to allocate Memory for the Dwnld Loc\n");
         status = RDM_FAILURE;
     }
 exit:
@@ -177,28 +176,28 @@ static INT32 rdmInvokePackage(RDMAPPDetails *pRdmAppDet)
     while ( numofretries < PACKAGER_RETRY_COUNT ) {
 
         if (getProcessID(RDM_WPEPROCESS, NULL)) {
-            RDMInfo("rdmInvokePackage : Packager is running. Sending the request\n");
+            RDMInfo("Packager is running. Sending the request\n");
 
             status = rdmPkgDwnlApplication(pRdmAppDet->app_dwnl_url);
 
             if(status == RDM_FAILURE) {
-                RDMError("rdmInvokePackage : Failed to download the package %s\n", pRdmAppDet->pkg_name);
+                RDMError("Failed to download the package %s\n", pRdmAppDet->pkg_name);
                 break;
             }
             else if(status == RDM_SUCCESS) {
-                RDMInfo("rdmInvokePackage : getProcessID Succeeded\n");
+                RDMInfo("getProcessID Succeeded\n");
                 break;
             }
         }
         else{
-            RDMError("rdmInvokePackage : Packager not running. Retrying after %d sec\n", PACKAGER_RETRY_DELAY);
+            RDMError("Packager not running. Retrying after %d sec\n", PACKAGER_RETRY_DELAY);
             sleep(PACKAGER_RETRY_DELAY);
         }
 
         numofretries = numofretries + 1;
 
         if (numofretries > PACKAGER_RETRY_COUNT) {
-            RDMError("rdmInvokePackage : Packager retries exhausted. Exiting");
+            RDMError("Packager retries exhausted. Exiting");
             status = RDM_FAILURE;
             break;
         }
@@ -214,18 +213,18 @@ INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet)
     status = rdmInvokePackage(pRdmAppDet);
 
     if(status) {
-        RDMError("rdmPackageMgr : Failed to extract the package %s\n", pRdmAppDet->pkg_name);
+        RDMError("Failed to extract the package %s\n", pRdmAppDet->pkg_name);
         goto error;
     }
 
     status = rdmPkgDwnlValidation(pRdmAppDet);
     if(status) {
-        RDMError("rdmPackageMgr : signature validation failed\n");
+        RDMError("signature validation failed\n");
         rdmDwnlUnInstallApp(pRdmAppDet->app_dwnl_path, pRdmAppDet->app_home);
         goto error;
     }
     else{
-        RDMInfo("rdmPackageMgr : Package execution completed successfully\n");
+        RDMInfo("Package execution completed successfully\n");
     }
 
     rdmDwnlRunPostScripts(pRdmAppDet->app_home, 0);
