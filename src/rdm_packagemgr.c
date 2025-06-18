@@ -150,7 +150,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
                     status = RDM_FAILURE;
                 }
 
-                doStopDownload(curl); 
+                doStopDownload(curl);
             }
         } //if (DwnLoc.pvOut)
         else{

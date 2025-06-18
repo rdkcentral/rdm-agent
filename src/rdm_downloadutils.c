@@ -568,7 +568,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         /* Read the signature file */
         status = rdmDwnlReadSigFile(pkg_file, out_buf);
         if(status) {
-            RDMError("RDM< Validation Failed : Unable to read Signature file: %s\n", pkg_file);
+            RDMError("RDM Validation Failed : Unable to read Signature file: %s\n", pkg_file);
 	    if(out_buf)
                 free(out_buf);
             return status;
