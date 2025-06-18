@@ -64,7 +64,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     /* Extract the package */
     status = tarExtract(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path);
     if(status) {
-        RDMError("Failed to extract the package\n");
+        RDMError("Failed to extract the package %s\n", pRdmAppDet->app_dwnl_filepath);
         return status;
     }
 
@@ -74,7 +74,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		    RDMInfo("Extracting PKG File : %s to dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
 		    status = tarExtract(tmp_file, pRdmAppDet->app_dwnl_path);
 		    if(status) {
-			    RDMError("Failed to extract the package\n");
+			    RDMError("Failed to extract the package %s\n", tmp_file);
 			    return status;
                     }
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
@@ -89,7 +89,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
 
 	    if(fileCheck(tmp_file)) {
-		    RDMInfo("tmp_file = %s\n", tmp_file);
+		    RDMInfo("FileCheck = %s\n", tmp_file);
             }
 
 	    RDMInfo("Extracting %s to %s\n", tmp_file, pRdmAppDet->app_dwnl_path);
@@ -141,7 +141,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     tmp_file[sizeof(tmp_file) - 1] = '\0';
 
     if(fileCheck(tmp_file)) {
-        RDMInfo("Package already extracted\n");
+        RDMInfo("%s Package already extracted\n", tmp_file);
     }
     else {
         FILE *fp;
@@ -250,7 +250,6 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                 memmove(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path, path_len);
                 pRdmAppDet->app_dwnl_filepath[path_len] = '/';
                 memmove(pRdmAppDet->app_dwnl_filepath + path_len + 1, pRdmAppDet->pkg_name, name_len + 1); // +1 to include null terminator
-
             } else {
                 RDMError("Failed to copy download paths\n");
 		return RDM_FAILURE;
@@ -276,7 +275,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                                     pRdmAppDet->app_dwnl_filepath,
                                     pRdmAppDet->is_mtls);
         if(status) {
-            RDMError("Failed to download the package\n");
+            RDMError("Failed to download the package %s\n", pRdmAppDet->pkg_name);
             rdm_status = RDM_DL_DWNLERR;
             return status;
         }
@@ -284,7 +283,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 
     status = rdmDwnlExtract(pRdmAppDet);
     if(status) {
-        RDMError("Failed to extract the package\n");
+        RDMError("Failed to extract the package %s\n", pRdmAppDet->pkg_name);
         rdm_status = RDM_DL_DWNLERR;
         goto error;
     }
