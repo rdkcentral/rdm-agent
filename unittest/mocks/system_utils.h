@@ -135,6 +135,8 @@ void getStringValueFromFile(char* path, char* strtokvalue, char* string, char* o
 JSON *ParseJsonStr(char *pJsonStr);
 size_t GetJsonVal( JSON *pJson, char *pValToGet, char *pOutputVal, size_t maxlen );
 int FreeJson(JSON *pJson);
+void t2CountNotify(char *marker, int val);
+void t2ValNotify(char *marker, char *val);
 
 #ifdef __cplusplus
 }
