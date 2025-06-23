@@ -43,6 +43,10 @@ extern "C"
 #define RDK_MB_SIZE        (1024 * 1024)
 #define DIRECT_BLOCK_FILENAME "/tmp/.lastdirectfail_cdl"
 
+typedef enum {
+    T2ERROR_SUCCESS,
+    T2ERROR_FAILURE
+} T2ERROR;
 
 typedef struct credential {
     char cert_name[64];
@@ -139,6 +143,8 @@ void t2CountNotify(char *marker, int val);
 void t2ValNotify(char *marker, char *val);
 void t2_init(char *component);
 void t2_uninit(void);
+T2ERROR t2_event_s(char* marker, char* value);
+T2ERROR t2_event_d(char* marker, int value);
 
 #ifdef __cplusplus
 }
