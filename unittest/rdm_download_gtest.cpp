@@ -198,11 +198,11 @@ extern "C"{
 
 }
 
-extern "C" void t2CountNotify(char *marker)
+extern "C" void t2CountNotify(char *marker, int val);
 {
     if (!mockRdmDownloadUtils)
     {
-        cout << "t2CountNotify  mockRdmDownloadUtils object is NULL" << endl;
+        printf("t2CountNotify  mockRdmDownloadUtils object is NULL\n");
         return ;
     }
     printf("Inside Mock Function t2CountNotify\n");
@@ -213,7 +213,7 @@ extern "C" void t2ValNotify(char *marker, char *val)
 {
     if (!mockRdmDownloadUtils)
     {
-        cout << "t2ValNotify mockRdmDownloadUtils object is NULL" << endl;
+        printf("t2CountNotify  mockRdmDownloadUtils object is NULL\n");
         return ;
     }
     printf("Inside Mock Function t2ValNotify\n");
