@@ -33,7 +33,7 @@ extern "C" {
     #include "mocks/rdmMgr.h"
     #include "rdm_downloadutils.h"
     #include "rdm_downloadverapp.h"
-    #include "rdm_packagemgr.c"
+    #include "rdm_packagemgr.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
