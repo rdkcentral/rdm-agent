@@ -35,6 +35,8 @@ class MockRdmRbus {
 public:
     MOCK_METHOD(int, rdmRbusInit, (void **handle, const char *name), ());
     MOCK_METHOD(void, rdmRbusUnInit, (void *handle), ());
+    MOCK_METHOD(void, t2_init, (char*), ());
+    MOCK_METHOD(void, t2_uninit, (), ());
 };
 
 MockRdmRbus *g_mockRdmRbus = nullptr;
@@ -53,6 +55,21 @@ extern "C" {
         }
     }
 
+
+    void t2_init(char *component) {
+        if (g_mockRdmRbus == nullptr) {
+           return; // Return default value if global_mockexternal_ptr is NULL
+        }
+        g_mockRdmRbus->t2_init(component);
+    }
+
+    void t2_uninit(void) {
+        if (g_mockRdmRbus == nullptr) {
+            return; // Return default value if global_mockexternal_ptr is NULL
+        }
+        g_mockRdmRbus->t2_uninit();
+    }
+	
     void rdmHelp() {
          printf("Usage:\n");
         printf("To Install apps from manifest : rdm\n");
