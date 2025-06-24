@@ -198,7 +198,27 @@ extern "C"{
 
 }
 
+extern "C" void t2CountNotify(char *marker)
+{
+    if (!mockRdmDownloadUtils)
+    {
+        cout << "t2CountNotify  mockRdmDownloadUtils object is NULL" << endl;
+        return ;
+    }
+    printf("Inside Mock Function t2CountNotify\n");
+    return mockRdmDownloadUtils->t2CountNotify(marker);
+}
 
+extern "C" void t2ValNotify(char *marker, char *val)
+{
+    if (!mockRdmDownloadUtils)
+    {
+        cout << "t2ValNotify mockRdmDownloadUtils object is NULL" << endl;
+        return ;
+    }
+    printf("Inside Mock Function t2ValNotify\n");
+    return mockRdmDownloadUtils->t2ValNotify(marker, val);
+}
 
 
 using ::testing::NiceMock;
