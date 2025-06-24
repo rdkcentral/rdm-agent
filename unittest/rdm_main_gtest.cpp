@@ -30,6 +30,10 @@
 //#include "rdmMgr.h"
 //#include "unittest/mocks/mock_rdm_rbus.h"
 
+typedef enum {
+    T2ERROR_SUCCESS,
+    T2ERROR_FAILURE
+} T2ERROR;
 
 class MockRdmRbus {
 public:
