@@ -20,8 +20,6 @@
 #include <unistd.h>
 #ifndef GTEST_ENABLE
 #include "urlHelper.h"
-#else
-#include "unittest/mocks/urlHelper.h"
 #endif
 #ifndef GTEST_ENABLE
 #include "downloadUtil.h"
