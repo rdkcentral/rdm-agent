@@ -37,7 +37,7 @@
 #include "rdm_packagemgr.h"
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
-
+#endif
 
 
 static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
