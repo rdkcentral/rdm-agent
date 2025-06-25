@@ -49,7 +49,7 @@ MockRdmUtils* mockRdmUtils = nullptr;
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
-extern "C"{
+
 
 // Add these mock implementations at the top or bottom of unittest/rdm_download_gtest.cpp
 
