@@ -34,8 +34,10 @@
 #define RDM_TMP_LEN_64     64
 #define MAX_BUFF_SIZE      512
 
+#ifndef GTEST_ENABLE
 #ifdef T2_EVENT_ENABLED
 #include <telemetry_busmessage_sender.h>
+#endif
 #endif
 
 typedef struct _rdmAppDetails {

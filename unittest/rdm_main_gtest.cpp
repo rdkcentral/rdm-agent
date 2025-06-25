@@ -30,11 +30,19 @@
 //#include "rdmMgr.h"
 //#include "unittest/mocks/mock_rdm_rbus.h"
 
+typedef enum {
+    T2ERROR_SUCCESS,
+    T2ERROR_FAILURE
+} T2ERROR;
 
 class MockRdmRbus {
 public:
     MOCK_METHOD(int, rdmRbusInit, (void **handle, const char *name), ());
     MOCK_METHOD(void, rdmRbusUnInit, (void *handle), ());
+    MOCK_METHOD(void, t2_init, (char*), ());
+    MOCK_METHOD(void, t2_uninit, (), ());
+    MOCK_METHOD(T2ERROR, t2_event_s, (char*, char*), ());
+    MOCK_METHOD(T2ERROR, t2_event_d, (char*, int), ());
 };
 
 MockRdmRbus *g_mockRdmRbus = nullptr;
@@ -51,6 +59,35 @@ extern "C" {
         if (g_mockRdmRbus) {
             g_mockRdmRbus->rdmRbusUnInit(handle);
         }
+    }
+
+
+    void t2_init(char *component) {
+        if (g_mockRdmRbus == nullptr) {
+           return;
+        }
+        g_mockRdmRbus->t2_init(component);
+    }
+
+    void t2_uninit(void) {
+        if (g_mockRdmRbus == nullptr) {
+            return;
+        }
+        g_mockRdmRbus->t2_uninit();
+    }
+
+    T2ERROR t2_event_s(char* marker, char* value) {
+        if (g_mockRdmRbus == nullptr) {
+            return T2ERROR_SUCCESS;
+        }
+        return g_mockRdmRbus->t2_event_s(marker, value);
+    }
+
+    T2ERROR t2_event_d(char* marker, int value) {
+        if (g_mockRdmRbus == nullptr) {
+            return T2ERROR_SUCCESS; 
+        }
+        return g_mockRdmRbus->t2_event_d(marker, value);
     }
 
     void rdmHelp() {
