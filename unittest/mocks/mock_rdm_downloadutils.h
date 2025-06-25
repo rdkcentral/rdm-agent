@@ -31,7 +31,7 @@ extern "C" {
 class MockRdmDownloadUtils {
 public:
 
-        MOCK_METHOD(void, t2CountNotify(char *marker, int val), ());
+        MOCK_METHOD(void, t2CountNotify, (char *marker, int val), ());
         MOCK_METHOD(void, t2ValNotify, (char *marker, char *val), ());
 };
 
