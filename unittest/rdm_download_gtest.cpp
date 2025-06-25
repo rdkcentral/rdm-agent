@@ -54,20 +54,13 @@ MockIARM* mockIARM = new MockIARM();
 // Add these mock implementations at the top or bottom of unittest/rdm_download_gtest.cpp
 
 extern "C" {
-int findSize(const char* filename) {
-    // Mocked implementation: return a fixed value
-    return 42;
-}
 
 char* getJsonRpcData(const char* input) {
     // Mocked implementation: return nullptr or a dummy string as needed
     return nullptr;
 }
 
-int getProcessID(const char* procName) {
-    // Mocked implementation: return a dummy PID
-    return 1234;
-}
+
 
     rbusValueType_t rbusValue_GetType(void* paramName) {
         return mockRdmRbus->rbusValue_GetType(paramName);
