@@ -51,6 +51,7 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
             }
 
             RDMInfo("RSA Signature Validation Success for %s package\n",pRdmAppDet->app_name);
+	    t2CountNotify("RDM_INFO_rsa_valid_signature", 1);
 
             removeFile(PACKAGE_SIGN_VERIFY_SUCCESS);
             break;
@@ -183,6 +184,7 @@ static INT32 rdmInvokePackage(RDMAPPDetails *pRdmAppDet)
 
             if(status == RDM_FAILURE) {
                 RDMError("Failed to download the package\n");
+                t2CountNotify("NF_INFO_rdm_package_failure", 1);
                 break;
             }
             else if(status == RDM_SUCCESS) {
@@ -221,6 +223,7 @@ INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet)
     status = rdmPkgDwnlValidation(pRdmAppDet);
     if(status) {
         RDMError("signature validation failed\n");
+	t2CountNotify("RDM_ERR_rsa_signature_failed", 1);
         rdmDwnlUnInstallApp(pRdmAppDet->app_dwnl_path, pRdmAppDet->app_home);
         goto error;
     }

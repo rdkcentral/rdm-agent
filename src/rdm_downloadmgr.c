@@ -156,6 +156,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
+	    t2CountNotify("RDM_ERR_package_notfound", 1);
             return RDM_FAILURE;
         }
 
@@ -277,6 +278,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                                     pRdmAppDet->is_mtls);
         if(status) {
             RDMError("Failed to download the package\n");
+            t2CountNotify("NF_INFO_rdm_package_failure", 1);
             rdm_status = RDM_DL_DWNLERR;
             return status;
         }
@@ -296,6 +298,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
     }
 
     RDMInfo("Download and Extraction Completed\n");
+    t2CountNotify("RDM_INFO_extraction_complete", 1);
 
     if(pRdmAppDet->is_oss) {
         RDMInfo("IMAGE_TYPE IS OSS. Signature validation not required\n");
@@ -304,6 +307,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
 	 status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
+	    t2CountNotify("RDM_ERR_rsa_signature_failed", 1);
             rdmIARMEvntSendPayload(pRdmAppDet->app_name,
                                    pRdmAppDet->pkg_ver,
                                    pRdmAppDet->app_home,
@@ -314,10 +318,12 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             goto error;
         }
         RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+	t2ValNotify("NF_INFO_rdm_success", pRdmAppDet->pkg_name);
     } else {
         status = rdmDwnlValidation(pRdmAppDet, NULL);
         if(status) {
             RDMError("signature validation failed\n");
+	    t2CountNotify("RDM_ERR_rsa_signature_failed", 1);
             rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                    pRdmAppDet->pkg_ver,
                                    pRdmAppDet->app_home,
@@ -328,6 +334,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
             goto error;
         }
         RDMInfo("RDM package download success: %s \n", pRdmAppDet->pkg_name);
+	t2ValNotify("NF_INFO_rdm_success", pRdmAppDet->pkg_name);
     }
 
     if(pRdmAppDet->is_usb) {
