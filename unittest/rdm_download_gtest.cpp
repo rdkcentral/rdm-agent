@@ -33,6 +33,7 @@ extern "C" {
     #include "mocks/rdmMgr.h"
     #include "rdm_downloadutils.h"
     #include "rdm_downloadverapp.h"
+    #include "rdm_packagemgr.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
@@ -48,7 +49,19 @@ MockRdmUtils* mockRdmUtils = nullptr;
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
-extern "C"{
+
+
+// Add these mock implementations at the top or bottom of unittest/rdm_download_gtest.cpp
+
+extern "C" {
+
+char* getJsonRpcData(const char* input) {
+    // Mocked implementation: return nullptr or a dummy string as needed
+    return nullptr;
+}
+
+
+
     rbusValueType_t rbusValue_GetType(void* paramName) {
         return mockRdmRbus->rbusValue_GetType(paramName);
     }
@@ -106,6 +119,9 @@ extern "C"{
         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
     }
 
+     int  arExtract(char *filePath, char *appDwnlPath) {
+         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
+    }
     int fileCheck(char* tmpFile) {
         return mockRdmUtils->fileCheck(tmpFile);
     }
