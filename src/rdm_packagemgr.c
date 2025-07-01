@@ -18,7 +18,9 @@
 
 
 #include <unistd.h>
+#ifndef GTEST_ENABLE
 #include "urlHelper.h"
+#endif
 #include "downloadUtil.h"
 #include "rdm_types.h"
 #include "rdm.h"
