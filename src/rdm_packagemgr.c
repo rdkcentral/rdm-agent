@@ -20,8 +20,8 @@
 #include <unistd.h>
 #ifndef GTEST_ENABLE
 #include "urlHelper.h"
-#endif
 #include "downloadUtil.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
