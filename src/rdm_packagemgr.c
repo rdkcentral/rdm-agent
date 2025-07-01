@@ -21,6 +21,7 @@
 #ifndef GTEST_ENABLE
 #include "urlHelper.h"
 #include "downloadUtil.h"
+#include <system_utils.h>
 #endif
 #include "rdm_types.h"
 #include "rdm.h"
@@ -33,7 +34,7 @@
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
-#include <system_utils.h>
+
 
 static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
 {
