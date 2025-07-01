@@ -202,7 +202,7 @@ extern "C"{
             return ;
         }
         printf("Inside Mock Function t2CountNotify\n");
-        return mockRdmDownloadUtils->t2CountNotify(marker);
+        return mockRdmDownloadUtils->t2CountNotify(marker, val);
     }
 
     void t2ValNotify(char *marker, char *val) {
