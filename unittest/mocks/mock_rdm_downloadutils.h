@@ -30,7 +30,9 @@ extern "C" {
 
 class MockRdmDownloadUtils {
 public:
-    // Define any mock functions here
+
+        MOCK_METHOD(void, t2CountNotify, (char *marker, int val), ());
+        MOCK_METHOD(void, t2ValNotify, (char *marker, char *val), ());
 };
 
 #endif // MOCK_RDM_DOWNLOADUTILS_H

@@ -196,11 +196,25 @@ extern "C"{
         return mockRdmUtils->isDataInList(pList, pData, count);
     }
 
+    void t2CountNotify(char *marker, int val) {
+        if (!mockRdmDownloadUtils) {
+            printf("t2CountNotify  mockRdmDownloadUtils object is NULL\n");
+            return ;
+        }
+        printf("Inside Mock Function t2CountNotify\n");
+        return mockRdmDownloadUtils->t2CountNotify(marker, val);
+    }
+
+    void t2ValNotify(char *marker, char *val) {
+        if (!mockRdmDownloadUtils) {
+            printf("t2CountNotify  mockRdmDownloadUtils object is NULL\n");
+            return ;
+        }
+        printf("Inside Mock Function t2ValNotify\n");
+        return mockRdmDownloadUtils->t2ValNotify(marker, val);
+    }
+
 }
-
-
-
-
 using ::testing::NiceMock;
 
 class RdmDownloadVerAppTest : public ::testing::Test {
