@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 extern "C" {
 #include "rdm_types.h"
-#include "rdm_package.h" 
+#includ rdm_packagemgr.h
 }
 
 // ---- MOCKS FOR ALL EXTERNAL DEPENDENCIES ----
