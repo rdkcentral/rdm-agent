@@ -56,6 +56,7 @@ extern "C" {
             g_mockRdmRbus->rdmRbusUnInit(handle);
         }
     }
+}
 
 // Mock class for static functions
 class MockRdmOpenssl {
