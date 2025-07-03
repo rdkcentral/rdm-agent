@@ -46,7 +46,7 @@ rdm_json_gtest_SOURCES = rdm_json_gtest.cpp ../src/rdm_jsonquery.c
 rdm_download_gtest_SOURCES = rdm_download_gtest.cpp mocks/mock_iarm_bus.cpp  ../rdm_main.c ../src/rdm_download.c ../src/rdm_downloadmgr.c ../src/rdm_utils.c ../src/rdm_downloadutils.c ../src/rdm_rbus.c ../src/rdm_jsonquery.c ../src/rdm_downloadverapp.c ../src/rdm_packagemgr.c
 rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp ../rdm_main.c mocks/mock_iarm_bus.cpp ../src/rdm_downloadutils.c ../src/rdm_rbus.c ../src/rdm_utils.c
 rdm_rbus_gtest_SOURCES = rdm_rbus_gtest.cpp ../src/rdm_rbus.c
-rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../rdm_main.c ../src/rdm_rbus.c ../src/rdm_openssl.c
+rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../rdm_main.c  ../src/rdm_openssl.c
 rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
 rdm_package_gtest_SOURCES = rdm_package_gtest.cpp ../rdm_main.c ../src/rdm_packagemgr.c
 
