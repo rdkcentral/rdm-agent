@@ -143,6 +143,14 @@ char* getJsonRpcData(const char* input) {
     int strSplit(char *in, char *tok, char **out, int len) {
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
+ 
+    int findSize(char* fileName) {
+    return mockRdmUtils->findSize(fileName);
+    }
+
+    int getProcessID(char* in_file, char* out_path) {
+        return mockRdmUtils->getProcessID(in_file, out_path);
+   }
 
    int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
       return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
