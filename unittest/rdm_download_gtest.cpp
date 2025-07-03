@@ -60,10 +60,7 @@ char* getJsonRpcData(const char* input) {
     return nullptr;
 }
 
-int fileCheck(const char*) { return 0; }
-int findSize(const char*) { return 123; }
-void t2CountNotify(const char*, int) {}
-int getProcessID(const char*, void*) { return 1; }
+
 
 
 
