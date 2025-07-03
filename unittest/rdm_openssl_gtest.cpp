@@ -35,7 +35,27 @@ extern "C" {
 #define GTEST_DEFAULT_RESULT_FILENAME "rdmopenssl_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
+class MockRdmRbus {
+public:
+    MOCK_METHOD(int, rdmRbusInit, (void **handle, const char *name), ());
+    MOCK_METHOD(void, rdmRbusUnInit, (void *handle), ());
+};
 
+MockRdmRbus *g_mockRdmRbus = nullptr;
+
+// Mock function implementations
+extern "C" {
+    int rdmRbusInit(void **handle, const char *name) {
+        if (g_mockRdmRbus) {
+            return g_mockRdmRbus->rdmRbusInit(handle, name);
+        }
+        return -1; // Return an error code if the mock object is not initialized
+    }
+	 void rdmRbusUnInit(void *handle) {
+        if (g_mockRdmRbus) {
+            g_mockRdmRbus->rdmRbusUnInit(handle);
+        }
+    }
 
 // Mock class for static functions
 class MockRdmOpenssl {
