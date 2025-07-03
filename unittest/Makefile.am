@@ -48,6 +48,7 @@ rdm_downloadutils_gtest_SOURCES = rdm_downloadutils_gtest.cpp mocks/mock_iarm_bu
 rdm_rbus_gtest_SOURCES = rdm_rbus_gtest.cpp ../src/rdm_rbus.c
 rdm_openssl_gtest_SOURCES = rdm_openssl_gtest.cpp ../src/rdm_openssl.c
 rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
+rdm_package_gtest_SOURCES = rdm_package_gtest.cpp ../src/rdm_packagemgr.c
 
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_main_gtest_LDADD = $(COMMON_LDADD)
@@ -94,3 +95,8 @@ rdm_usbinstall_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_usbinstall_gtest_LDADD = $(COMMON_LDADD)
 rdm_usbinstall_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_usbinstall_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+
+rdm_package_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
+rdm_package_gtest_LDADD = $(COMMON_LDADD)
+rdm_package_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
+rdm_package_gtest_CFLAGS = $(COMMON_CXXFLAGS)
