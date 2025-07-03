@@ -92,12 +92,14 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
             }
             strncpy(pUrl, dwnl_url, MAX_BUFF_SIZE);
 	    RDMInfo("Download URL available in %s is %s\n", RDM_DWNLSSR_URL, pUrl);
+	    t2ValNotify("RDM_INFO_DownloadSSRURL", pUrl);
         }
         fclose(fp);
     }
     else {
 	RDMInfo("Download URL is not available in %s\n", RDM_DWNLSSR_URL);
-	RDMInfo("Using RDM Default url %s to download from the Xconf Server\n", pUrl);
+	RDMInfo("Using RDM Default URL to download from RFC: %s\n", pUrl);
+	t2ValNotify("RDM_INFO_DefaultURL", pUrl);
     }
 
     if(strstr(pUrl, "http")) {
@@ -113,6 +115,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
     }
     else {
         RDMError("RDM download url is not available in both %s and RFC parameter. Exiting...\n", RDM_DWNLSSR_URL);
+        t2ValNotify("SYST_ERR_RDMMISSING", RDM_DWNLSSR_URL);
         status = RDM_FAILURE;
     }
     return status;
@@ -277,6 +280,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         return status;
     }
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
+    t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
@@ -284,6 +288,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
 
     if(curl_ret_code && httpCode != 200) {
         RDMError("Download failed\n");
+	t2CountNotify("RDM_ERR_package_failed", 1);
         status = RDM_FAILURE;
     }
 
@@ -326,6 +331,7 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
     }
     else {
         RDMInfo("appliactionDownload: Direct download is blocked\n");
+	t2CountNotify("RDM_INFO_DirectBlocked", 1);
         status = RDM_FAILURE;
     }
     return status;
@@ -607,8 +613,10 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
             if (ssl_status == retcode_success) {
                 RDMInfo("RSA Signature Validation Success\n");
+		t2CountNotify("RDM_INFO_rsa_valid_signature", 1);
             } else {
                 RDMError("RSA Signature Verification Failed\n");
+		t2CountNotify("RDM_INFO_rsa_verify_signature_failure", 1);
                 status = RDM_FAILURE;
             }
         }
