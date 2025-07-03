@@ -65,8 +65,8 @@ MOCK_METHOD(INT32, checkFileSystem, (const CHAR*), ());
     MOCK_METHOD(int, strRmDuplicate, (char**, int), ());
 
     // Additional utility functions
-  MOCK_METHOD(INT32, rdmJSONGetLen, (const CHAR* fileName, INT32* len), ());
-     MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32 index, CHAR* appName), ());
+    MOCK_METHOD(INT32, rdmJSONGetLen, (const CHAR* fileName, INT32* len), ());
+    MOCK_METHOD(INT32, rdmJSONGetAppNames, (INT32 index, CHAR* appName), ());
     MOCK_METHOD(INT32, rdmJSONGetAppDetName, (const CHAR* appName, RDMAPPDetails* appDetails), ());
 
     // rdm_downloadutils-specific
@@ -77,7 +77,10 @@ MOCK_METHOD(INT32, checkFileSystem, (const CHAR*), ());
     // Add these two for rdmDownloadVerApp() support
     MOCK_METHOD(int, rdmDownloadMgr, (RDMAPPDetails*), ());
     MOCK_METHOD(void, rdmDwnlUnInstallApp, (const char*, const char*), ());
-    
+
+    // Add these two for rdmpackagemgr support 
+    MOCK_METHOD(int, findSize, (char* fileName), ());
+    MOCK_METHOD(int, getProcessID, (char* in_file, char* out_path), ());
 };
 
 #endif // MOCK_RDM_UTILS_H
