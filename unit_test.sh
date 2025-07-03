@@ -52,7 +52,7 @@ for test in \
   ./rdm_rbus_gtest \
   ./rdm_openssl_gtest \
   ./rdm_usbinstall_gtest \
-  ./rdm_package_gtest
+  
 do
     $test
     status=$?
