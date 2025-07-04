@@ -51,7 +51,7 @@ for test in \
   ./rdm_downloadutils_gtest \
   ./rdm_rbus_gtest \
   ./rdm_openssl_gtest \
-  ./rdm_usbinstall_gtest \
+  ./rdm_usbinstall_gtest 
   
 do
     $test
