@@ -29,8 +29,10 @@
 #include "rdm_utils.h"
 #include "rdm_jsonquery.h"
 #include "rdm_download.h"
+#ifndef GTEST_ENABLE
 #ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#endif
 #endif
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
