@@ -38,6 +38,11 @@ extern "C" {
 #define GTEST_DEFAULT_RESULT_FILENAME "rdm_utils_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
+using namespace testing;
+using ::testing::_;
+using ::testing::Return;
+using namespace std;
+
 MockIARM* mockIARM = nullptr;
 
 class RdmTest : public ::testing::Test {
@@ -132,6 +137,21 @@ TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
     INT32 numDirs = 0;
 
     EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs), RDM_FAILURE);
+}
+
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
+    ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_UTILS GTEST ===================>" << endl;
+    return RUN_ALL_TESTS();
 }
 
                  
