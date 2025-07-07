@@ -34,6 +34,10 @@ extern "C" {
 // Mock IARM functions for isolated testing
 
 
+#define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_utils_gtest_report.json"
+#define GTEST_REPORT_FILEPATH_SIZE 256
+
 MockIARM* mockIARM = nullptr;
 
 class RdmTest : public ::testing::Test {
