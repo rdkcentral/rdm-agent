@@ -26,7 +26,7 @@
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
-#include "rdm_curldownload.h"
+##include "rdm_curldownload.h"
 
 INT32 rdmCurlInit(VOID **pCurlHandle)
 {
