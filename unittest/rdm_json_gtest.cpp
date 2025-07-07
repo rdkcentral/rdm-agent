@@ -31,7 +31,7 @@ extern "C"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmjson_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_json_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 using ::testing::Return;
 using ::testing::_;
