@@ -30,7 +30,7 @@ extern "C" {
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmcurl_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_curl_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
 
