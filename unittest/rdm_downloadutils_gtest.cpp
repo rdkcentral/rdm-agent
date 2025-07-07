@@ -37,6 +37,8 @@ extern "C" {
 #define GTEST_REPORT_FILEPATH_SIZE 256
 using ::testing::_;
 using ::testing::Return;
+using namespace testing;
+using namespace std;
 
 MockRdmUtils* mockRdmUtils = new MockRdmUtils();
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
@@ -337,7 +339,17 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
     delete mockRdmRbus;
 }
 
-int main(int argc, char** argv) {
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
     ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_DOWNLOADUTILS GTEST  ===================>" << endl;
     return RUN_ALL_TESTS();
 }
