@@ -32,7 +32,7 @@ extern "C" {
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmopenssl_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_openssl_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
 class MockRdmRbus {
