@@ -18,9 +18,13 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-using ::testing::Return;
 #include <cstring>
 #include <openssl/evp.h>
+
+using namespace testing;
+using ::testing::_;
+using ::testing::Return;
+using namespace std;
 
 // Include the header file for the functions being tested
 extern "C" {
@@ -326,4 +330,20 @@ TEST(OpenSSLTests, PrepareAppManifest_InvalidInput) {
 
     EXPECT_EQ(result, 1);
     global_mock = nullptr;
+}
+
+
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
+    ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_OPENSSL GTEST  ===================>" << endl;
+    return RUN_ALL_TESTS();
 }
