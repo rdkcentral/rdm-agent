@@ -25,4 +25,4 @@ jobs:
         if: github.repository_owner == 'rdkcentral'
         run: |
           git config --global --add safe.directory `pwd`
-          gtest-json-result-push.py /tmp/RDMAgent_Gtest_Report https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
+          gtest-json-result-push.py /tmp/Gtest_Report https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
