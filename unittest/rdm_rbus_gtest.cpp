@@ -27,8 +27,10 @@ extern "C" {
 #define GTEST_DEFAULT_RESULT_FILENAME "rdm_rbus_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 #define RBUS_ERROR_SUCCESS 0
+using namespace testing;
 using ::testing::_;
 using ::testing::Return;
+using namespace std;
 
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 
