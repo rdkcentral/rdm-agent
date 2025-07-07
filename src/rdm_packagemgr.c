@@ -18,20 +18,29 @@
 
 
 #include <unistd.h>
+#ifndef GTEST_ENABLE
 #include "urlHelper.h"
+#endif
+#ifndef GTEST_ENABLE
 #include "downloadUtil.h"
+#endif
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
 #include "rdm_jsonquery.h"
 #include "rdm_download.h"
+#ifndef GTEST_ENABLE
 #ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#endif
 #endif
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
+#ifndef GTEST_ENABLE
 #include <system_utils.h>
+#endif
+
 
 static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
 {

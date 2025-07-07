@@ -4,8 +4,13 @@
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmusbinstall_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_usbinstall_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
+
+using namespace testing;
+using ::testing::_;
+using ::testing::Return;
+using namespace std;
 
 extern "C" {
 #include <stdio.h>
@@ -192,4 +197,21 @@ TEST(RdmUSBInstallTest, DownloadFailure) {
     int result = rdmUSBInstall(&handle, &app_details, usb_path);
 
     EXPECT_EQ(result, RDM_SUCCESS); // Download failure handled inside loop
+}
+
+
+
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
+    ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_USBINSTALL GTEST  ===================>" << endl;
+    return RUN_ALL_TESTS();
 }

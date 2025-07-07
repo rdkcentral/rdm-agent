@@ -31,8 +31,10 @@ extern "C"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmjson_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_json_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
+using namespace testing;
+using namespace std;
 using ::testing::Return;
 using ::testing::_;
 
@@ -160,4 +162,19 @@ TEST_F(RdmJsonTest, Test_rdmJSONGetAppNames_Success) {
 TEST_F(RdmJsonTest, Test_rdmJSONGetAppDetName_InvalidName) {
     RDMAPPDetails appDetails;
     ASSERT_EQ(rdmJSONGetAppDetName("InvalidApp", &appDetails), RDM_FAILURE);
+}
+
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
+    ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_JSON GTEST FILE ===================>" << endl;
+    return RUN_ALL_TESTS();
 }

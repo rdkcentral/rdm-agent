@@ -18,9 +18,13 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-using ::testing::Return;
 #include <cstring>
 #include <openssl/evp.h>
+
+using namespace testing;
+using ::testing::_;
+using ::testing::Return;
+using namespace std;
 
 // Include the header file for the functions being tested
 extern "C" {
@@ -32,10 +36,31 @@ extern "C" {
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmopenssl_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_openssl_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
+class MockRdmRbus {
+public:
+    MOCK_METHOD(int, rdmRbusInit, (void **handle, const char *name), ());
+    MOCK_METHOD(void, rdmRbusUnInit, (void *handle), ());
+};
 
+MockRdmRbus *g_mockRdmRbus = nullptr;
+
+// Mock function implementations
+extern "C" {
+    int rdmRbusInit(void **handle, const char *name) {
+        if (g_mockRdmRbus) {
+            return g_mockRdmRbus->rdmRbusInit(handle, name);
+        }
+        return -1; // Return an error code if the mock object is not initialized
+    }
+	 void rdmRbusUnInit(void *handle) {
+        if (g_mockRdmRbus) {
+            g_mockRdmRbus->rdmRbusUnInit(handle);
+        }
+    }
+}
 
 // Mock class for static functions
 class MockRdmOpenssl {
@@ -305,4 +330,20 @@ TEST(OpenSSLTests, PrepareAppManifest_InvalidInput) {
 
     EXPECT_EQ(result, 1);
     global_mock = nullptr;
+}
+
+
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
+    ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_OPENSSL GTEST  ===================>" << endl;
+    return RUN_ALL_TESTS();
 }

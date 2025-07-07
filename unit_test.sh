@@ -18,7 +18,7 @@
 ## SPDX-License-Identifier: Apache-2.0
 #
 
-ENABLE_COV=false
+ENABLE_COV=true
 
 if [ "x$1" = "x--enable-cov" ]; then
       echo "Enabling coverage options"
@@ -51,7 +51,8 @@ for test in \
   ./rdm_downloadutils_gtest \
   ./rdm_rbus_gtest \
   ./rdm_openssl_gtest \
-  ./rdm_usbinstall_gtest
+  ./rdm_usbinstall_gtest 
+  
 do
     $test
     status=$?
