@@ -4,7 +4,7 @@
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmusbinstall_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_usbinstall_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
 extern "C" {
