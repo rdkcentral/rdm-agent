@@ -33,7 +33,7 @@ AM_CXXFLAGS = -std=c++14
 
 # Common libraries
 COMMON_LDADD = -lgtest -lgtest_main -lgmock -lgmock_main \
-               -lpthread -lcurl -lcjson -lssl -lcrypto -lgcov
+               -lpthread -lcurl -lcjson -lssl -lcrypto 
 
 # Common compiler flags
 COMMON_CXXFLAGS = -frtti -fprofile-arcs -ftest-coverage -fpermissive
