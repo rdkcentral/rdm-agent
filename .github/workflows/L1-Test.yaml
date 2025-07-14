@@ -20,6 +20,10 @@ jobs:
 
       - name: Run unit tests
         run: sh unit_test.sh
+      
+      - name: Generate the html report
+        run: |
+            genhtml filtered_coverage.info --output-directory /tmp/Gtest_Report
 
       - name: Upload test results to automatic test result management system
         if: github.repository_owner == 'rdkcentral'
