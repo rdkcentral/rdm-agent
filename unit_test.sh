@@ -41,7 +41,10 @@ cd unittest/
 automake --add-missing
 autoreconf --install
 
-./configure
+./configure \
+    CXXFLAGS="${CXXFLAGS}" \
+    CFLAGS="${CFLAGS}" \
+    LDFLAGS="${LDFLAGS}"
 
 make clean
 make
