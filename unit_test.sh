@@ -82,15 +82,16 @@ echo "********************"
 echo "**** CAPTURE RDM-AGENT COVERAGE DATA ****"
 echo "********************"
 if [ "$ENABLE_COV" = true ]; then
-    echo "Generating coverage report"
-    # Ensure coverage.info is generated here (in unittest/)
-    lcov --capture --directory . --output-file coverage.info
-    lcov --remove coverage.info '/usr/*' --output-file coverage.info
-    lcov --remove coverage.info './unittest/*' --output-file coverage.info # Use ./unittest/* if the directory structure means test sources are relative to 'unittest'
-    lcov --list coverage.info
-
-    # OPTIONAL: Copy coverage.info to TOP_DIR if genhtml will run from TOP_DIR
-    # cp coverage.info "$TOP_DIR"/coverage.info
+    lcov --directory .. --zerocounters
+    lcov --capture --directory .. --output-file "$TOP_DIR"/coverage.info # Save to TOP_DIR directly
+    lcov --remove "$TOP_DIR"/coverage.info '/usr/*' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/unittest/*.cpp' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/unittest/*.h' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/mocks/*.h' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/mocks/*.cpp' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/build/*' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*/tmp/*' --output-file "$TOP_DIR"/coverage.info
+    lcov --remove "$TOP_DIR"/coverage.info '*test.cpp' --output-file "$TOP_DIR"/coverage.info # Catch any gtest file
+    lcov --list "$TOP_DIR"/coverage.info
 fi
-
-cd "$TOP_DIR" # Return to TOP_DIR for subsequent CI steps
+cd "$TOP_DIR" 
