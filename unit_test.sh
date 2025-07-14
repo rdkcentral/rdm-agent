@@ -18,17 +18,23 @@
 ## SPDX-License-Identifier: Apache-2.0
 #
 
-ENABLE_COV=true
+ENABLE_COV=true # Keep this true if you always want coverage
 
 if [ "x$1" = "x--enable-cov" ]; then
       echo "Enabling coverage options"
       export CXXFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
       export CFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
       export LDFLAGS="-lgcov --coverage"
-      ENABLE_COV=true
+      # ENABLE_COV=true # This line is redundant if ENABLE_COV is already true above
 fi
+
 export TOP_DIR=`pwd`
 export top_srcdir=`pwd`
+
+# Create a directory for Gtest XML reports *before* changing directory
+# This directory will be relative to TOP_DIR
+GTEST_REPORT_DIR="$TOP_DIR/gtest_xml_reports"
+mkdir -p "$GTEST_REPORT_DIR"
 
 cd unittest/
 
@@ -42,7 +48,7 @@ make
 
 fail=0
 
-for test in \
+for test_binary in \
   ./rdm_main_gtest \
   ./rdm_utils_gtest \
   ./rdm_curl_gtest \
@@ -51,15 +57,20 @@ for test in \
   ./rdm_downloadutils_gtest \
   ./rdm_rbus_gtest \
   ./rdm_openssl_gtest \
-  ./rdm_usbinstall_gtest 
-  
+  ./rdm_usbinstall_gtest
 do
-    $test
+    report_file="${GTEST_REPORT_DIR}/${test_binary##*/}.xml" # Construct XML path relative to TOP_DIR
+    echo "Running $test_binary with XML output to $report_file..."
+    # Execute the test binary with gtest_output flag
+    ./$test_binary --gtest_output=xml:"${report_file}"
     status=$?
     if [ $status -ne 0 ]; then
-        echo "Test $test failed with exit code $status"
+        echo "Test $test_binary failed with exit code $status"
         fail=1
+    else
+        echo "Test $test_binary passed"
     fi
+    echo "------------------------------------"
 done
 
 if [ $fail -ne 0 ]; then
@@ -72,10 +83,14 @@ echo "**** CAPTURE RDM-AGENT COVERAGE DATA ****"
 echo "********************"
 if [ "$ENABLE_COV" = true ]; then
     echo "Generating coverage report"
+    # Ensure coverage.info is generated here (in unittest/)
     lcov --capture --directory . --output-file coverage.info
     lcov --remove coverage.info '/usr/*' --output-file coverage.info
-    lcov --remove coverage.info './unittest/*' --output-file coverage.info
+    lcov --remove coverage.info './unittest/*' --output-file coverage.info # Use ./unittest/* if the directory structure means test sources are relative to 'unittest'
     lcov --list coverage.info
+
+    # OPTIONAL: Copy coverage.info to TOP_DIR if genhtml will run from TOP_DIR
+    # cp coverage.info "$TOP_DIR"/coverage.info
 fi
 
-cd $TOP_DIR
+cd "$TOP_DIR" # Return to TOP_DIR for subsequent CI steps
