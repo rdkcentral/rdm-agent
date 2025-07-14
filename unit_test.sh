@@ -25,7 +25,7 @@ if [ "x$1" = "x--enable-cov" ]; then
       export CXXFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
       export CFLAGS="-g -O0 -fprofile-arcs -ftest-coverage"
       export LDFLAGS="-lgcov --coverage"
-      # ENABLE_COV=true # This line is redundant if ENABLE_COV is already true above
+      ENABLE_COV=true # This line is redundant if ENABLE_COV is already true above
 fi
 
 export TOP_DIR=`pwd`
