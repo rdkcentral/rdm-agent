@@ -18,15 +18,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run unit tests
-        run: sh unit_test.sh
-      
-      - name: Generate the html report
-        run: |
-            genhtml coverage.info --output-directory /tmp/Gtest_Report
+      - name: Run unit tests and generate coverage/XML reports
+        # This script should be located at the root of your repo: unit_test.sh
+        # It will handle cd-ing into 'unittest/' for compilation and test execution.
+        # It will create 'gtest_xml_reports/' and 'unittest/coverage.info'
+        run: sh unit_test.sh --enable-cov # Pass the flag to ensure coverage is enabled
 
-      - name: Upload test results to automatic test result management system
-        if: github.repository_owner == 'rdkcentral'
+      - name: Generate the LCOV HTML report
+        # The 'coverage.info' file is located inside the 'unittest/' directory.
+        # We need to specify the correct path from the current working directory (repo root).
+        run: |
+            genhtml unittest/coverage.info --output-directory coverage_html_report
+
+      - name: Upload LCOV HTML Report Artifact (Optional but Recommended)
+        # This step makes the HTML report viewable directly from GitHub Actions summary.
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: coverage_html_report/ # This is the directory created by genhtml
+          retention-days: 7 # How long to keep the artifact
+
+      - name: Upload Gtest XML results to automatic test result management system
+        # Ensure this step runs even if previous steps failed (e.g., tests failed)
+        # This allows you to still see the test failures in your reporting system.
+        if: github.repository_owner == 'rdkcentral' && always()
         run: |
           git config --global --add safe.directory `pwd`
-          gtest-json-result-push.py /tmp/Gtest_Report https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
+          # The unit_test.sh script now puts XMLs in ./gtest_xml_reports/
+          gtest-json-result-push.py ./gtest_xml_reports/ https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
