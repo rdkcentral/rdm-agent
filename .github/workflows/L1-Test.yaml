@@ -28,7 +28,7 @@ jobs:
         # The 'coverage.info' file is located inside the 'unittest/' directory.
         # We need to specify the correct path from the current working directory (repo root).
         run: |
-            genhtml unittest/coverage.info --output-directory coverage_html_report
+            genhtml coverage.info --output-directory coverage_html_report
 
       - name: Upload LCOV HTML Report Artifact (Optional but Recommended)
         # This step makes the HTML report viewable directly from GitHub Actions summary.
