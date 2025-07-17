@@ -33,22 +33,38 @@ extern "C" {
     #include "mocks/rdmMgr.h"
     #include "rdm_downloadutils.h"
     #include "rdm_downloadverapp.h"
+    #include "rdm_packagemgr.h"
 }
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmdownload_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_download_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
 using ::testing::Invoke;
-
+using namespace testing;
+using namespace std;
 
 MockRdmUtils* mockRdmUtils = nullptr;
 MockRdmRbus* mockRdmRbus = new MockRdmRbus();
 MockRdmDownloadUtils* mockRdmDownloadUtils;
 MockIARM* mockIARM = new MockIARM();
-extern "C"{
+
+
+// Add these mock implementations at the top or bottom of unittest/rdm_download_gtest.cpp
+
+extern "C" {
+
+char* getJsonRpcData(const char* input) {
+    // Mocked implementation: return nullptr or a dummy string as needed
+    return nullptr;
+}
+
+
+
+
+
     rbusValueType_t rbusValue_GetType(void* paramName) {
         return mockRdmRbus->rbusValue_GetType(paramName);
     }
@@ -106,6 +122,9 @@ extern "C"{
         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
     }
 
+     int  arExtract(char *filePath, char *appDwnlPath) {
+         return mockRdmUtils->tarExtract(filePath, appDwnlPath);
+    }
     int fileCheck(char* tmpFile) {
         return mockRdmUtils->fileCheck(tmpFile);
     }
@@ -125,6 +144,14 @@ extern "C"{
     int strSplit(char *in, char *tok, char **out, int len) {
         return mockRdmUtils->strSplit(in, tok, out, len);
     }
+ 
+    int findSize(char* fileName) {
+    return mockRdmUtils->findSize(fileName);
+    }
+
+    int getProcessID(char* in_file, char* out_path) {
+        return mockRdmUtils->getProcessID(in_file, out_path);
+   }
 
    int findPFileAll(char *path, char *search, char **out, int *found_t, int max_list) {
       return mockRdmUtils->findPFileAll(path, search, out, found_t, max_list);
@@ -399,9 +426,18 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_NoManifestVersions) {
 
 
 
-int main(int argc, char** argv) {
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
+
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
     ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_DOWNLOAD GTEST===================>" << endl;
     return RUN_ALL_TESTS();
-}
-                                  
+}                            
                                                  					
