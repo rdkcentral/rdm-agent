@@ -94,7 +94,6 @@ static INT32 rdmPkgDwnlValidation(RDMAPPDetails *pRdmAppDet)
             break;
         }
         else{
-            RDMInfo("loop %d\n",loopcount);
             loopcount = loopcount + 1;
             sleep(6);
         }
@@ -147,7 +146,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
 
             curl = doCurlInit();
             if(curl == NULL) {
-                RDMError("Failed init curl\n");
+                RDMError("CurlInit Failed\n");
                 status = RDM_FAILURE;
                goto exit;
             }
@@ -157,7 +156,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
                 RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
 
                 if(curl_ret_code && httpCode != 200) {
-                    RDMError("Download failed\n");
+                    RDMError("RDM Package Download failed\n");
                     status = RDM_FAILURE;
                 }
 
@@ -192,12 +191,12 @@ static INT32 rdmInvokePackage(RDMAPPDetails *pRdmAppDet)
             status = rdmPkgDwnlApplication(pRdmAppDet->app_dwnl_url);
 
             if(status == RDM_FAILURE) {
-                RDMError("Failed to download the package\n");
+                RDMError("Failed to download the package %s\n", pRdmAppDet->pkg_name);
                 t2CountNotify("NF_INFO_rdm_package_failure", 1);
                 break;
             }
             else if(status == RDM_SUCCESS) {
-                RDMInfo("Success\n");
+                RDMInfo("getProcessID Succeeded\n");
                 break;
             }
         }
@@ -225,7 +224,7 @@ INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet)
     status = rdmInvokePackage(pRdmAppDet);
 
     if(status) {
-        RDMError("Failed to extract the package\n");
+        RDMError("Failed to extract the package %s\n", pRdmAppDet->pkg_name);
         goto error;
     }
 

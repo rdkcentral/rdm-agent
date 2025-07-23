@@ -35,34 +35,34 @@
 /* RDM Log functions */
 #define DEBUG_INI_NAME  "/etc/debug.ini"
 
-#define PREFIX(format)  "[RDM] %s[%d]: " format
+#define PREFIX(format)  "[RDMAGENT] %s[%d]: " format
 
 #ifdef RDK_LOGGER_ENABLED
 
 extern int g_rdk_logger_enabled;
 
 #define LOG_ERROR(format, ...)   if(g_rdk_logger_enabled) {\
-    RDK_LOG(RDK_LOG_ERROR,  "LOG.RDK.RDM", format, __VA_ARGS__);\
+    RDK_LOG(RDK_LOG_ERROR,  "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
     fprintf (stderr, format, __VA_ARGS__);\
 }
 #define LOG_WARN(format, ...)    if(g_rdk_logger_enabled) {\
-    RDK_LOG(RDK_LOG_WARN,   "LOG.RDK.RDM", format, __VA_ARGS__);\
+    RDK_LOG(RDK_LOG_WARN,   "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
     fprintf (stderr, format, __VA_ARGS__);\
 }
 #define LOG_INFO(format, ...)    if(g_rdk_logger_enabled) {\
-    RDK_LOG(RDK_LOG_INFO,   "LOG.RDK.RDM", format, __VA_ARGS__);\
+    RDK_LOG(RDK_LOG_INFO,   "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
     fprintf (stderr, format, __VA_ARGS__);\
 }
 #define LOG_DEBUG(format, ...)   if(g_rdk_logger_enabled) {\
-    RDK_LOG(RDK_LOG_DEBUG,  "LOG.RDK.RDM", format, __VA_ARGS__);\
+    RDK_LOG(RDK_LOG_DEBUG,  "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
     fprintf (stderr, format, __VA_ARGS__);\
 }
 #define LOG_TRACE(format, ...)   if(g_rdk_logger_enabled) {\
-    RDK_LOG(RDK_LOG_TRACE1, "LOG.RDK.RDM", format, __VA_ARGS__);\
+    RDK_LOG(RDK_LOG_TRACE1, "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
     fprintf (stderr, format, __VA_ARGS__);\
 }
