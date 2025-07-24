@@ -43,6 +43,5 @@ jobs:
         # This allows you to still see the test failures in your reporting system.
         if: github.repository_owner == 'rdkcentral' && always()
         run: |
-          git config --global --add safe.directory `pwd`
-          # The unit_test.sh script now puts XMLs in ./gtest_xml_reports/
-          gtest-json-result-push.py ./gtest_xml_reports/ https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
+         # Point the script to the directory containing all XML reports
+          gtest-json-result-push.py /tmp/gtest_reports/ https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
