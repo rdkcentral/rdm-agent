@@ -24,24 +24,11 @@ jobs:
         # It will create 'gtest_xml_reports/' and 'unittest/coverage.info'
         run: sh unit_test.sh --enable-cov # Pass the flag to ensure coverage is enabled
 
-      - name: Generate the LCOV HTML report
-        # The 'coverage.info' file is located inside the 'unittest/' directory.
-        # We need to specify the correct path from the current working directory (repo root).
-        run: |
-            genhtml coverage.info --output-directory coverage_html_report
+      
+  
 
-      - name: Upload LCOV HTML Report Artifact (Optional but Recommended)
-        # This step makes the HTML report viewable directly from GitHub Actions summary.
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: coverage_html_report/ # This is the directory created by genhtml
-          retention-days: 7 # How long to keep the artifact
-
-      - name: Upload Gtest XML results to automatic test result management system
-        # Ensure this step runs even if previous steps failed (e.g., tests failed)
-        # This allows you to still see the test failures in your reporting system.
-        if: github.repository_owner == 'rdkcentral' && always()
+      - name: Upload test results to automatic test result management system
+        if: github.repository_owner == 'rdkcentral'
         run: |
-         # Point the script to the directory containing all XML reports
+          # Point the script to the directory containing all XML reports
           gtest-json-result-push.py /tmp/gtest_reports/ https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
