@@ -72,15 +72,15 @@ run_test() {
 }
 
 
-  run test rdm_main_gtest \
-  run test rdm_utils_gtest \
-  run test rdm_curl_gtest \
-  run test rdm_json_gtest \
-  run test rdm_download_gtest \
-  run test rdm_downloadutils_gtest \
-  run test rdm_rbus_gtest \
-  run test rdm_openssl_gtest \
-  run test rdm_usbinstall_gtest
+  run_test rdm_main_gtest \
+  run_test rdm_utils_gtest \
+  run_test rdm_curl_gtest \
+  run_test rdm_json_gtest \
+  run_test rdm_download_gtest \
+  run_test rdm_downloadutils_gtest \
+  run_test rdm_rbus_gtest \
+  run_test rdm_openssl_gtest \
+  run_test rdm_usbinstall_gtest
 
 
  
