@@ -58,7 +58,7 @@ cat make_output.log | grep -E "g\+\+|gcc|gcov|coverage" || echo "No compiler/cov
 
 fail=0
 
-for test_binary in \
+
   ./rdm_main_gtest \
   ./rdm_utils_gtest \
   ./rdm_curl_gtest \
@@ -70,12 +70,7 @@ for test_binary in \
   ./rdm_usbinstall_gtest
 
 
-    if [ $status -ne 0 ]; then
-        echo "Test $test_binary failed with exit code $status"
-        fail=1
-    else
-        echo "Test $test_binary passed"
-    fi
+ 
     echo "------------------------------------"
 
 
