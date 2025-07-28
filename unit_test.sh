@@ -32,7 +32,7 @@ export top_srcdir=`pwd`
 
 mkdir -p /tmp/gtest_reports/
 
-cd unittest/
+cd ./unittest/
 
 echo "--- Current directory for building and testing: $(pwd) ---"
 echo "--- Exported CXXFLAGS: $CXXFLAGS"
@@ -51,7 +51,7 @@ echo "--- Running configure with explicit flags ---"
 echo "--- Running make clean ---"
 make clean
 
-mkdir -p /tmp/gtest_reports/
+
 
 fail=0
 
