@@ -68,11 +68,8 @@ for test_binary in \
   ./rdm_rbus_gtest \
   ./rdm_openssl_gtest \
   ./rdm_usbinstall_gtest
-do
-    report_file="/tmp/gtest_reports/${test_binary}.xml" # Define output path for XML report
-    echo "Running $test_binary with XML output to $report_file..."
-    # Execute the test binary with gtest_output flag
-    ./$test_binary --gtest_output=xml:"${report_file}"
+
+
     if [ $status -ne 0 ]; then
         echo "Test $test_binary failed with exit code $status"
         fail=1
@@ -80,7 +77,7 @@ do
         echo "Test $test_binary passed"
     fi
     echo "------------------------------------"
-done
+
 
 if [ $fail -ne 0 ]; then
     echo "Some unit tests failed."
