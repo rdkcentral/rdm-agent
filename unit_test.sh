@@ -91,14 +91,14 @@ echo "********************"
 echo "**** CAPTURE RDM-AGENT COVERAGE DATA ****"
 echo "********************"
 
-
+cd "$TOP_DIR"
 if [ "$ENABLE_COV" = true ]; then
     echo "Generating coverage report"
 
     lcov --capture --directory . --base-directory . --output-file raw_coverage.info
     lcov --extract raw_coverage.info '/__w/rdmagent/*'  --output-file rdmagent_coverage.info
     lcov --remove rdmagent_coverage.info '/__w/rdmagent/rdmagent/unittest/*' --output-file processed_coverage.info
-    lcov --extract processed_coverage.info '*.cpp' --output-file coverage.info
+    lcov --extract processed_coverage.info '*.c' --output-file coverage.info
     lcov --list coverage.info
 fi
-cd "$TOP_DIR"
+
