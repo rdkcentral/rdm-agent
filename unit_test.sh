@@ -34,24 +34,17 @@ mkdir -p /tmp/gtest_reports/
 
 cd ./unittest/
 
-echo "--- Current directory for building and testing: $(pwd) ---"
-echo "--- Exported CXXFLAGS: $CXXFLAGS"
-echo "--- Exported CFLAGS: $CFLAGS"
-echo "--- Exported LDFLAGS: $LDFLAGS"
-
 automake --add-missing
 autoreconf --install
 
-echo "--- Running configure with explicit flags ---"
-./configure \
-    CXXFLAGS="${CXXFLAGS}" \
-    CFLAGS="${CFLAGS}" \
-    LDFLAGS="${LDFLAGS}"
 
-echo "--- Running make clean ---"
-make clean
+./configure
+make
 
+mkdir -p /opt/secure/
 
+# Create a directory to store Gtest XML reports
+mkdir -p /tmp/gtest_reports/
 
 fail=0
 
