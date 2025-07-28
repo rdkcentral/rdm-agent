@@ -96,9 +96,8 @@ if [ "$ENABLE_COV" = true ]; then
     echo "Generating coverage report"
 
     lcov --capture --directory . --base-directory . --output-file raw_coverage.info
-    lcov --extract raw_coverage.info   --output-file rdmagent_coverage.info
-    lcov --remove rdmagent_coverage.info '/unittest/*' --output-file processed_coverage.info
-    lcov --extract processed_coverage.info '*.c' --output-file coverage.info
+    lcov --remove raw_coverage.info '/unittest/*' --output-file processed_coverage.info
+    lcov --extract processed_coverage.info '*/src/* --output-file coverage.info
     lcov --list coverage.info
 fi
 
