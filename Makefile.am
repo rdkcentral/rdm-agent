@@ -61,7 +61,8 @@ if IS_RDKV
   lib_LTLIBRARIES = librdmopenssl.la
   librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c \
                              src/rdm-cpc/rdm/rdm_downloadutils.c \  
-                             src/dm-cpc/rdm/rdm_main.c \
+                             src/rdm-cpc/rdm/rdm_main.c \
+                             src/rdm-cpc/rdm/rdm_download.c \
 if IS_LIBRDKCONFIG_ENABLED
     librdmopenssl_la_CFLAGS = $(LIBRDKCONFIG_FLAG)
     librdmopenssl_la_LDFLAGS = -lrdkconfig -lsecure_wrapper -lcrypto -lssl
