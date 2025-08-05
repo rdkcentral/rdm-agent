@@ -24,24 +24,24 @@
 #endif
 
 //Define required file paths here
-#define RDM_DWNL_URL            "/path/to/my/url/file"
-#define RDM_DWNLSSR_URL         "/path/to/my/url/file"
+//#define RDM_DWNL_URL            "/path/to/my/url/file"
+//#define RDM_DWNLSSR_URL         "/path/to/my/url/file"
 #define RDM_NVRAM_PATH          "/nvram"
 #define RDM_NVRAM_DL_PATH       "/nvram/path"
-#define EnableOCSPStapling      "/path/to/EnableOCSPStapling"
-#define EnableOCSP              "/path/to/EnableOCSPCA"
+//#define EnableOCSPStapling      "/path/to/EnableOCSPStapling"
+//#define EnableOCSP              "/path/to/EnableOCSPCA"
 #define RDM_POSTSCRIPT_PATH     "/etc/rdm/post-services/"
 
-#define CERT_DYNAMIC            "/path/to/dynamic/cert"
-#define CERT_STATIC             "/path/to/static/cert"
-#define KEY_STATIC              "/path/to/cert/key"
-#define MTLS_CERT               "/path/to/mtls/cert"
-#define MTLS_KEY                "/path/to/mtls/key"
+//#define CERT_DYNAMIC            "/path/to/dynamic/cert"
+//#define CERT_STATIC             "/path/to/static/cert"
+//#define KEY_STATIC              "/path/to/cert/key"
+//#define MTLS_CERT               "/path/to/mtls/cert"
+//#define MTLS_KEY                "/path/to/mtls/key"
 #define GET_CONFIG_FILE         "/usr/bin/GetConfigFile"
 #define SYS_CMD_GET_CONFIG_FILE "/usr/bin/GetConfigFile %s"
-#define KEY_GEN_BIN             "/path/to/keygen"
+//#define KEY_GEN_BIN             "/path/to/keygen"
 
-#define RDKSSACLI           "/path/to/rdkssacli"
+//#define RDKSSACLI           "/path/to/rdkssacli"
 
 #ifdef RDM_ENABLE_CODEBIG
 #define HTTP_XCONF_CODEBIG  3
