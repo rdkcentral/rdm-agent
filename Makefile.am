@@ -66,11 +66,11 @@ if USE_CPC
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
 if IS_RDKV
-  
+  lib_LTLIBRARIES = librdmopenssl.la
   librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED
-    librdmopenssl_la_CFLAGS += $(LIBRDKCONFIG_FLAG)
-    librdmopenssl_la_LDFLAGS += -lrdkconfig -lsecure_wrapper -lcrypto -lssl
+    librdmopenssl_la_CFLAGS = $(LIBRDKCONFIG_FLAG)
+    librdmopenssl_la_LDFLAGS = -lrdkconfig -lsecure_wrapper -lcrypto -lssl
 endif
     bin_PROGRAMS += opensslVerify
     opensslVerify_SOURCES = src/rdm-cpc/rdm/openssl_main.c
