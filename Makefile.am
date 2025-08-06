@@ -55,6 +55,7 @@ librdmopenssl_la_SOURCES =   src/rdm_downloadutils.c \
                              src/rdm_download.c
 librdmopenssl_la_CFLAGS = -I${top_srcdir}/src/codebig \
                           -I${top_srcdir}/src 
+librdmopenssl_la_CFLAGS += $rdm_CFLAGS
 librdmopenssl_la_LDFLAGS = $rdm_LDFLAGS
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
