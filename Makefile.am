@@ -49,7 +49,7 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs/sysmgr \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs/rdmmgr \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs-hal
-lib_LTLIBRARIES = librdmopenssl.la
+lib_LTLIBRARIES = librdmagent.la
 librdmagent_la_SOURCES =   src/rdm_downloadutils.c \
                              src/rdm_download.c
 #                             src/rdm_main.c
