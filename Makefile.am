@@ -53,6 +53,7 @@ lib_LTLIBRARIES = librdmopenssl.la
 librdmopenssl_la_SOURCES =   src/rdm_downloadutils.c \  
                              src/rdm_main.c \
                              src/rdm_download.c
+librdmopenssl_la_CFLAGS += -I${top_srcdir}/src/codebig
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
                  src/rdm-cpc/rdm/rdm_openssl.c  \
