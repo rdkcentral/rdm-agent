@@ -50,14 +50,14 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs/rdmmgr \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs-hal
 lib_LTLIBRARIES = librdmopenssl.la
-librdmopenssl_la_SOURCES =   src/rdm_downloadutils.c \
+librdmagent_la_SOURCES =   src/rdm_downloadutils.c \
                              src/rdm_download.c
 #                             src/rdm_main.c
-librdmopenssl_la_CFLAGS = -I${top_srcdir}/src/codebig \
+librdmagent_la_CFLAGS = -I${top_srcdir}/src/codebig \
                           -I${top_srcdir}/src  \
                           -I${top_srcdir}/src/rdm-cpc/rdm
-librdmopenssl_la_CFLAGS += $(rdm_CFLAGS) 
-librdmopenssl_la_LDFLAGS = $(rdm_LDFLAGS) 
+librdmagent_la_CFLAGS += $(rdm_CFLAGS) 
+librdmagent_la_LDFLAGS = $(rdm_LDFLAGS) 
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
                  src/rdm-cpc/rdm/rdm_openssl.c  \
@@ -67,7 +67,7 @@ if USE_CPC
   rdm_LDFLAGS += -lsecure_wrapper
 if IS_RDKV
   
-  librdmopenssl_la_SOURCES += src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
+  librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED
     librdmopenssl_la_CFLAGS += $(LIBRDKCONFIG_FLAG)
     librdmopenssl_la_LDFLAGS += -lrdkconfig -lsecure_wrapper -lcrypto -lssl
