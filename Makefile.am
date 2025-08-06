@@ -50,9 +50,10 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs/rdmmgr \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs-hal
 lib_LTLIBRARIES = librdmagent.la
-librdmagent_la_SOURCES =   src/rdm_downloadutils.c \
-                             src/rdm_download.c
-#                             src/rdm_main.c
+#librdmagent_la_SOURCES =   src/rdm_downloadutils.c \
+#                             src/rdm_download.c
+#                            src/rdm_main.c
+librdmagent_la_SOURCES = $(rdm_SOURCES)
 librdmagent_la_CFLAGS = -I${top_srcdir}/src/codebig \
                           -I${top_srcdir}/src  \
                           -I${top_srcdir}/src/rdm-cpc/rdm
