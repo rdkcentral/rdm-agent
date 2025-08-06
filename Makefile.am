@@ -53,7 +53,9 @@ lib_LTLIBRARIES = librdmopenssl.la
 librdmopenssl_la_SOURCES =   src/rdm_downloadutils.c \  
                              src/rdm_main.c \
                              src/rdm_download.c
-librdmopenssl_la_CFLAGS += -I${top_srcdir}/src/codebig
+librdmopenssl_la_CFLAGS = -I${top_srcdir}/src/codebig \
+                          -I${top_srcdir}/src 
+librdmopenssl_la_LDFLAGS = $rdm_LDFLAGS
 if USE_CPC
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
                  src/rdm-cpc/rdm/rdm_openssl.c  \
@@ -65,8 +67,8 @@ if IS_RDKV
   
   librdmopenssl_la_SOURCES += src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED
-    librdmopenssl_la_CFLAGS = $(LIBRDKCONFIG_FLAG)
-    librdmopenssl_la_LDFLAGS = -lrdkconfig -lsecure_wrapper -lcrypto -lssl
+    librdmopenssl_la_CFLAGS += $(LIBRDKCONFIG_FLAG)
+    librdmopenssl_la_LDFLAGS += -lrdkconfig -lsecure_wrapper -lcrypto -lssl
 endif
     bin_PROGRAMS += opensslVerify
     opensslVerify_SOURCES = src/rdm-cpc/rdm/openssl_main.c
