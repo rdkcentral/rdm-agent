@@ -40,8 +40,13 @@ typedef enum _RDM_DOWNLOAD_STATUS {
     RDM_DL_DWNLERR    = 3,
     RDM_DL_MISC       = 4
 }RDM_DOWNLOAD_STATUS;
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus);
+#ifdef __cplusplus
+}
+#endif
 INT32 rdmDownloadVerApp(RDMAPPDetails *pRdmAppDet);
 INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet);
 INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet);
