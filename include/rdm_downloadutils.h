@@ -78,10 +78,16 @@ INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
 INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut, INT32 isMtls);
 INT32 rdmUnInstallApps(INT32 is_broadband );
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
+#ifdef __cplusplus
+extern "C" {
+#endif
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
                           RDMAPPDetails *pRdmAppDet,
                           INT32 is_broadband);
 VOID rdmPrintAppDetails(RDMAPPDetails *pRdmAppDet);
+#ifdef __cplusplus
+}
+#endif
 INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet);
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size);
 #endif //_RDM_DOWNLOADUTILS_H_
