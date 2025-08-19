@@ -146,6 +146,11 @@ void t2ValNotify( char *marker, char *val )
 #ifndef GTEST_ENABLE
 int main(int argc, char* argv[])
 {
+rdmfunction();
+return 0;
+}
+int rdmfunction()
+{
     INT32 download_all        = 0;
     INT32 idx                 = 0;
     INT32 download_status     = 0;
