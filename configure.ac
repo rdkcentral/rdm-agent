@@ -60,6 +60,18 @@ if test "$IS_RDKV" = "yes"; then
     AC_DEFINE([IS_RDKV], [1], [Define to enable RDKV support])
 fi
 
+AC_ARG_ENABLE([rdkb],
+    [AS_HELP_STRING([--enable-rdkb], [Enable RDKB support])],
+    [IS_RDKB="$enableval"],
+    [IS_RDKB=no])
+
+AM_CONDITIONAL([IS_RDKB], [test "$IS_RDKB" = "yes"])
+AC_SUBST(IS_RDKB)
+
+if test "$IS_RDKB" = "yes"; then
+    AC_DEFINE([IS_RDKB], [1], [Define to enable RDKB support])
+fi
+
 # Checks for header files.
 AC_ARG_ENABLE([mountutils],
         AS_HELP_STRING([--enable-mountutils],[enables mountutils replacement (default is no)]),
