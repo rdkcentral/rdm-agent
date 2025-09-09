@@ -909,10 +909,12 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     ret = rdmDwnlUpdateURL(pRdmAppDet->app_dwnl_url);
     if (ret != RDM_SUCCESS) {
+#ifdef IARMBUS_SUPPORT
         rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                pRdmAppDet->pkg_ver,
                                pRdmAppDet->app_home,
                                RDM_PKG_INVALID_INPUT);
+#endif
         RDMError("Failed to Get download URL\n");
         return RDM_FAILURE;
     }
