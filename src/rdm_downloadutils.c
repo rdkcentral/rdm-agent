@@ -28,7 +28,9 @@
 #include <json_parse.h>
 #include <downloadUtil.h>
 #include "codebigUtils.h"
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#endif
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/rdmMgr.h"
