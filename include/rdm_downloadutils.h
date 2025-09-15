@@ -32,8 +32,6 @@ typedef enum {
     MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
     MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
 } MtlsAuthStatus;
-
-MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
 #endif
 //Define required file paths here
 #define RDM_DWNL_URL            "/path/to/my/url/file"
