@@ -44,6 +44,10 @@
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
 
+#ifdef LIBRDKCONFIG_BUILD
+#include "rdkconfig.h"
+#endif
+
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
     UINT32 modification_time = 0;
@@ -218,19 +222,21 @@ INT32 rdmDwnlIsInStateRed()
     return 0;
 }
 
+#ifdef LIBRDKCERTSELECTOR
+MtlsAuthStatus  rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel) {
+	RDMInfo("CertSelector Enabled . In rdmDwnlGetCert \n");
+	return MTLS_CERT_FETCH_SUCCESS;
+}
+#else
 INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
 {
-    //Read your Cert details here
-    strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
-    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
-    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
-    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
-    RDMInfo("RDM download certificate success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
-    return RDM_SUCCESS;
+    if (NULL == sec) {
+        RDMInfo("getMtlscert(): the sec buffer is empty or null.");
+        return MTLS_FAILURE;
+    }
+    return MTLS_FAILURE;
 }
-
+#endif
 //Check for OCSPEnable. Returns 1 if enabled.
 INT32 rdmDwnlIsOCSPEnable(void)
 {
@@ -247,8 +253,14 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     FileDwnl_t file_dwnl;
     MtlsAuth_t sec;
 
+#ifdef LIBRDKCERTSELECTOR
+    int state_red = -1;
+    int cert_ret_code = -1;
+    MtlsAuthStatus ret = MTLS_CERT_FETCH_SUCCESS;
+#else
+    int ret = MTLS_FAILURE;
+#endif
     memset(&file_dwnl, 0, sizeof(FileDwnl_t));
-    memset(&sec, 0, sizeof(MtlsAuth_t));
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
@@ -268,11 +280,40 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
 
     if(isMtls) {
         /* Update the Certificate */
-        status = rdmDwnlGetCert(&sec);
-        if(status) {
-            RDMError("Failed to get MTLS certificate\n");
-            return RDM_FAILURE;
-        }
+#ifdef LIBRDKCERTSELECTOR
+        static rdkcertselector_h thisCertSel = NULL;
+	RDMInfo("Initializing CertSelector\n");
+	if (thisCertSel == NULL)
+        {
+            const char* certGroup = (state_red == 1) ? "RCVRY" : "MTLS";
+	    thisCertSel = rdkcertselector_new(DEFAULT_CONFIG, DEFAULT_HROT, certGroup);
+	    if (thisCertSel == NULL) {
+                 RDMInfo("Cert Selector Initialisation Failed\n");
+		 return cert_ret_code;
+            } else {
+                RDMInfo("Cert Selector Initialisation is Successful\n");
+            }
+	} else {
+             RDMInfo("Cert selector already initialized, reusing existing instance\n");
+	}
+	memset(&sec, '\0', sizeof(MtlsAuth_t));
+	do {
+            RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
+            ret = rdmDwnlGetCert(&sec, &thisCertSel);
+	    RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
+
+	    if (ret == MTLS_CERT_FETCH_FAILURE) {
+                RDMInfo("MTLS cert Failed ret= %d\n", ret);
+		return cert_ret_code;
+	    } else if (ret == STATE_RED_CERT_FETCH_FAILURE) {
+                RDMInfo("State Red Cert Failed ret = %d\n", ret);
+		return cert_ret_code;
+            } else {
+                RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
+		NotifyTelemetry2Count("SYS_INFO_MTLS_enable");
+            }
+	}while (rdkcertselector_setCurlStatus(thisCertSel, cert_ret_code, file_dwnl.url) == TRY_ANOTHER);
+#endif
     }
     curl = doCurlInit();
     if(curl == NULL) {

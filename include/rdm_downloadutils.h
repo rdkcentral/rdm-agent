@@ -23,6 +23,18 @@
 #include "../unittest/mocks/system_utils.h"
 #endif
 
+#ifdef LIBRDKCERTSELECTOR
+#include "rdkcertselector.h"
+
+#define CURL_MTLS_LOCAL_CERTPROBLEM 58
+typedef enum {
+    STATE_RED_CERT_FETCH_FAILURE = -2,     // Indicates failure in state red recovery
+    MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
+    MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
+} MtlsAuthStatus;
+
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
+#endif
 //Define required file paths here
 #define RDM_DWNL_URL            "/path/to/my/url/file"
 #define RDM_DWNLSSR_URL         "/path/to/my/url/file"
