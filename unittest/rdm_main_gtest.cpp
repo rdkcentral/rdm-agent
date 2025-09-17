@@ -24,11 +24,14 @@
 
 
 #define GTEST_DEFAULT_RESULT_FILEPATH "/tmp/Gtest_Report/"
-#define GTEST_DEFAULT_RESULT_FILENAME "rdmmain_gtest_report.json"
+#define GTEST_DEFAULT_RESULT_FILENAME "rdm_main_gtest_report.json"
 #define GTEST_REPORT_FILEPATH_SIZE 256
 
-//#include "rdmMgr.h"
-//#include "unittest/mocks/mock_rdm_rbus.h"
+using namespace testing;
+using namespace std;
+using ::testing::Return;
+using ::testing::StrEq;
+
 
 
 class MockRdmRbus {
@@ -139,8 +142,17 @@ TEST_F(RDMTest, rdmHelp_Output) {
     EXPECT_NE(output.find("To Print help                 : rdm -h"), std::string::npos);
 }
 
+GTEST_API_ int main(int argc, char *argv[]){
+    char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
+    char buffer[GTEST_REPORT_FILEPATH_SIZE];
 
-int main(int argc, char** argv) {
+    memset( testresults_fullfilepath, 0, GTEST_REPORT_FILEPATH_SIZE );
+    memset( buffer, 0, GTEST_REPORT_FILEPATH_SIZE );
+
+    snprintf( testresults_fullfilepath, GTEST_REPORT_FILEPATH_SIZE, "json:%s%s" , GTEST_DEFAULT_RESULT_FILEPATH , GTEST_DEFAULT_RESULT_FILENAME);
+    ::testing::GTEST_FLAG(output) = testresults_fullfilepath;
     ::testing::InitGoogleTest(&argc, argv);
+    //testing::Mock::AllowLeak(mock);
+    cout << "Starting RDM_MAIN GTEST ===================>" << endl;
     return RUN_ALL_TESTS();
-}                          
+}             

@@ -30,7 +30,11 @@
 #ifndef GTEST_ENABLE
 #include "json_parse.h"
 #include <downloadUtil.h>
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_UNINSTALL 10
+#endif
 #endif
 #ifdef GTEST_ENABLE
 #include "unittest/mocks/rdmMgr.h"
@@ -62,6 +66,10 @@ INT32 rdmInit(RDMHandle *prdmHandle)
         return RDM_FAILURE;
     }
 
+#ifdef T2_EVENT_ENABLED
+    t2_init("rdmagent");
+#endif
+
     prdmHandle->pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
     if(prdmHandle->pApp_det == NULL) {
         RDMError("Failed to allocate memory\n");
@@ -86,6 +94,11 @@ INT32 rdmInit(RDMHandle *prdmHandle)
  */
 VOID rdmUnInit(RDMHandle *prdmHandle)
 {
+
+#ifdef T2_EVENT_ENABLED
+    t2_uninit();
+#endif
+
     rdmRbusUnInit(prdmHandle->pRbusHandle);
     if(prdmHandle->pApp_det) {
         free(prdmHandle->pApp_det);
@@ -103,6 +116,23 @@ static VOID rdmHelp()
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
     RDMInfo("To Print help                 : rdm -h\n");
+}
+
+/* Description: Use for sending telemetry Log
+ * @param marker: use for send marker details
+ * @return : void
+ * */
+void t2CountNotify(char *marker, int val) {
+#ifdef T2_EVENT_ENABLED
+    t2_event_d(marker, val);
+#endif
+}
+
+void t2ValNotify( char *marker, char *val )
+{
+#ifdef T2_EVENT_ENABLED
+    t2_event_s(marker, val);
+#endif
 }
 
 /** @brief Main function
@@ -134,7 +164,6 @@ int main(int argc, char* argv[])
     RDMHandle     *prdmHandle = NULL;
 
     RDMLOGInit();
-
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;
@@ -286,7 +315,8 @@ int main(int argc, char* argv[])
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
             }
 
-            RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+            RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+            t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
         }
     } //else if (download_singleapp)
 
@@ -322,15 +352,16 @@ int main(int argc, char* argv[])
 	    if(ret) {
 		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
             } else {
-	        RDMInfo("Download of %s App completed with status=%d\n", pApp_det->app_name, download_status);
+		RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+		t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
             }
     }
 
 error1:
-    //rdmDwnlCleanUp(pApp_det);
 
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
+        t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
 	if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 	    return download_status;
@@ -344,6 +375,11 @@ error1:
     }
     else {
         RDMInfo("App download failed, sending status as %d\n", download_status);
+	rdmUnInstallApps(is_broadband);
+	ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
+        if(ret) {
+            RDMError("Failed to send the IARM event\n");
+        }
     }
 
     ret = rdmIARMEvntSendStatus(download_status);

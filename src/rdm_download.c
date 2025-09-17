@@ -137,6 +137,15 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 	    rdm_status = "SUCCESS";
 	}
     }
+
+    /* Plugin installation */
+    else if(!strcmp(pRdmAppDet->pkg_type, "plugin")){
+        status = rdmPackageMgr(pRdmAppDet);
+        if(status == RDM_SUCCESS) {
+            rdm_status = "SUCCESS";
+        }
+    }
+
     /* Legacy app installation */
     else {
         INT32 count = 0;
@@ -166,7 +175,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
             DLInfoStatus = RDM_FAILURE;
         }
         else{
-            RDMInfo("Package info path %s exists", DLInfoPath);
+            RDMInfo("Package info path %s exists\n", DLInfoPath);
         }
     }
 
@@ -178,7 +187,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
             char line[256];
             size_t buffer_index = 0;
 
-            RDMInfo("Opened %s file successfully", pRdmAppDet->app_dwnl_info);
+            RDMInfo("Opened %s file successfully\n", pRdmAppDet->app_dwnl_info);
             fseek(fp_met, 0, SEEK_SET);
             while (fgets(line, sizeof(line), fp_met)) {
                 if(strncmp(line, pRdmAppDet->app_name, strlen(pRdmAppDet->app_name)) != 0 ){
