@@ -282,37 +282,37 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
         /* Update the Certificate */
 #ifdef LIBRDKCERTSELECTOR
         static rdkcertselector_h thisCertSel = NULL;
-	RDMInfo("Initializing CertSelector\n");
-	if (thisCertSel == NULL)
+        RDMInfo("Initializing CertSelector\n");
+        if (thisCertSel == NULL)
         {
             const char* certGroup = (state_red == 1) ? "RCVRY" : "MTLS";
-	    thisCertSel = rdkcertselector_new(DEFAULT_CONFIG, DEFAULT_HROT, certGroup);
-	    if (thisCertSel == NULL) {
-                 RDMInfo("Cert Selector Initialisation Failed\n");
-		 return cert_ret_code;
+            thisCertSel = rdkcertselector_new(DEFAULT_CONFIG, DEFAULT_HROT, certGroup);
+            if (thisCertSel == NULL) {
+                RDMInfo("Cert Selector Initialisation Failed\n");
+                return cert_ret_code;
             } else {
                 RDMInfo("Cert Selector Initialisation is Successful\n");
             }
-	} else {
-             RDMInfo("Cert selector already initialized, reusing existing instance\n");
-	}
-	memset(&sec, '\0', sizeof(MtlsAuth_t));
-	do {
+        } else {
+            RDMInfo("Cert selector already initialized, reusing existing instance\n");
+        }
+        memset(&sec, '\0', sizeof(MtlsAuth_t));
+        do {
             RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
             ret = rdmDwnlGetCert(&sec, &thisCertSel);
-	    RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
+            RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
 
-	    if (ret == MTLS_CERT_FETCH_FAILURE) {
+            if (ret == MTLS_CERT_FETCH_FAILURE) {
                 RDMInfo("MTLS cert Failed ret= %d\n", ret);
-		return cert_ret_code;
-	    } else if (ret == STATE_RED_CERT_FETCH_FAILURE) {
+                return cert_ret_code;
+            } else if (ret == STATE_RED_CERT_FETCH_FAILURE) {
                 RDMInfo("State Red Cert Failed ret = %d\n", ret);
-		return cert_ret_code;
+                return cert_ret_code;
             } else {
                 RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
-		NotifyTelemetry2Count("SYS_INFO_MTLS_enable");
+                NotifyTelemetry2Count("SYS_INFO_MTLS_enable");
             }
-	}while (rdkcertselector_setCurlStatus(thisCertSel, cert_ret_code, file_dwnl.url) == TRY_ANOTHER);
+        }while (rdkcertselector_setCurlStatus(thisCertSel, cert_ret_code, file_dwnl.url) == TRY_ANOTHER);
 #endif
     }
     curl = doCurlInit();
