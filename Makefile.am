@@ -36,12 +36,12 @@ rdm_SOURCES = rdm_main.c                          \
 if IS_LIBRDKCONFIG_ENABLED
 rdm_CFLAGS += $(LIBRDKCONFIG_FLAG)
 rdm_LDFLAGS += -lRdkCertSelector -L$(PKG_CONFIG_SYSROOT_DIR)/usr/lib -L$(PKG_CONFIG_SYSROOT_DIR)/usr/lib64 -lrdkconfig -lsecure_wrapper
-else
-rdm_LDFLAGS += -lRdkCertSelector
 endif
+
 if IS_LIBRDKCERTSEL_ENABLED
 rdm_CFLAGS += $(LIBRDKCERTSEL_FLAG)
 endif
+
 rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
                -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lrfcapi
 
