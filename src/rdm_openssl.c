@@ -973,9 +973,11 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
                                               outputMsg, &outputMsgLen);
     if ( status == retcode_success ) {
         RDMInfo("RSA Signature Validation Success\n");
+	t2CountNotify("RDM_INFO_rsa_valid_signature", 1);
         status = 0;
     } else {
         RDMWarn("RSA Signature Verification Failed\n");
+	t2CountNotify("RDM_INFO_rsa_verify_signature_failure", 1);
     }
 
     free(dataFile);

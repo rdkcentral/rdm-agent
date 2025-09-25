@@ -79,3 +79,8 @@ endif
 if IARMBUS_ENABLE
   rdm_CFLAGS += -DIARMBUS_SUPPORT
 endif
+
+if IS_TELEMETRY2_ENABLED
+   rdm_CFLAGS +=  $(T2_EVENT_FLAG)
+   rdm_LDFLAGS += -ltelemetry_msgsender -lt2utils  
+endif
