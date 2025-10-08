@@ -50,6 +50,18 @@ if test "$USE_CPC" = "yes"; then
     AC_DEFINE([USE_CPC], [1], [Define to enable CPC support])
 fi
 
+AC_ARG_ENABLE([rdk],
+    [AS_HELP_STRING([--enable-rdk], [Enable RDK support])],
+    [IS_RDK="$enableval"],
+    [IS_RDK=no])
+
+AM_CONDITIONAL([IS_RDK], [test "$IS_RDK" = "yes"])
+AC_SUBST(IS_RDK)
+
+if test "$IS_RDK" = "yes"; then
+    AC_DEFINE([IS_RDK], [1], [Define to enable RDK support])
+fi
+
 AC_ARG_ENABLE([rdkv],
     [AS_HELP_STRING([--enable-rdkv], [Enable RDKV support])],
     [IS_RDKV="$enableval"],

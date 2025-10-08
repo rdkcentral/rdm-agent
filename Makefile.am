@@ -61,7 +61,7 @@ if USE_CPC
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
-if IS_RDKV
+if IS_RDK
   lib_LTLIBRARIES = librdmopenssl.la
   librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED
