@@ -62,16 +62,16 @@ if test "$IS_RDK" = "yes"; then
     AC_DEFINE([IS_RDK], [1], [Define to enable RDK support])
 fi
 
-AC_ARG_ENABLE([rdkv],
-    [AS_HELP_STRING([--enable-rdkv], [Enable RDKV support])],
-    [IS_RDKV="$enableval"],
-    [IS_RDKV=no])
+AC_ARG_ENABLE([rdkb],
+    [AS_HELP_STRING([--enable-rdkb], [Enable RDKB support])],
+    [IS_RDKB="$enableval"],
+    [IS_RDKB=no])
 
-AM_CONDITIONAL([IS_RDKV], [test "$IS_RDKV" = "yes"])
-AC_SUBST(IS_RDKV)
+AM_CONDITIONAL([IS_RDKB], [test "$IS_RDKB" = "yes"])
+AC_SUBST(IS_RDKB)
 
-if test "$IS_RDKV" = "yes"; then
-    AC_DEFINE([IS_RDKV], [1], [Define to enable RDKV support])
+if test "$IS_RDKB" = "yes"; then
+    AC_DEFINE([IS_RDKB], [1], [Define to enable RDKB support])
 fi
 
 # Checks for header files.
