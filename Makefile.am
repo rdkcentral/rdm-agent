@@ -42,8 +42,13 @@ if IS_LIBRDKCERTSEL_ENABLED
 rdm_CFLAGS += $(LIBRDKCERTSEL_FLAG)
 endif
 
+if IS_RDKB
+rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
+	       -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils
+else
 rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
                -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lrfcapi
+endif
 
 rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include \
