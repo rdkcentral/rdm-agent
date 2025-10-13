@@ -50,16 +50,16 @@ if test "$USE_CPC" = "yes"; then
     AC_DEFINE([USE_CPC], [1], [Define to enable CPC support])
 fi
 
-AC_ARG_ENABLE([rdk],
-    [AS_HELP_STRING([--enable-rdk], [Enable RDK support])],
-    [IS_RDK="$enableval"],
-    [IS_RDK=no])
+AC_ARG_ENABLE([openssl],
+    [AS_HELP_STRING([--enable-openssl], [Enable OPENSSL support])],
+    [IS_OPENSSL="$enableval"],
+    [IS_OPENSSL=no])
 
-AM_CONDITIONAL([IS_RDK], [test "$IS_RDK" = "yes"])
-AC_SUBST(IS_RDK)
+AM_CONDITIONAL([IS_OPENSSL], [test "$IS_OPENSSL" = "yes"])
+AC_SUBST(IS_OPENSSL)
 
-if test "$IS_RDK" = "yes"; then
-    AC_DEFINE([IS_RDK], [1], [Define to enable RDK support])
+if test "$IS_OPENSSL" = "yes"; then
+    AC_DEFINE([IS_OPENSSL], [1], [Define to enable OPENSSL support])
 fi
 
 AC_ARG_ENABLE([rdkb],

@@ -74,7 +74,7 @@ else
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
 endif
-if IS_RDK
+if IS_OPENSSL
   lib_LTLIBRARIES = librdmopenssl.la
   librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED
