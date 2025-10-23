@@ -1,0 +1,31 @@
+{
+  "release_name": "This is the release name",
+  "packages": [
+{"systemd-analyze":{
+  "app_name": "systemd-analyze",
+  "pkg_name": "SKXI11ADS_stable2_20251021095505_systemd-analyze-signed.tar",
+  "app_size": "936K",
+  "pkg_type": "",
+  "dwld_on_demand": "yes",
+  "dwld_method_controller": "RFC"
+ }}
+,
+{"notowoff2":{
+  "app_name": "notowoff2",
+  "pkg_name": "SKXI11ADS_stable2_20251021095505_notowoff2-signed.tar",
+  "app_size": "3.1M",
+  "pkg_type": "None",
+  "dwld_on_demand": "no",
+  "dwld_method_controller": "None"
+ }}
+,
+{"bind-dl":{
+  "app_name": "bind-dl",
+  "pkg_name": "SKXI11ADS_stable2_20251021095505_bind-dl-signed.tar",
+  "app_size": "4.8M",
+  "pkg_type": "None",
+  "dwld_on_demand": "no",
+  "dwld_method_controller": "None"
+ }}
+  ]
+}

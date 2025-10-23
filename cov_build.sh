@@ -58,6 +58,6 @@ export top_srcdir=`pwd`
 export top_builddir=`pwd`
 autoreconf -i
 autoupdate
-./configure --prefix=${INSTALL_DIR}
-make CFLAGS="-I${INSTALL_DIR}/include/rtmessage -I${INSTALL_DIR}/include/msgpack -I${INSTALL_DIR}/include/rbus -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/cjson -I/usr/include/openssl -I/usr/iarmmgrs/rdmmgr/include/ -I/usr/iarmbus/core/include/" LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib -lparsejson -ldwnlutil -lfwutils -lsecure_wrapper -lIARMBus"
+./configure --prefix=${INSTALL_DIR} --enable-unittest=yes
+make CFLAGS="-I${INSTALL_DIR}/include/rtmessage -I${INSTALL_DIR}/include/msgpack -I${INSTALL_DIR}/include/rbus -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/cjson -I/usr/include/openssl -I/usr/iarmmgrs/rdmmgr/include/ -I/usr/iarmbus/core/include/ -DL2_TEST_ENABLED" LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib -lparsejson -ldwnlutil -lfwutils -lsecure_wrapper -lIARMBus"
 make install

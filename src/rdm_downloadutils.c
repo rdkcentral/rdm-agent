@@ -221,12 +221,18 @@ INT32 rdmDwnlIsInStateRed()
 INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
 {
     //Read your Cert details here
+#ifdef L2_TEST_ENABLED
+    strncpy(sec->cert_name, CERT_STATIC, sizeof(sec->cert_name) - 1);
+    strncpy(sec->cert_type, "STATIC", sizeof(sec->cert_type) - 1);
+    strncpy(sec->key_pas, KEY_STATIC, sizeof(sec->key_pas) - 1);
+#else
     strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
     sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
     strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
     sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
     sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
+#endif
     RDMInfo("RDM download certificate success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
     return RDM_SUCCESS;
 }
@@ -586,16 +592,24 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
         RDMInfo("Validate the Package\n");
 
+#ifdef L2_TEST_ENABLED
+	strncpy(tmp_file, dwnl_path, RDM_APP_PATH_LEN -1);
+        tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+        strcat(tmp_file, "/");
+        strcat(tmp_file, "pkg_cpemanifest");
+        tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+#else	
         strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
         strcat(tmp_file, "/");
         strcat(tmp_file, pRdmAppDet->app_name);
         strcat(tmp_file, "_cpemanifest");
 
+#endif
         strncpy(out_file, app_home, RDM_APP_PATH_LEN);
         strcat(out_file, "/");
         strcat(out_file, pRdmAppDet->app_name);
         strcat(out_file, "_cpemanifest");
-
+	
         status = rdmDwnlUpdateManifest(tmp_file, out_file,
                                        app_home,
                                        dwnl_path);

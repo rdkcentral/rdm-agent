@@ -24,8 +24,15 @@
 #endif
 
 //Define required file paths here
+
+#ifdef L2_TEST_ENABLED
+#define RDM_DWNL_URL            "/tmp/.rdm_ssr_location"
+#define RDM_DWNLSSR_URL         "/tmp/.xconfssrdownloadurl"
+#else
 #define RDM_DWNL_URL            "/path/to/my/url/file"
 #define RDM_DWNLSSR_URL         "/path/to/my/url/file"
+#endif
+
 #define RDM_NVRAM_PATH          "/nvram"
 #define RDM_NVRAM_DL_PATH       "/nvram/path"
 #define EnableOCSPStapling      "/path/to/EnableOCSPStapling"
@@ -33,8 +40,15 @@
 #define RDM_POSTSCRIPT_PATH     "/etc/rdm/post-services/"
 
 #define CERT_DYNAMIC            "/path/to/dynamic/cert"
+
+#ifdef L2_TEST_ENABLED
+#define CERT_STATIC             "/opt/certs/client.pem"
+#define KEY_STATIC              "/opt/certs/client.pem"
+#else
 #define CERT_STATIC             "/path/to/static/cert"
 #define KEY_STATIC              "/path/to/cert/key"
+#endif
+
 #define MTLS_CERT               "/path/to/mtls/cert"
 #define MTLS_KEY                "/path/to/mtls/key"
 #define GET_CONFIG_FILE         "/usr/bin/GetConfigFile"
