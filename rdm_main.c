@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 		    download_versionedapp = 1;
 		    app_name = optarg;
 		    break;
-		case 'x':
+                case 'x':
                     is_broadband = 1;
                     download_versionedapp = 1;
                     app_name = optarg;
