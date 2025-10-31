@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
-		case 'v':
+                case 'v':
                     download_versionedapp = 1;
                     app_name = optarg;
                     break;
