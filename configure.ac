@@ -141,6 +141,19 @@ AC_ARG_ENABLE([iarmbusSupport],
 esac],[iarmbusSupport=false])
 AM_CONDITIONAL([IARMBUS_ENABLE], [test x$iarmbusSupport = xtrue])
 
+# L2Test Support
+AC_ARG_ENABLE([unittest],
+        AS_HELP_STRING([--enable-unittest],[enable unittest build (default is no)]),
+        [
+          case "${enableval}" in
+           yes) L2_TEST_ENABLED=true
+                L2_TEST_FLAG="-DL2_TEST_ENABLED" ;;
+           no) L2_TEST_ENABLED=false AC_MSG_ERROR([unittest support is disabled]) ;;
+          *) AC_MSG_ERROR([bad value ${enableval} for --enable-unittest ]) ;;
+           esac
+           ],
+         [echo "unittest is disabled"])
+
 AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
                                 #include <stdio.h>
                                 #undef PACKAGE

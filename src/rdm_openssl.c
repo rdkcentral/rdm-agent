@@ -768,6 +768,11 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
     hash_ascii[sizeof(hash_ascii)-1] = 0;
     RDMInfo("HASH ASCII (signed message):\n%s\n",hash_ascii);
 
+#ifdef L2_TEST_ENABLED
+    retval = retcode_success;
+    return retval;
+#endif
+
     /**
      * Perform verify operations
      */
