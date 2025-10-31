@@ -35,11 +35,20 @@ rdm_SOURCES = rdm_main.c                          \
 
 if IS_LIBRDKCONFIG_ENABLED
 rdm_CFLAGS += $(LIBRDKCONFIG_FLAG)
-rdm_LDFLAGS += -lrdkconfig -lsecure_wrapper
+rdm_LDFLAGS += -lRdkCertSelector -L$(PKG_CONFIG_SYSROOT_DIR)/usr/lib -L$(PKG_CONFIG_SYSROOT_DIR)/usr/lib64 -lrdkconfig -lsecure_wrapper
 endif
 
+if IS_LIBRDKCERTSEL_ENABLED
+rdm_CFLAGS += $(LIBRDKCERTSEL_FLAG)
+endif
+
+if IS_RDKB
+rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
+	       -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils
+else
 rdm_LDFLAGS += -shared -fPIC $(GLIB_LIBS) \
                -lcjson -lrbus -lssl -lcrypto -lcurl -lparsejson -ldwnlutil -lfwutils -lrfcapi
+endif
 
 rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include \
@@ -51,13 +60,21 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
                -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/rdk/iarmmgrs-hal
 
 if USE_CPC
+if IS_RDKB
+  rdm_SOURCES += src/rdm-cpc/rdm/rdm_openssl.c  \
+                 src/rdm-cpc/rdm/rdm_downloadutils.c
+  rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
+              -I${top_srcdir}/src/rdm-cpc/rdm
+  rdm_LDFLAGS += -lsecure_wrapper
+else
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
                  src/rdm-cpc/rdm/rdm_openssl.c  \
                  src/rdm-cpc/rdm/rdm_downloadutils.c
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
-if IS_RDKV
+endif
+if IS_OPENSSL
   lib_LTLIBRARIES = librdmopenssl.la
   librdmopenssl_la_SOURCES = src/rdm-cpc/rdm/rdm_rsa_signature_verify.c
 if IS_LIBRDKCONFIG_ENABLED

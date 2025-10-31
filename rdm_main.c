@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:v:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:x:hbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -186,10 +186,15 @@ int main(int argc, char* argv[])
                 case 'o':
                     is_oss = 1;
                     break;
-		case 'v':
-		    download_versionedapp = 1;
-		    app_name = optarg;
-		    break;
+                case 'v':
+                    download_versionedapp = 1;
+                    app_name = optarg;
+                    break;
+                case 'x':
+                    is_broadband = 1;
+                    download_versionedapp = 1;
+                    app_name = optarg;
+                    break;
                 case 'h':
                 default :
                     rdmHelp();

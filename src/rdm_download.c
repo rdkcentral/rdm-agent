@@ -111,6 +111,10 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 
     RDMInfo("Downloading %s...\n", pRdmAppDet->app_name);
 
+#ifdef L2_TEST_ENABLED    
+    pRdmAppDet->bFsCheck = 1;
+#endif
+
     if(pRdmAppDet->bFsCheck) {
         INT32 fs_status = RDM_SUCCESS;
 
