@@ -233,7 +233,7 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
     sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
 #endif
-    RDMInfo("RDM download certificate success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
+    RDMInfo("RDM download certificate success. cert=%s, cert type=%s\n", sec->cert_name, sec->cert_type);
     return RDM_SUCCESS;
 }
 
