@@ -129,7 +129,7 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
 
     snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"1234567890\",\"method\":\"Packager.1.install\",\"params\":{\"package\":\"%s\",\"version\":\"1.0\",\"architecture\":\"arm\"}}",pUrl);
 
-    RDMInfo("post_data: [%s]\n jsondata: [%s]\n token: [%s]\n", post_data, jsondata, token);
+    RDMInfo("post_data: [%s]\n jsondata: [%s]\n", post_data, jsondata);
 
     if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
         if (DwnLoc.pvOut != NULL) {
