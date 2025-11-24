@@ -896,6 +896,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
         memset(pRdmAppDet->app_dwnl_url, 0, sizeof(pRdmAppDet->app_dwnl_url));
+	RDMError("RFC is not Enabled for RDM_RFC_URL\n");
+	return RDM_FAILURE;
     }
 
 
@@ -906,6 +908,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get mtls status from rbus\n");
         pRdmAppDet->is_mtls = 1;
+	RDMError("RFC is not Enabled for RDM_RFC_MTLS\n");
+	return RDM_FAILURE;
     }
 
 #ifdef RDM_ENABLE_CODEBIG
