@@ -896,7 +896,7 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
         memset(pRdmAppDet->app_dwnl_url, 0, sizeof(pRdmAppDet->app_dwnl_url));
-		if (!(pRdmAppDet->app_dwnl_url)) {
+		if (!pRdmAppDet || pRdmAppDet->app_dwnl_url[0] == '\0') {
 	        RDMError("RFC is not Enabled for RDM_RFC_URL %s\n", RDM_RFC_URL);
 		}
 	    return RDM_FAILURE;
