@@ -62,7 +62,7 @@ rdm_curl_gtest_CFLAGS = $(COMMON_CXXFLAGS)
 rdm_utils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_utils_gtest_LDADD = $(COMMON_LDADD)
 rdm_utils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DIARMBUS_SUPPORT
 
 
 rdm_json_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
