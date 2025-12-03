@@ -18,11 +18,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run unit tests
-        run: sh unit_test.sh
+      - name: Run unit tests and generate coverage/XML reports
+        # This script should be located at the root of your repo: unit_test.sh
+        # It will handle cd-ing into 'unittest/' for compilation and test execution.
+        # It will create 'gtest_xml_reports/' and 'unittest/coverage.info'
+        run: sh unit_test.sh --enable-cov # Pass the flag to ensure coverage is enabled
+
+      
+  
 
       - name: Upload test results to automatic test result management system
         if: github.repository_owner == 'rdkcentral'
         run: |
-          git config --global --add safe.directory `pwd`
-          gtest-json-result-push.py /tmp/Gtest_Report https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
+          # Point the script to the directory containing all XML reports
+          gtest-json-result-push.py /tmp/gtest_reports/ https://rdkeorchestrationservice.apps.cloud.comcast.net/rdke_orchestration_api/push_unit_test_results `pwd`
