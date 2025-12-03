@@ -41,6 +41,7 @@ extern "C" {
 using namespace testing;
 using ::testing::_;
 using ::testing::Return;
+using ::testing::StrEq;
 using namespace std;
 
 MockIARM* mockIARM = nullptr;
@@ -59,11 +60,11 @@ protected:
 
 // Test rdmIARMEvntSendStatus
 TEST_F(RdmTest, rdmIARMEvntSendStatus_Success) {
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
+    EXPECT_CALL(*mockIARM, IARM_Bus_Init(StrEq("AppDownloadEvent")))
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_Connect())
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
-    EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(IARM_BUS_RDMMGR_NAME, IARM_BUS_RDMMGR_EVENT_APPDOWNLOADS_CHANGED, ::testing::_, sizeof(UINT8)))
+    EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(StrEq(IARM_BUS_RDMMGR_NAME), IARM_BUS_RDMMGR_EVENT_APPDOWNLOADS_CHANGED, ::testing::_, sizeof(UINT8)))
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_Disconnect());
     EXPECT_CALL(*mockIARM, IARM_Bus_Term());
@@ -72,14 +73,14 @@ TEST_F(RdmTest, rdmIARMEvntSendStatus_Success) {
 }
 
 TEST_F(RdmTest, rdmIARMEvntSendStatus_InitFailure) {
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
+    EXPECT_CALL(*mockIARM, IARM_Bus_Init(StrEq("AppDownloadEvent")))
         .WillOnce(::testing::Return(IARM_RESULT_IPCCORE_FAIL));
 
     EXPECT_EQ(rdmIARMEvntSendStatus(1), RDM_FAILURE);
 }
 
 TEST_F(RdmTest, rdmIARMEvntSendStatus_ConnectFailure) {
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
+    EXPECT_CALL(*mockIARM, IARM_Bus_Init(StrEq("AppDownloadEvent")))
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_Connect())
         .WillOnce(::testing::Return(IARM_RESULT_IPCCORE_FAIL));
@@ -89,11 +90,11 @@ TEST_F(RdmTest, rdmIARMEvntSendStatus_ConnectFailure) {
 }
           // Test rdmIARMEvntSendPayload
 TEST_F(RdmTest, rdmIARMEvntSendPayload_Success) {
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
+    EXPECT_CALL(*mockIARM, IARM_Bus_Init(StrEq("AppDownloadEvent")))
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_Connect())
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
-    EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(IARM_BUS_RDMMGR_NAME, IARM_BUS_RDMMGR_EVENT_APP_INSTALLATION_STATUS, ::testing::_, sizeof(IARM_Bus_RDMMgr_EventData_t)))
+    EXPECT_CALL(*mockIARM, IARM_Bus_BroadcastEvent(StrEq(IARM_BUS_RDMMGR_NAME), IARM_BUS_RDMMGR_EVENT_APP_INSTALLATION_STATUS, ::testing::_, sizeof(IARM_Bus_RDMMgr_EventData_t)))
         .WillOnce(::testing::Return(IARM_RESULT_SUCCESS));
     EXPECT_CALL(*mockIARM, IARM_Bus_Disconnect());
     EXPECT_CALL(*mockIARM, IARM_Bus_Term());
@@ -102,7 +103,7 @@ TEST_F(RdmTest, rdmIARMEvntSendPayload_Success) {
 }
 
 TEST_F(RdmTest, rdmIARMEvntSendPayload_InitFailure) {
-    EXPECT_CALL(*mockIARM, IARM_Bus_Init("AppDownloadEvent"))
+    EXPECT_CALL(*mockIARM, IARM_Bus_Init(StrEq("AppDownloadEvent")))
         .WillOnce(::testing::Return(IARM_RESULT_IPCCORE_FAIL));
 
     EXPECT_EQ(rdmIARMEvntSendPayload((CHAR*)"test_pkg", (CHAR*)"1.0", (CHAR*)"/path/to/pkg", 1), RDM_FAILURE);
