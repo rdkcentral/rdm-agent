@@ -52,47 +52,47 @@ rdm_usbinstall_gtest_SOURCES = rdm_usbinstall_gtest.cpp ../src/rdm_usbinstall.c
 rdm_main_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_main_gtest_LDADD = $(COMMON_LDADD)
 rdm_main_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_main_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_main_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_curl_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_curl_gtest_LDADD = $(COMMON_LDADD)
 rdm_curl_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_curl_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_curl_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_utils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_utils_gtest_LDADD = $(COMMON_LDADD)
 rdm_utils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 
 rdm_json_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_json_gtest_LDADD = $(COMMON_LDADD)
 rdm_json_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_json_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_json_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_download_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_download_gtest_LDADD = $(COMMON_LDADD)
 rdm_download_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_downloadutils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_downloadutils_gtest_LDADD = $(COMMON_LDADD)
 rdm_downloadutils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_downloadutils_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_downloadutils_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_rbus_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_rbus_gtest_LDADD = $(COMMON_LDADD)
 rdm_rbus_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_rbus_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_rbus_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_openssl_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_openssl_gtest_LDADD = $(COMMON_LDADD)
 rdm_openssl_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_openssl_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_openssl_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 rdm_usbinstall_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_usbinstall_gtest_LDADD = $(COMMON_LDADD)
 rdm_usbinstall_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
-rdm_usbinstall_gtest_CFLAGS = $(COMMON_CXXFLAGS)
+rdm_usbinstall_gtest_CFLAGS = $(COMMON_CXXFLAGS) 
 
 
