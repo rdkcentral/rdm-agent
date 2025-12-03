@@ -61,6 +61,7 @@ rdm_curl_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DGTEST_ENABLE
 
 rdm_utils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_utils_gtest_LDADD = $(COMMON_LDADD)
+rdm_utils_gtest_LDFLAGS = -Wl,--allow-multiple-definition
 rdm_utils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_utils_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DIARMBUS_SUPPORT -DGTEST_ENABLE
 
@@ -72,11 +73,13 @@ rdm_json_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DGTEST_ENABLE
 
 rdm_download_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_download_gtest_LDADD = $(COMMON_LDADD)
+rdm_download_gtest_LDFLAGS = -Wl,--allow-multiple-definition
 rdm_download_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_download_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DIARMBUS_SUPPORT -DGTEST_ENABLE
 
 rdm_downloadutils_gtest_CPPFLAGS = $(COMMON_CPPFLAGS)
 rdm_downloadutils_gtest_LDADD = $(COMMON_LDADD)
+rdm_downloadutils_gtest_LDFLAGS = -Wl,--allow-multiple-definition
 rdm_downloadutils_gtest_CXXFLAGS = $(COMMON_CXXFLAGS)
 rdm_downloadutils_gtest_CFLAGS = $(COMMON_CXXFLAGS) -DIARMBUS_SUPPORT -DGTEST_ENABLE
 
