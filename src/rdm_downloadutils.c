@@ -233,7 +233,7 @@ INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
     strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
     sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
 #endif
-    RDMInfo("RDM download certificate success. cert=%s, cert type=%s and key=%s\n", sec->cert_name, sec->cert_type, sec->key_pas);
+    RDMInfo("RDM download certificate success. cert=%s, cert type=%s\n", sec->cert_name, sec->cert_type);
     return RDM_SUCCESS;
 }
 
@@ -896,6 +896,10 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
         memset(pRdmAppDet->app_dwnl_url, 0, sizeof(pRdmAppDet->app_dwnl_url));
+		if (!pRdmAppDet || pRdmAppDet->app_dwnl_url[0] == '\0') {
+	        RDMError("RFC is not Enabled for RDM_RFC_URL %s\n", RDM_RFC_URL);
+		}
+	    return RDM_FAILURE;
     }
 
 
@@ -906,6 +910,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get mtls status from rbus\n");
         pRdmAppDet->is_mtls = 1;
+        RDMError("RFC is not Enabled for RDM_RFC_MTLS\n");
+        return RDM_FAILURE;
     }
 
 #ifdef RDM_ENABLE_CODEBIG
