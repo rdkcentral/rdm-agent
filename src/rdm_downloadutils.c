@@ -899,7 +899,9 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 		if (!pRdmAppDet || pRdmAppDet->app_dwnl_url[0] == '\0') {
 	        RDMError("RFC is not Enabled for RDM_RFC_URL %s\n", RDM_RFC_URL);
 		}
-	    return RDM_FAILURE;
+		else {
+			RDMInfo("RFC URL not found.. hence checking /tmp/ location\n");
+		}
     }
 
 
@@ -911,7 +913,6 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
         RDMWarn("Failed to Get mtls status from rbus\n");
         pRdmAppDet->is_mtls = 1;
         RDMError("RFC is not Enabled for RDM_RFC_MTLS\n");
-        return RDM_FAILURE;
     }
 
 #ifdef RDM_ENABLE_CODEBIG
