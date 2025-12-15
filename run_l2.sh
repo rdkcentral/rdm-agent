@@ -26,8 +26,12 @@ mkdir -p "$RESULT_DIR"
 rm -rf /media/apps
 mkdir -p /media/apps
 mkdir -p /etc/rdm/
+mkdir -p /etc/rrd/
+mkdir -p /mnt/usb/
 
 cp ./unittest/mocks/rdm-manifest.json /etc/rdm/rdm-manifest.json
+cp ./unittest/mocks/remote_debugger.json /etc/rrd/remote_debugger.json
+cp /mnt/RDK-RRD-Test_1.0-signed.tar /mnt/usb/RDK-RRD-Test_1.0-signed.tar
 
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.rdm_ssr_location
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.xconfssrdownloadurl
@@ -46,4 +50,17 @@ mount -t tmpfs -o size=60K tmpfs /media/apps
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_tmpfs_packages_install.json test/functional-tests/tests/test_rdm_packages_install_tmpfs.py
 
 umount /media/apps
+
+
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_packages_install.json test/functional-tests/tests/test_rdm_cert_bundle_packages_install.py  
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_skip_download_validate_pkg.json test/functional-tests/tests/test_rdm_cert_bundle_skip_download_validate_pkg.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_downgrade_packages_install.json test/functional-tests/tests/test_rdm_cert_bundle_downgrade_packages_install.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_selector.json test/functional-tests/tests/test_rdm_cert_selector.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_usb_download_packages_install.json test/functional-tests/tests/test_rdm_usb_download_packages_install.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rrd_rdm_packages_install.json test/functional-tests/tests/test_rrd_rdm_packages_install.py
+
+
+# The cert selector test cases  are commented for now. Once the code changes are moved to open source, it will be enabled.
+#pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_dynamic_cert_selector.json test/functional-tests/tests/test_rdm_dynamic_cert_selector.py
+#pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_static_cert_selector.json test/functional-tests/tests/test_rdm_static_cert_selector.py
 

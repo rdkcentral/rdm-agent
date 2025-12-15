@@ -24,6 +24,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check out dependent repostiories
+        uses: actions/checkout@v4
+        with:
+          repository: 'rdkcentral/remote_debugger'
+          path: remote_debugger
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -40,7 +46,49 @@ jobs:
       - name: Start l2-container service with mTLS enabled
         run: |
           docker run -d --name native-platform  --cap-add=SYS_ADMIN --security-opt seccomp=unconfined  --security-opt apparmor=unconfined --link mockxconf -e ENABLE_MTLS=true -v ${{ github.workspace }}:/mnt/L2_CONTAINER_SHARED_VOLUME ghcr.io/rdkcentral/docker-device-mgt-service-test/native-platform:latest
+    
+      - name: Copy RDKK-RRD-Test tar file from xconf to native platform
+        run: |
+          mkdir -p /tmp/cert7
+          mkdir -p /tmp/cert2
+          docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/
+          docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/cert7/
+          docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/cert2/
+          docker cp /tmp/RDK-RRD-Test_1.0-signed.tar native-platform:/mnt/
       
+      - name: Extract signed tar
+        run: |
+          cd /tmp/cert7/
+          tar -xvf RDK-RRD-Test_1.0-signed.tar
+          cd /tmp/cert2/
+          tar -xvf RDK-RRD-Test_1.0-signed.tar
+
+      - name: Rename tar and signature
+        run: |
+          cd /tmp/cert7/
+          mv RDK-RRD-Test_1.0.tar cert-test-bundle_0.7.tar
+          mv RDK-RRD-Test_1.0.sig cert-test-bundle_0.7.sig
+          cd /tmp/cert2/
+          mv RDK-RRD-Test_1.0.tar cert-test-bundle_0.2.tar
+          mv RDK-RRD-Test_1.0.sig cert-test-bundle_0.2.sig
+
+      - name: Create ca-store-update signed tar
+        run: |
+          cd /tmp/cert7/
+          tar -cvf cert-test-bundle_0.7-signed.tar cert-test-bundle_0.7.tar cert-test-bundle_0.7.sig pkg_padding  pkg_cpemanifest
+          docker cp /tmp/cert7/cert-test-bundle_0.7-signed.tar mockxconf:/tmp/RDM/cert-test-bundle_0.7-signed.tar
+          cd /tmp/cert2/
+          tar -cvf cert-test-bundle_0.2-signed.tar cert-test-bundle_0.2.tar cert-test-bundle_0.2.sig pkg_padding  pkg_cpemanifest
+          docker cp /tmp/cert2/cert-test-bundle_0.2-signed.tar mockxconf:/tmp/RDM/cert-test-bundle_0.2-signed.tar
+
+      - name: Build remote_debugger
+        run: |
+          docker exec -i native-platform /bin/bash -c "cd /mnt/L2_CONTAINER_SHARED_VOLUME/remote_debugger && sh cov_build.sh && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu:/lib/aarch64-linux-gnu:/usr/local/lib:"
+
+      - name: Start rrd process inside Native Platform Container
+        run: |
+          docker exec -d native-platform /usr/local/bin/remotedebugger
+
       - name: Build rdm-agent and Run L2 inside Native Platform Container
         run: |
           docker exec -i native-platform /bin/bash -c "cd /mnt/L2_CONTAINER_SHARED_VOLUME/ && sh ./cov_build.sh && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu:/lib/aarch64-linux-gnu:/usr/local/lib && sh run_l2.sh"

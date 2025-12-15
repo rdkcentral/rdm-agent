@@ -27,6 +27,7 @@ import shutil
 from time import sleep
 
 LOG_FILE = "/opt/logs/rdm_status.log.0"
+RRD_LOG_FILE = "/opt/logs/remotedebugger.log.0"
 PACKAGE_LOG_FILE = "/opt/persistent/rdmDownloadInfo.txt"
 
 def remove_file(file_path):
@@ -75,6 +76,17 @@ def grep_RDMDlInfologs(search: str):
         print(f"Could not read file {PACKAGE_LOG_FILE}: {e}")
     return search_result
 
+def grep_RRDlogs(search: str):
+    search_result = ""
+    search_pattern = re.compile(re.escape(search), re.IGNORECASE)
+    try:
+        with open(RRD_LOG_FILE, 'r', encoding='utf-8', errors='ignore') as file:
+            for line_number, line in enumerate(file, start=1):
+                if search_pattern.search(line):
+                    search_result = search_result + " \n" + line
+    except Exception as e:
+        print(f"Could not read file {RRD_LOG_FILE}: {e}")
+    return search_result
 
 def get_pid(name: str):
     return subprocess.run(f"pidof {name}", shell=True, capture_output=True).stdout.decode('utf-8').strip()
