@@ -30,7 +30,7 @@
 ,
 {"RDK-RRD-Test":{
   "app_name": "RDK-RRD-Test",
-  "pkg_name": "RDK-RRD-Test_1.0-signed.tar",
+  "pkg_name": "RDK-RRD-Test_1.0-pkg.tar",
   "app_size": "3.8M",
   "pkg_type": "None",
   "dwld_on_demand": "no",

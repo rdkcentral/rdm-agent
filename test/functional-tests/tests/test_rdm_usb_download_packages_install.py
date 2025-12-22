@@ -29,7 +29,7 @@ def test_rdm_usb_download_status():
     USB_PATH_MSG = "Install App from USB path: /mnt/usb/"
     assert USB_PATH_MSG in grep_RDMlogs(USB_PATH_MSG)
 
-    PKG_MSG = "Failed to extract the package RDK-RRD-Test_1.0-signed.tar"
+    PKG_MSG = "Failed to extract the package RDK-RRD-Test_1.0-pkg.tar"
     assert PKG_MSG not in grep_RDMlogs(PKG_MSG)
 
     DL_DONE_MSG = "App download success, sending status as 0"
@@ -55,7 +55,7 @@ def test_packages_dir_exists():
 
 def test_expected_files_present():
     path = "/media/apps/rdm/downloads/RDK-RRD-Test"
-    expected_files = ["pkg_cpemanifest", "package.json", "pkg_padding"]
+    expected_files = ["pkg_cpemanifest", "RDK-RRD-Test_1.0.tar", "pkg_padding"]
     actual_files = os.listdir(path)
 
     for f in expected_files:

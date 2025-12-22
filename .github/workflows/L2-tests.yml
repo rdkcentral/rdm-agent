@@ -51,9 +51,11 @@ jobs:
         run: |
           mkdir -p /tmp/cert7
           mkdir -p /tmp/cert2
+          mkdir -p /tmp/RDK-RRD-Test
           docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/
           docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/cert7/
           docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/cert2/
+          docker cp mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar /tmp/RDK-RRD-Test/
           docker cp /tmp/RDK-RRD-Test_1.0-signed.tar native-platform:/mnt/
       
       - name: Extract signed tar
@@ -62,6 +64,20 @@ jobs:
           tar -xvf RDK-RRD-Test_1.0-signed.tar
           cd /tmp/cert2/
           tar -xvf RDK-RRD-Test_1.0-signed.tar
+
+      - name: Create rdm post-services script
+        run: |
+          cd /tmp/RDK-RRD-Test/
+          tar -xvf RDK-RRD-Test_1.0-signed.tar
+          tar -xvf RDK-RRD-Test_1.0.tar
+          tar -xvf RDK-RRD-Test.tar
+          mkdir -p etc/rdm/post-services/
+          echo 'echo "executing scripts"' > etc/rdm/post-services/post_cadl.sh
+          rm -rf RDK-RRD-Test.tar RDK-RRD-Test_1.0.tar RDK-RRD-Test_1.0-signed.tar
+          tar -rvf RDK-RRD-Test.tar etc/rrd/remote_debugger.json etc/rdm/post-services/post_cadl.sh
+          tar -cvf RDK-RRD-Test_1.0.tar package.json RDK-RRD-Test.tar
+          tar -cvf RDK-RRD-Test_1.0-signed.tar RDK-RRD-Test_1.0.tar RDK-RRD-Test_1.0.sig pkg_padding pkg_cpemanifest
+          docker cp RDK-RRD-Test_1.0-signed.tar mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar
 
       - name: Rename tar and signature
         run: |

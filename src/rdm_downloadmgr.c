@@ -134,10 +134,6 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     }
 
   #ifdef L2_TEST_ENABLED
-    status = RDM_SUCCESS;
-  #endif
-   
-  #ifdef L2_TEST_ENABLED
     strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
     tmp_file[sizeof(tmp_file) - 1] = '\0';
     strcat(tmp_file, "/");
