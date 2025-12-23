@@ -1,0 +1,68 @@
+{
+    "DebugCategory": {
+        "DebugIssueType": {
+            "DebugCommands": "command1;command2;commmand3",
+            "DebugTimeout" : 10
+        }
+    },
+    "Sanity": {
+        "Check" : {
+            "Commands" : [ "rm -rf", "kill", "pkill", "iptables", "ip6tables" ]
+        }
+    },
+    "Device" : {
+        "Info" : {
+            "Commands": "cat /version.txt;cat /etc/device.properties;uname -r",
+            "Timeout" : 10
+        },
+        "Uptime" : {
+            "Commands": "uptime",
+            "Timeout" : 10
+        },
+        "Dump" : {
+            "Commands": "tcpdump -w RRD_LOCATION/capture.pcap &",
+            "Timeout" : 10
+        }        
+    },
+    "Command" : {
+        "Harm" : {
+            "Commands": "rm -rf",
+            "Timeout" : 10
+        }
+    },
+   "Process" : {
+       "ProcessStatus" : {
+            "Commands": "cat /opt/logs/top_log.txt*",
+            "Timeout" : 10
+       },
+       "ServiceStatus" : {
+            "Commands": "systemctl list-units --type=service --all",
+            "Timeout" : 10
+       }
+    },
+   "DeepSleep": {
+        "Audio" : {
+            "AudioStatus" : {
+                 "Commands": "cat /sys/class/avsync_session0/session_stat;cat /sys/class/vdec/vdec_status;hal_dump",
+                 "Timeout" : 10
+            }
+         },
+        "Video" : {
+            "VideoStatus" : {
+                 "Commands": "cat /sys/class/avsync_session0/session_stat;cat /sys/class/vdec/vdec_status;hal_dump",
+                 "Timeout" : 10
+            }
+         },
+        "Process" : {
+            "ProcessStatus" : {
+                 "Commands": "cat /opt/logs/top_log.txt*",
+                 "Timeout" : 10
+            },
+            "ServiceStatus" : {
+                 "Commands": "systemctl list-units --type=service --all",
+                 "Timeout" : 10
+            }
+
+         }
+     }
+}
