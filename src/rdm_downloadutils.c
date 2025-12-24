@@ -424,7 +424,7 @@ VOID rdmMemDLFree(VOID *pvDwnData)
     memset(pvDwnData, 0, sizeof(DownloadData));
 }
 
-INT32 rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app)
+INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
@@ -433,7 +433,7 @@ INT32 rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app)
 
     RDMInfo("Running Scripts after RDM Download\n");
 
-    strncpy(tmp_file, pAppHome, RDM_APP_PATH_LEN);
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
     strcat(tmp_file, RDM_POSTSCRIPT_PATH);
 
     dir = opendir(tmp_file);
