@@ -111,7 +111,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 	    strcat(app_file, ".tar");
 	    app_file[sizeof(app_file) - 1] = '\0';
 
-	    status = tarExtract(app_file, pRdmAppDet->app_home);
+	    status = tarExtract(app_file, pRdmAppDet->app_dwnl_path);
 	    if(status) {
 		    rdmIARMEvntSendPayload(pRdmAppDet->app_name,
 				    pRdmAppDet->pkg_ver,
