@@ -243,7 +243,7 @@ INT32 rdmDwnlIsOCSPEnable(void)
     return 0;
 }
 
-INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls)
+INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 {
     VOID *curl = NULL;
     INT32 status = RDM_SUCCESS;
@@ -272,14 +272,13 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     file_dwnl.pDlData = NULL;
     file_dwnl.pPostFields = NULL;
 
-    if(isMtls) {
-        /* Update the Certificate */
-        status = rdmDwnlGetCert(&sec);
-        if(status) {
-            RDMError("Failed to get MTLS certificate\n");
-            return RDM_FAILURE;
-        }
+    /* Update the Certificate */
+    status = rdmDwnlGetCert(&sec);
+    if(status) {
+        RDMError("Failed to get MTLS certificate\n");
+        return RDM_FAILURE;
     }
+
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("CurlInit Failed\n");
@@ -309,7 +308,7 @@ INT32 rdmDwnlCodebig(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 }
 #endif
 
-INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls)
+INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 {
     INT32 status = RDM_SUCCESS;
     INT32 retry_count = 0;
@@ -325,7 +324,7 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(30);
 	    }
-            status = rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls);
+            status = rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut);
             if(status == RDM_SUCCESS) {
 	        return status;
 	    }
@@ -896,17 +895,12 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
         memset(pRdmAppDet->app_dwnl_url, 0, sizeof(pRdmAppDet->app_dwnl_url));
+		if (!pRdmAppDet || pRdmAppDet->app_dwnl_url[0] == '\0') {
+	        RDMError("RFC is not Enabled for RDM_RFC_URL %s\n", RDM_RFC_URL);
+		}
+	    return RDM_FAILURE;
     }
 
-
-    ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
-                        RDM_RFC_MTLS,
-                        &pRdmAppDet->is_mtls);
-
-    if (ret != RDM_SUCCESS) {
-        RDMWarn("Failed to Get mtls status from rbus\n");
-        pRdmAppDet->is_mtls = 1;
-    }
 
 #ifdef RDM_ENABLE_CODEBIG
     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
