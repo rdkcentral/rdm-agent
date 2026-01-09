@@ -211,7 +211,6 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
-    INT32 isMtls = 0;
 
     void* mockReturnValue = static_cast<void*>(new int(0));
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
@@ -219,7 +218,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
 
     EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
 
-    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
+    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut), RDM_SUCCESS);
 
     delete static_cast<int*>(mockReturnValue);
 
