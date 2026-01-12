@@ -241,6 +241,19 @@ int main(int argc, char* argv[])
         }
 
         do {
+
+            /* Stop early if manifest is empty */
+            if (len <= 0) {
+                RDMWarn("Manifest is empty (len=%d). Nothing to download.\n", len);
+                break;
+            }
+
+            /* Prevent out-of-range before parsing */
+            if (idx >= len) {
+                RDMWarn("Reached end of manifest file (idx=%d, len=%d)\n", idx, len);
+                break;
+            }
+
             /* reset app details */
             memset(pApp_det, 0, sizeof(RDMAPPDetails));
 
@@ -253,12 +266,10 @@ int main(int argc, char* argv[])
             /* Update the app paths */
             ret = rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
             if(ret) {
-                RDMError("Failed to get downloadpath\n");
+                RDMError("Failed to get downloadpath for index %d\n", idx);
                 break;
             }
             rdmPrintAppDetails(pApp_det);
-
-            idx++;
 
             if(pApp_det->dwld_on_demand) {
                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
@@ -271,7 +282,8 @@ int main(int argc, char* argv[])
                                          &app_rfc_status);
 
                     if(ret == RDM_SUCCESS && app_rfc_status == 0) {
-                        RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",idx-1, pApp_det->app_name);
+                        RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",idx, pApp_det->app_name);
+                        idx++; /*advance idx before continue to avoid re-processing same entry */
                         continue;
                     }
                 }
@@ -283,6 +295,9 @@ int main(int argc, char* argv[])
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
                 break;
             }
+
+            /* advance index after successful handling of current entry */
+            idx++;
 
             if(idx >= len) {
                 RDMWarn("Reached end of manifest file\n");
