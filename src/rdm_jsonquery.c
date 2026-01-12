@@ -58,6 +58,7 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
 {
     cJSON const* item = NULL;
 
+    RDMInfo("Inside CJSON_Search path = %s\n", path);
     if (!json) {
         RDMError("Input argument json is NULL\n");
         return NULL;
@@ -78,6 +79,7 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
         CHAR* temp = str;
         INT32 count = 0;
 
+	RDMInfo("Str = %s\n", *str);
         item = json;
         while ((token = strtok_r(str, "/", &str)) != NULL) {
             INT32 index = -1;
@@ -89,7 +91,9 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
                     break;
                 }
 
+		RDMInfo("Index = %d\n", index);
                 length = cJSON_GetArraySize(item);
+		RDMInfo("Length = %d\n", length);
                 if (index >= length) {
                     RDMError("%d is out of range, max is %d\n", index, (length -1));
                     break;
