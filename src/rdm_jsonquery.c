@@ -79,12 +79,13 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
         CHAR* temp = str;
         INT32 count = 0;
 
-	RDMInfo("Str = %s\n", *str);
+	RDMInfo("Str = %s\n", str);
         item = json;
         while ((token = strtok_r(str, "/", &str)) != NULL) {
             INT32 index = -1;
             INT32 length = 0;
 
+	    RDMInfo("Token = %s\n", token);
             if ((index = is_index(token)) != -1) {
                 if (item->type != cJSON_Array) {
                     RDMError("previous object is not array\n");
