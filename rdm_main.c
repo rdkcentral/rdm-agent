@@ -242,12 +242,6 @@ int main(int argc, char* argv[])
 
         do {
 
-            /* Stop early if manifest is empty */
-            if (len <= 0) {
-                RDMWarn("Manifest is empty (len=%d). Nothing to download.\n", len);
-                break;
-            }
-
             /* Prevent out-of-range before parsing */
             if (idx >= len) {
                 RDMWarn("Reached end of manifest file (idx=%d, len=%d)\n", idx, len);
