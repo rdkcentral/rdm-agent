@@ -355,7 +355,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                            pRdmAppDet->app_home,
                            RDM_PKG_INSTALL_COMPLETE);
     }
-    rdmDwnlRunPostScripts(pRdmAppDet->app_home, pRdmAppDet->is_versioned_app);
+    rdmDwnlRunPostScripts(pRdmAppDet, pRdmAppDet->is_versioned_app);
 
 error:
     return rdm_status;
