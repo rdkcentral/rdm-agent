@@ -423,16 +423,21 @@ VOID rdmMemDLFree(VOID *pvDwnData)
     memset(pvDwnData, 0, sizeof(DownloadData));
 }
 
-INT32 rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app)
+INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
     DIR *dir;
     struct dirent *entry;
 
+    if (pRdmAppDet == NULL) {
+        RDMError("Invalid RDMAPPDetails pointer passed to rdmDwnlRunPostScripts\n");
+        return RDM_FAILURE;
+    }
     RDMInfo("Running Scripts after RDM Download\n");
 
-    strncpy(tmp_file, pAppHome, RDM_APP_PATH_LEN);
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    tmp_file[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     strcat(tmp_file, RDM_POSTSCRIPT_PATH);
 
     dir = opendir(tmp_file);
