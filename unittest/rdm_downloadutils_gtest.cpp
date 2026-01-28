@@ -304,6 +304,8 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     prdmHandle.pApp_det = &appDetails;
 
     EXPECT_EQ(rdmUnInstallApps(&prdmHandle, isBroadband), RDM_SUCCESS);	
+    delete static_cast<int*>(prdmHandle.pRbusHandle);
+
 }
 
 // Test rdmDwnlValidation
