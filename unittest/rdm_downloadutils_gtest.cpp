@@ -301,7 +301,7 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
     appDetails.is_usb = 0;
     appDetails.app_size_kb = 100;
     
-    pdmHandle.pApp_det = &appDetails;
+    prdmHandle.pApp_det = &appDetails;
 
     EXPECT_EQ(rdmUnInstallApps(&prdmHandle, isBroadband), RDM_SUCCESS);	
 }
