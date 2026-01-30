@@ -27,5 +27,14 @@
   "dwld_on_demand": "no",
   "dwld_method_controller": "None"
  }}
+,
+{"RDK-RRD-Test":{
+  "app_name": "RDK-RRD-Test",
+  "pkg_name": "RDK-RRD-Test_1.0-pkg.tar",
+  "app_size": "3.8M",
+  "pkg_type": "None",
+  "dwld_on_demand": "no",
+  "dwld_method_controller": "None"
+ }}
   ]
 }

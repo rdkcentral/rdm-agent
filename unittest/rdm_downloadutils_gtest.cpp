@@ -211,7 +211,6 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
     strncpy(pDwnlPath, "/media/apps", sizeof(pDwnlPath) - 1);
     strncpy(pPkgName, "MyPackage", sizeof(pPkgName) - 1);
     strncpy(pOut, "/etc", sizeof(pOut) - 1);
-    INT32 isMtls = 0;
 
     void* mockReturnValue = static_cast<void*>(new int(0));
     EXPECT_CALL(*mockRdmUtils, doCurlInit())
@@ -219,7 +218,7 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
 
     EXPECT_CALL(*mockRdmUtils, doStopDownload(::testing::_));
 
-    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls), RDM_SUCCESS);
+    EXPECT_EQ(rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut), RDM_SUCCESS);
 
     delete static_cast<int*>(mockReturnValue);
 
@@ -233,28 +232,46 @@ TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
 
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
-    char pAppHome[32] = "/media/apps";
     INT32 versionedapp = 0;    
-    //static char ext[3] = "sh";
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
+    strncpy(appDetails.app_home, "/media/apps", sizeof(appDetails.app_home) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    appDetails.app_size_mb = 100;
+    appDetails.bFsCheck = true;
+    appDetails.is_versioned = false;
+    appDetails.is_usb = 0;
+    appDetails.app_size_kb = 100;
+    CHAR pkg_file[RDM_APP_PATH_LEN];
     system("mkdir -p /media/apps/etc/rdm/post-services/");
     system("touch /media/apps/etc/rdm/post-services/post-install.sh");
-    //void* mockReturnValue = static_cast<void*>(new char[3]);
-    //strcpy(static_cast<char*>(mockReturnValue), "sh");
-    //retStr = (char*)malloc(3 * sizeof(char)); // Allocate memory for the string
-    /*if (retStr != nullptr)
-        strcpy(retStr, "sh"); // Copy the value "sh" into retStr
-    */
+    
     EXPECT_CALL(*mockRdmUtils, getExtension(::testing::_))
         .WillOnce(Return("sh"));
     EXPECT_CALL(*mockRdmUtils, copyCommandOutput(::testing::_, ::testing::_, ::testing::_));
-    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome, versionedapp), RDM_SUCCESS);
+    EXPECT_EQ(rdmDwnlRunPostScripts(&appDetails, versionedapp), RDM_SUCCESS);
 
 }
 
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Failure) {
-    char pAppHome[32] = "/tmp/some_path";
+	RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
+    strncpy(appDetails.app_home, "/tmp/some_path", sizeof(appDetails.app_home) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    appDetails.app_size_mb = 100;
+    appDetails.bFsCheck = true;
+    appDetails.is_versioned = false;
+    appDetails.is_usb = 0;
+    appDetails.app_size_kb = 100;
+    CHAR pkg_file[RDM_APP_PATH_LEN];
     INT32 versionedapp = 0;
-    EXPECT_EQ(rdmDwnlRunPostScripts(pAppHome, versionedapp), RDM_FAILURE);
+    EXPECT_EQ(rdmDwnlRunPostScripts(&appDetails, versionedapp), RDM_FAILURE);
 }
 
 // Test rdmUnInstallApps
@@ -267,7 +284,28 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
 	.WillRepeatedly(Return(RDM_SUCCESS));
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(::testing::_, ::testing::_))
 	.WillRepeatedly(Return(RDM_SUCCESS));
-    EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
+
+    RDMHandle prdmHandle = {};
+    prdmHandle.pRbusHandle = static_cast<void*>(new int(0));
+
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
+    strncpy(appDetails.app_home, "/media/apps", sizeof(appDetails.app_home) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    appDetails.app_size_mb = 100;
+    appDetails.bFsCheck = true;
+    appDetails.is_versioned = false;
+    appDetails.is_usb = 0;
+    appDetails.app_size_kb = 100;
+    
+    prdmHandle.pApp_det = &appDetails;
+
+    EXPECT_EQ(rdmUnInstallApps(&prdmHandle, isBroadband), RDM_SUCCESS);	
+    delete static_cast<int*>(prdmHandle.pRbusHandle);
+
 }
 
 // Test rdmDwnlValidation

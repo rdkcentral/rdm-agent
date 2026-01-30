@@ -237,7 +237,7 @@ INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet)
         RDMInfo("Package execution completed successfully\n");
     }
 
-    rdmDwnlRunPostScripts(pRdmAppDet->app_home, 0);
+    rdmDwnlRunPostScripts(pRdmAppDet, 0);
 
 error:
     return status;

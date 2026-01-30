@@ -20,7 +20,6 @@
 #define _RDM_RBUS_H_
 
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
-#define RDM_RFC_MTLS       "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.MTLS.mTlsXConfDownload.Enable"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
 #define RDM_INIT_NAME "RFCCHECK"
 
