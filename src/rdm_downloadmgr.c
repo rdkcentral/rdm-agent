@@ -273,8 +273,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
         status = rdmDwnlApplication(pRdmAppDet->app_dwnl_url,
                                     pRdmAppDet->app_dwnl_path,
                                     pRdmAppDet->pkg_name,
-                                    pRdmAppDet->app_dwnl_filepath,
-                                    pRdmAppDet->is_mtls);
+                                    pRdmAppDet->app_dwnl_filepath);
         if(status) {
             RDMError("Failed to download the package %s\n", pRdmAppDet->pkg_name);
             t2CountNotify("NF_INFO_rdm_package_failure", 1);
@@ -356,7 +355,7 @@ INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet)
                            pRdmAppDet->app_home,
                            RDM_PKG_INSTALL_COMPLETE);
     }
-    rdmDwnlRunPostScripts(pRdmAppDet->app_home, pRdmAppDet->is_versioned_app);
+    rdmDwnlRunPostScripts(pRdmAppDet, pRdmAppDet->is_versioned_app);
 
 error:
     return rdm_status;

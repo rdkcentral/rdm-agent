@@ -44,7 +44,11 @@ INT32 rdmUSBInstall(RDMHandle *prdmHandle, RDMAPPDetails *pRdmAppDet, CHAR *pUsb
         usb_apps[i] = calloc(RDM_APP_PATH_LEN, 1);
     }
 
+  #ifdef L2_TEST_ENABLED
+    findPFileAllmock(pUsbPath, RDM_USB_TAR_SEARCH, usb_apps, &num_app, RDM_MAX_USB_APP);
+  #else
     findPFileAll(pUsbPath, RDM_USB_TAR_SEARCH, usb_apps, &num_app, RDM_MAX_USB_APP);
+  #endif
 
     for(i = 0; i < num_app; i++) {
         CHAR *pkg_name = NULL;
@@ -55,7 +59,11 @@ INT32 rdmUSBInstall(RDMHandle *prdmHandle, RDMAPPDetails *pRdmAppDet, CHAR *pUsb
         pkg      = getPartChar(pkg_name, '_');
         app_name = getPartStr(pkg_name, "signed");
         memset(pRdmAppDet, 0 ,sizeof(RDMAPPDetails));
-        memcpy(pRdmAppDet->app_name, pkg, (app_name - pkg - 2));
+     #ifdef L2_TEST_ENABLED
+        memcpy(pRdmAppDet->app_name, pkg_name, (pkg - pkg_name -1 ));
+     #else
+	    memcpy(pRdmAppDet->app_name, pkg, (app_name - pkg - 2));
+     #endif
 
         /* Parse the JSON file and get the app details */
         ret = rdmJSONGetAppDetName(pRdmAppDet->app_name, pRdmAppDet);
@@ -93,3 +101,15 @@ INT32 rdmUSBInstall(RDMHandle *prdmHandle, RDMAPPDetails *pRdmAppDet, CHAR *pUsb
 
     return status;
 }
+
+
+#ifdef L2_TEST_ENABLED
+int findPFileAllmock(char *pUsbPath, int searchType, char *usb_apps[], int *num_app, int max_usb_app) {
+    int mock_num_apps = 1;
+    *num_app = mock_num_apps;
+    if (mock_num_apps > 0) {
+        strncpy(usb_apps[0], "/mnt/usb/RDK-RRD-Test_1.0-pkg.tar", RDM_APP_PATH_LEN);
+    }
+    return 0;
+}
+#endif

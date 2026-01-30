@@ -243,7 +243,7 @@ INT32 rdmDwnlIsOCSPEnable(void)
     return 0;
 }
 
-INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls)
+INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 {
     VOID *curl = NULL;
     INT32 status = RDM_SUCCESS;
@@ -272,14 +272,13 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT
     file_dwnl.pDlData = NULL;
     file_dwnl.pPostFields = NULL;
 
-    if(isMtls) {
-        /* Update the Certificate */
-        status = rdmDwnlGetCert(&sec);
-        if(status) {
-            RDMError("Failed to get MTLS certificate\n");
-            return RDM_FAILURE;
-        }
+    /* Update the Certificate */
+    status = rdmDwnlGetCert(&sec);
+    if(status) {
+        RDMError("Failed to get MTLS certificate\n");
+        return RDM_FAILURE;
     }
+
     curl = doCurlInit();
     if(curl == NULL) {
         RDMError("CurlInit Failed\n");
@@ -309,7 +308,7 @@ INT32 rdmDwnlCodebig(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 }
 #endif
 
-INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls)
+INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 {
     INT32 status = RDM_SUCCESS;
     INT32 retry_count = 0;
@@ -325,7 +324,7 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(30);
 	    }
-            status = rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut, isMtls);
+            status = rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut);
             if(status == RDM_SUCCESS) {
 	        return status;
 	    }
@@ -424,16 +423,21 @@ VOID rdmMemDLFree(VOID *pvDwnData)
     memset(pvDwnData, 0, sizeof(DownloadData));
 }
 
-INT32 rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app)
+INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR filePath[RDM_APP_PATH_LEN];
     DIR *dir;
     struct dirent *entry;
 
+    if (pRdmAppDet == NULL) {
+        RDMError("Invalid RDMAPPDetails pointer passed to rdmDwnlRunPostScripts\n");
+        return RDM_FAILURE;
+    }
     RDMInfo("Running Scripts after RDM Download\n");
 
-    strncpy(tmp_file, pAppHome, RDM_APP_PATH_LEN);
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    tmp_file[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     strcat(tmp_file, RDM_POSTSCRIPT_PATH);
 
     dir = opendir(tmp_file);
@@ -712,7 +716,7 @@ error:
  *  @return  Returns status of the function.
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  **/
-INT32 rdmUnInstallApps(INT32  is_broadband)
+INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 {
     INT32 status                         = RDM_SUCCESS;
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
@@ -725,6 +729,8 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
     RDMAPPDetails *pApp_det              = NULL;
     INT32 ret                            = RDM_SUCCESS;
     CHAR  pkg_file[RDM_APP_PATH_LEN]     = {0};
+	CHAR   rfc_app[256]                  = {0};
+    INT32 app_rfc_status                 = 0;
 
     RDMInfo("Uninstall the old packages that are not listed in current manifest\n");
 
@@ -786,17 +792,38 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
                             if(pApp_det->dwld_on_demand) {
                                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                 if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-				    isAppUninstalled = 1;
+				                    isAppUninstalled = 1;
                                     RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                     rdmDwnlAppCleanUp(path);
                                     rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                     continue;
                                 }
+                                else {
+                                    RDMInfo("App is supported using RFC method for download, checking RFC status\n");
+                                    snprintf(rfc_app, sizeof(rfc_app),
+                                                  "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",
+                                                   pApp_det->app_name);
+
+                                    ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
+                                                   rfc_app,
+                                                   &app_rfc_status);
+
+
+                                    if (ret == RDM_SUCCESS && app_rfc_status == 0)
+                                    {
+                                        RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
+                                        isAppUninstalled = 1;
+                                        RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
+                                        rdmDwnlAppCleanUp(path);
+                                        rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
+                                        continue;
+                                   }
+                               }									
                             }
                             RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                         }
                         else{
-			    isAppUninstalled = 1;
+			                isAppUninstalled = 1;
                             RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                             rdmDwnlAppCleanUp(path);
                             rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
@@ -826,12 +853,32 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
                                 if(pApp_det->dwld_on_demand) {
                                     RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                     if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-					isAppUninstalled = 1;
+					                    isAppUninstalled = 1;
                                         RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                         rdmDwnlAppCleanUp(path);
                                         rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                         continue;
                                     }
+                                    else {
+                                        RDMInfo("App is supported using RFC method for download, checking RFC status\n");
+                                        snprintf(rfc_app, sizeof(rfc_app),
+                                                  "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",
+                                                   pApp_det->app_name);
+
+                                        ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
+                                                   rfc_app,
+                                                   &app_rfc_status);
+
+                                        if (ret == RDM_SUCCESS && app_rfc_status == 0)
+                                        {
+                                            RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
+                                            isAppUninstalled = 1;
+                                            RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
+                                            rdmDwnlAppCleanUp(path);
+                                            rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
+                                            continue;
+                                       }
+                                   }										
                                 }
                                 RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                             }
@@ -902,17 +949,6 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 	    return RDM_FAILURE;
     }
 
-
-    ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
-                        RDM_RFC_MTLS,
-                        &pRdmAppDet->is_mtls);
-
-    if (ret != RDM_SUCCESS) {
-        RDMWarn("Failed to Get mtls status from rbus\n");
-        pRdmAppDet->is_mtls = 1;
-        RDMError("RFC is not Enabled for RDM_RFC_MTLS\n");
-        return RDM_FAILURE;
-    }
 
 #ifdef RDM_ENABLE_CODEBIG
     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,

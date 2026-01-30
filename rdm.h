@@ -59,7 +59,6 @@ typedef struct _rdmAppDetails {
     INT32 is_versioned;
     INT32 bFsCheck;
     INT32 is_oss;
-    INT32 is_mtls;
 #ifdef RDM_ENABLE_CODEBIG
     INT32 is_codebig;
 #endif

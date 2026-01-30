@@ -72,7 +72,7 @@
 #define DOWNLOAD_RETRY_COUNT 12
 
 INT32  rdmDwnlUpdateURL(CHAR *pUrl);
-INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut, INT32 isMtls);
+INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
 INT32  rdmDwnlIsOCSPEnable(void);
 INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
@@ -82,15 +82,15 @@ INT32  rdmDwnlGetCert(MtlsAuth_t*);
 INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
 #endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
-INT32  rdmDwnlRunPostScripts(CHAR *pAppHome, INT32 versioned_app);
+INT32  rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app);
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
 VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);
 INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
 INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
 VOID   rdmMemDLFree(VOID *pvDwnData);
 INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
-INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut, INT32 isMtls);
-INT32 rdmUnInstallApps(INT32 is_broadband );
+INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
+INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32 is_broadband );
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
                           RDMAPPDetails *pRdmAppDet,
