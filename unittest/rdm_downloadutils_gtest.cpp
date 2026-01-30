@@ -284,7 +284,28 @@ TEST(rdmUnInstallApps, rdmUnInstallApps_Success) {
 	.WillRepeatedly(Return(RDM_SUCCESS));
     EXPECT_CALL(*mockRdmUtils, rdmJSONGetAppDetName(::testing::_, ::testing::_))
 	.WillRepeatedly(Return(RDM_SUCCESS));
-    EXPECT_EQ(rdmUnInstallApps(isBroadband), RDM_SUCCESS);
+
+    RDMHandle prdmHandle = {};
+    prdmHandle.pRbusHandle = static_cast<void*>(new int(0));
+
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
+    strncpy(appDetails.app_home, "/media/apps", sizeof(appDetails.app_home) - 1);
+    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
+    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    appDetails.app_size_mb = 100;
+    appDetails.bFsCheck = true;
+    appDetails.is_versioned = false;
+    appDetails.is_usb = 0;
+    appDetails.app_size_kb = 100;
+    
+    prdmHandle.pApp_det = &appDetails;
+
+    EXPECT_EQ(rdmUnInstallApps(&prdmHandle, isBroadband), RDM_SUCCESS);	
+    delete static_cast<int*>(prdmHandle.pRbusHandle);
+
 }
 
 // Test rdmDwnlValidation
