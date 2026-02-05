@@ -42,6 +42,18 @@ INT32  g_rdk_logger_enabled = 0;
 void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
+    rdk_logger_ext_config_t config = {
+        .pModuleName = "LOG.RDK.UPLOADSTB",     /* Module name */
+        .loglevel = RDK_LOG_INFO,                 /* Default log level */
+        .output = RDKLOG_OUTPUT_CONSOLE,          /* Output to console (stdout/stderr) */
+        .format = RDKLOG_FORMAT_WITH_TS,          /* Timestamped format */
+        .pFilePolicy = NULL                       /* Not using file output, so NULL */
+    };
+    
+    if (rdk_logger_ext_init(&config) != RDK_SUCCESS) {
+        printf("UPLOADSTB : ERROR - Extended logger init failed\n");
+    }
+    
     if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
         g_rdk_logger_enabled = 1;
     }
