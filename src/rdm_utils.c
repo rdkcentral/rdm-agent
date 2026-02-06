@@ -43,7 +43,7 @@ void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
     rdk_logger_ext_config_t config = {
-        .pModuleName = "LOG.RDK.UPLOADSTB",     /* Module name */
+        .pModuleName = "LOG.RDK.RDMAGENT",     /* Module name */
         .loglevel = RDK_LOG_INFO,                 /* Default log level */
         .output = RDKLOG_OUTPUT_CONSOLE,          /* Output to console (stdout/stderr) */
         .format = RDKLOG_FORMAT_WITH_TS,          /* Timestamped format */
