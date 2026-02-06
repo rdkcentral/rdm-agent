@@ -710,6 +710,262 @@ error:
     return ret;
 }
 
+static int rdm_unlink_cb(const char *fpath)
+{
+    if (remove(fpath) == -1) {
+        RDMError("remove('%s') failed: %s\n", fpath, strerror(errno));
+        return -1;
+    }
+    return 0;
+}
+
+static int rdmPathExists(const char *path)
+{
+    struct stat st;
+    return (path && stat(path, &st) == 0);
+}
+
+static int rdmRemoveDirectoryRecursiveSafe(const char *path)
+{
+    if (!path || !*path) return 0;
+    if (!rdmPathExists(path)) return 0;
+
+    return nftw(path, rdm_unlink_cb, 64, FTW_DEPTH | FTW_PHYS);
+}
+
+static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest)
+{
+    FILE *fp;
+    char line[512];
+    char *lines[MAX_INFO_LINE_SIZE];
+    int   lineCount = 0;
+
+    if (!infoFilePath || !*infoFilePath) {
+        RDMError("Invalid info file path\n");
+        return;
+    }
+
+    fp = fopen(infoFilePath, "r");
+    if (!fp) {
+        RDMInfo("No info file found at %s\n", infoFilePath);
+        return;
+    }
+
+    RDMInfo("Reading download info: %s\n", infoFilePath);
+
+    while (fgets(line, sizeof(line), fp) && lineCount < 256) {
+        lines[lineCount] = strdup(line);
+        lineCount++;
+    }
+    fclose(fp);
+
+    char *updated[MAX_INFO_LINE_SIZE];
+    int updatedCount = 0;
+
+    for (int i = 0; i < lineCount; i++) {
+
+        char appName[128]     = {0};
+        char tarFile[MAX_INFO_LINE_SIZE]     = {0};
+        char installPath[MAX_INFO_LINE_SIZE] = {0};
+        int  size             = 0;
+        char status[32]       = {0};
+
+        if (sscanf(lines[i], "%127s %255s %255s %d %31s",
+                   appName, tarFile, installPath, &size, status) != 5)
+        {
+            RDMError("Bad entry: %s", lines[i]);
+            free(lines[i]);
+            continue;
+        }
+
+        /* If app still in manifest → keep entry */
+        if (isDataInList(app_manifests, appName, numOfAppsManifest)) {
+            RDMInfo("App '%s' FOUND in manifest — skip deletion\n", appName);
+            updated[updatedCount++] = lines[i];
+            continue;
+        }
+        else {
+            RDMInfo("App '%s' NOT FOUND in manifest — deleting\n", appName);
+        }
+
+        RDMInfo("Stale app detected: %s\n", appName);
+
+        /* Remove install directory */
+        if (installPath[0] && access(installPath, F_OK) == 0) {
+            RDMInfo("Removing install dir: %s\n", installPath);
+            rdmRemoveDirectoryRecursiveSafe(installPath);
+        }
+
+        /* Remove downloads/<app> */
+        char dlFolder[512];
+        snprintf(dlFolder, sizeof(dlFolder), "%s/%s", RDM_DOWNLOAD_DIR, appName);
+
+        if (access(dlFolder, F_OK) == 0) {
+            RDMInfo("Removing download dir: %s\n", dlFolder);
+            rdmRemoveDirectoryRecursiveSafe(dlFolder);
+        }
+
+        free(lines[i]);   /* stale entry removed */
+    }
+
+    fp = fopen(infoFilePath, "w");
+    if (!fp) {
+        RDMError("Failed to rewrite %s\n", infoFilePath);
+        return;
+    }
+
+    for (int i = 0; i < updatedCount; i++) {
+        fputs(updated[i], fp);
+        free(updated[i]);
+    }
+
+    fclose(fp);
+    RDMInfo("Updated file written: %d entries kept\n", updatedCount);
+}
+
+static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest)
+{
+    INT32 removedAppsCount = 0;
+
+    CHAR *dlDirs[RDM_TMP_LEN_64] = {0};
+    INT32 dlCount = 0;
+    if (rdmListDirectory(RDM_DOWNLOAD_DIR, dlDirs, &dlCount) != RDM_SUCCESS) {
+        RDMError("Could not list %s\n", RDM_DOWNLOAD_DIR);
+        return 0;
+    }
+
+    CHAR *removedApps[RDM_TMP_LEN_64] = {0};
+    INT32 removedNames = 0;
+
+    for (INT32 i = 0; i < dlCount; i++) {
+        CHAR *name = dlDirs[i];
+        if (!name || !*name ||
+            strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
+            strcmp(name, "etc") == 0 || strcmp(name, "rdm") == 0) {
+            free(dlDirs[i]);
+            continue;
+        }
+
+        /* If app is in manifest → do nothing */
+        if (isDataInList(app_manifests, name, numOfAppsManifest)) {
+            free(dlDirs[i]);
+            continue;
+        }
+
+        /* Build both paths */
+        CHAR installPath[RDM_APP_PATH_LEN] = {0};
+        CHAR dlPath[RDM_APP_PATH_LEN]      = {0};
+
+        snprintf(installPath, sizeof(installPath), "%s/%s/", APP_MOUNT_PATH, name);
+        snprintf(dlPath, sizeof(dlPath), "%s/%s", RDM_DOWNLOAD_DIR, name);
+
+        bool anyDeleted = false;
+	if (access(installPath, F_OK) == 0) {
+            RDMInfo("App '%s' NOT in manifest but present in downloads; removing install dir: %s\n",
+                    name, installPath);
+            if (rdmRemoveDirectoryRecursiveSafe(installPath) != 0) {
+                RDMError("Failed to remove install dir: %s\n", installPath);
+            } else {
+                anyDeleted = true;
+            }
+        }
+
+        if (access(dlPath, F_OK) == 0) {
+            RDMInfo("Removing downloads dir for app '%s': %s\n", name, dlPath);
+            if (rdmRemoveDirectoryRecursiveSafe(dlPath) != 0) {
+                RDMError("Failed to remove downloads dir: %s\n", dlPath);
+            } else {
+                anyDeleted = true;
+            }
+        }
+
+        if (anyDeleted) {
+            removedApps[removedNames] = strdup(name);
+            if (!removedApps[removedNames]) {
+                RDMError("OOM tracking removed app '%s'\n", name);
+            } else {
+                removedNames++;
+                removedAppsCount++;
+            }
+        }
+
+        free(dlDirs[i]);
+    }
+
+    if (infoFilePath && *infoFilePath) {
+        FILE *fp = fopen(infoFilePath, "r");
+        if (!fp) {
+            RDMInfo("Info file '%s' not found, skipping rewrite.\n", infoFilePath);
+        } else {
+            char line[512];
+            char *lines[MAX_INFO_LINE_SIZE];
+	    int   lineCount = 0;
+
+            while (fgets(line, sizeof(line), fp) && lineCount < (int)(sizeof(lines)/sizeof(lines[0]))) {
+                lines[lineCount] = strdup(line);
+                if (!lines[lineCount]) { RDMError("OOM duplicating line\n"); break; }
+                lineCount++;
+            }
+            fclose(fp);
+
+            char *kept[MAX_INFO_LINE_SIZE];
+	    int keptCount = 0;
+
+            for (int i = 0; i < lineCount; i++) {
+                char appName[128]     = {0};
+                char tarFile[MAX_INFO_LINE_SIZE]     = {0};
+                char installPath[MAX_INFO_LINE_SIZE] = {0};
+                int  size             = 0;
+                char status[32]       = {0};
+
+                if (sscanf(lines[i], "%127s %255s %255s %d %31s",
+                           appName, tarFile, installPath, &size, status) != 5)
+                {
+                    RDMError("Bad entry in info file: %s", lines[i]);
+                    free(lines[i]);
+                    continue;
+                }
+
+                /* Drop entries for apps we removed */
+                bool drop = false;
+                for (INT32 k = 0; k < removedNames; k++) {
+                    if (removedApps[k] && strcmp(removedApps[k], appName) == 0) {
+                        RDMInfo("Removing info entry for app '%s' (install/downloads dir deleted)\n",
+                                appName);
+                        drop = true;
+                        break;
+                    }
+                }
+
+                if (drop) {
+                    free(lines[i]);
+                } else {
+                    kept[keptCount++] = lines[i];
+                }
+            }
+
+            fp = fopen(infoFilePath, "w");
+            if (!fp) {
+                RDMError("Failed to open %s for rewriting\n", infoFilePath);
+                for (int i = 0; i < keptCount; i++) free(kept[i]);
+            } else {
+                for (int i = 0; i < keptCount; i++) {
+                    fputs(kept[i], fp);
+                    free(kept[i]);
+                }
+                fclose(fp);
+                RDMInfo("%s updated — kept %d entries (removed %d entries)\n",
+                        infoFilePath, keptCount, removedNames);
+            }
+        }
+    }
+
+    for (INT32 m = 0; m < removedNames; m++) {
+        free(removedApps[m]);
+    }
+
+    return removedAppsCount;
+}
 
 /** @brief This Function uninstalls the apps that not present in the manifest
  *
@@ -729,7 +985,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
     RDMAPPDetails *pApp_det              = NULL;
     INT32 ret                            = RDM_SUCCESS;
     CHAR  pkg_file[RDM_APP_PATH_LEN]     = {0};
-	CHAR   rfc_app[256]                  = {0};
+    CHAR   rfc_app[256]                  = {0};
     INT32 app_rfc_status                 = 0;
 
     RDMInfo("Uninstall the old packages that are not listed in current manifest\n");
@@ -743,6 +999,13 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
     status = rdmGetManifestApps(app_manifests, &numOfAppsManifest);
 
     if(status == RDM_SUCCESS){
+        const CHAR*dlInfoFile = is_broadband ? RDM_DL_INFO_BR : RDM_DL_INFO;
+        RDMInfo("Checking old packages in /media/apps/rdm/download location...\n");
+        INT32 oldApps = rdmDeleteStalePackages(dlInfoFile, app_manifests, numOfAppsManifest);
+        RDMInfo("Removed %d old packages\n", oldApps);
+
+        RDMInfo("Checking for Old Packages in %s\n", dlInfoFile);
+        rdmCleanupOldPackagesFromInfo(dlInfoFile, app_manifests, numOfAppsManifest);
 
         status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled);
 

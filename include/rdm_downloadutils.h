@@ -70,6 +70,8 @@
 #define DOWNLOAD_APP_RETRY_COUNT 2
 #define DOWNLOAD_APP_DIRECT_RETRY_DELAY 30
 #define DOWNLOAD_RETRY_COUNT 12
+#define RDM_DOWNLOAD_DIR        "/media/apps/rdm/downloads"
+#define MAX_INFO_LINE_SIZE 256
 
 INT32  rdmDwnlUpdateURL(CHAR *pUrl);
 INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
@@ -98,4 +100,6 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 VOID rdmPrintAppDetails(RDMAPPDetails *pRdmAppDet);
 INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet);
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size);
+VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest);
+INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest);
 #endif //_RDM_DOWNLOADUTILS_H_
