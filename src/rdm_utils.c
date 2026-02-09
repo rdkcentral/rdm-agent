@@ -51,7 +51,7 @@ void RDMLOGInit()
     };
     
     if (rdk_logger_ext_init(&config) != RDK_SUCCESS) {
-        printf("UPLOADSTB : ERROR - Extended logger init failed\n");
+        printf("RDMAGENT : ERROR - Extended logger init failed\n");
         g_rdk_logger_enabled = 1;
     }
 #endif
