@@ -52,11 +52,9 @@ void RDMLOGInit()
     
     if (rdk_logger_ext_init(&config) != RDK_SUCCESS) {
         printf("UPLOADSTB : ERROR - Extended logger init failed\n");
-    }
-    
-    if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
         g_rdk_logger_enabled = 1;
     }
+    
 #endif
 }
 /*****************************************************************************
