@@ -54,7 +54,6 @@ void RDMLOGInit()
         printf("UPLOADSTB : ERROR - Extended logger init failed\n");
         g_rdk_logger_enabled = 1;
     }
-    
 #endif
 }
 /*****************************************************************************
