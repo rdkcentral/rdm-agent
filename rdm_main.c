@@ -285,16 +285,12 @@ int main(int argc, char* argv[])
             RDMInfo("Start the download of App: %s\n", pApp_det->app_name);
 
             ret = rdmDownloadApp(pApp_det, &download_status);
-            // Set RFC DownloadStatus to true after successful versioned app download
-            if (download_status == 0 && pApp_det->is_versioned_app && prdmHandle && prdmHandle->pRbusHandle) {
-                rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
-            }
             if(ret) {
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
                 break;
             }
 
-            /* advance inadex after successful handling of current entry */
+            /* advance index after successful handling of current entry */
             idx++;
 
             if(idx >= len) {
@@ -382,9 +378,11 @@ error1:
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
         if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
+            #ifdef IS_RDKB
             if (prdmHandle && prdmHandle->pRbusHandle) {
                 rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
             }
+            #endif
             return download_status;
         }
 	} else {
