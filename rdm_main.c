@@ -376,7 +376,7 @@ error1:
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
-        if(pApp_det->is_versioned_app) {
+    if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
             #ifdef IS_RDKB
             if (prdmHandle && prdmHandle->pRbusHandle) {
@@ -384,7 +384,7 @@ error1:
             }
             #endif
             return download_status;
-        }
+        
 	} else {
             rdmUnInstallApps(prdmHandle, is_broadband);
             ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
