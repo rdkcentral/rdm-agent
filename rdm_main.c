@@ -285,12 +285,16 @@ int main(int argc, char* argv[])
             RDMInfo("Start the download of App: %s\n", pApp_det->app_name);
 
             ret = rdmDownloadApp(pApp_det, &download_status);
+            // Set RFC DownloadStatus to true after successful versioned app download
+            if (download_status == 0 && pApp_det->is_versioned_app && prdmHandle && prdmHandle->pRbusHandle) {
+                rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
+            }
             if(ret) {
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
                 break;
             }
 
-            /* advance index after successful handling of current entry */
+            /* advance inadex after successful handling of current entry */
             idx++;
 
             if(idx >= len) {
@@ -376,9 +380,13 @@ error1:
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
-	if(pApp_det->is_versioned_app) {
+        if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
-	    return download_status;
+            if (prdmHandle && prdmHandle->pRbusHandle) {
+                rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
+            }
+            return download_status;
+        }
 	} else {
             rdmUnInstallApps(prdmHandle, is_broadband);
             ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);
