@@ -16,8 +16,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
+
+#include <rbus.h>
 
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
