@@ -868,7 +868,7 @@ static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifest
         snprintf(dlPath, sizeof(dlPath), "%s/%s", RDM_DOWNLOAD_DIR, name);
 
         bool anyDeleted = false;
-	if (access(installPath, F_OK) == 0) {
+        if (access(installPath, F_OK) == 0) {
             RDMInfo("App '%s' NOT in manifest but present in downloads; removing install dir: %s\n",
                     name, installPath);
             if (rdmRemoveDirectoryRecursiveSafe(installPath) != 0) {
