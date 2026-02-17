@@ -378,10 +378,17 @@ error1:
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
     if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
+#ifndef IARMBUS_SUPPORT
+		    RDMInfo("RDK broadband device - updating download status");
             if (prdmHandle && prdmHandle->pRbusHandle) {
                 rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
 				RDMInfo(" Updating Download status ");
             }
+		    else
+			{  
+               RDMInfo("RDM handle is NULL");
+			}
+#endif
             return download_status;
         
 	} else {
