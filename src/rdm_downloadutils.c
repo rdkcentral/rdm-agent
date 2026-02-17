@@ -781,7 +781,12 @@ static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_ma
         /* If app still in manifest → keep entry */
         if (isDataInList(app_manifests, appName, numOfAppsManifest)) {
             RDMInfo("App '%s' FOUND in manifest — skip deletion\n", appName);
-            updated[updatedCount++] = lines[i];
+            if (updatedCount < MAX_INFO_LINE_SIZE) {
+                updated[updatedCount++] = lines[i];
+            } else {
+                RDMError("Maximum number of updated entries (%d) reached, dropping '%s'", MAX_INFO_LINE_SIZE, appName);
+                free(lines[i]);
+            }
             continue;
         }
         else {
