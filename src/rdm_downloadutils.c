@@ -789,10 +789,8 @@ static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_ma
             }
             continue;
         }
-        else {
-            RDMInfo("App '%s' NOT FOUND in manifest — deleting\n", appName);
-        }
 
+        RDMInfo("App '%s' NOT FOUND in manifest — deleting\n", appName);
         RDMInfo("Stale app detected: %s\n", appName);
 
         /* Remove install directory */
