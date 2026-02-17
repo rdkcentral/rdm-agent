@@ -915,12 +915,17 @@ static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifest
         }
 
         if (anyDeleted) {
-            removedApps[removedNames] = strdup(name);
-            if (!removedApps[removedNames]) {
-                RDMError("OOM tracking removed app '%s'\n", name);
+            if (removedNames < RDM_TMP_LEN_64) {
+                removedApps[removedNames] = strdup(name);
+                if (!removedApps[removedNames]) {
+                    RDMError("OOM tracking removed app '%s'\n", name);
+                } else {
+                    removedNames++;
+                    removedAppsCount++;
+                }
             } else {
-                removedNames++;
-                removedAppsCount++;
+                RDMError("Too many removed apps to track (limit %d); skipping '%s'\n",
+                         RDM_TMP_LEN_64, name);
             }
         }
 
