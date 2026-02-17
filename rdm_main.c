@@ -382,7 +382,6 @@ error1:
                 rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
 				RDMInfo(" Updating Download status ");
             }
-#endif
             return download_status;
         
 	} else {
