@@ -811,6 +811,9 @@ static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_ma
     fp = fopen(infoFilePath, "w");
     if (!fp) {
         RDMError("Failed to rewrite %s\n", infoFilePath);
+        for (int i = 0; i < updatedCount; i++) {
+            free(updated[i]);
+        }
         return;
     }
 
