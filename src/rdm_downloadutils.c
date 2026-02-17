@@ -957,19 +957,33 @@ static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifest
         FILE *fp = fopen(infoFilePath, "r");
         if (!fp) {
             RDMInfo("Info file '%s' not found, skipping rewrite.\n", infoFilePath);
-            return;
-        }
-
-        char line[512];
-        char *lines[MAX_INFO_LINE_SIZE];
         int   lineCount = 0;
+        bool  allocFailed = false;
 
         while (fgets(line, sizeof(line), fp) &&
                lineCount < (int)(sizeof(lines) / sizeof(lines[0]))) {
             lines[lineCount] = strdup(line);
             if (!lines[lineCount]) {
                 RDMError("OOM duplicating line\n");
+                allocFailed = true;
                 break;
+            }
+            lineCount++;
+        }
+        fclose(fp);
+
+        if (allocFailed) {
+            for (int i = 0; i < lineCount; i++) {
+                free(lines[i]);
+            }
+            if (keptCountOut) {
+                *keptCountOut = 0;
+            }
+            if (droppedCountOut) {
+                *droppedCountOut = 0;
+            }
+            return;
+        }
             }
             lineCount++;
         }
