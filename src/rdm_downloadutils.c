@@ -892,74 +892,151 @@ static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifest
         free(dlDirs[i]);
     }
 
-    if (infoFilePath && *infoFilePath) {
+    typedef bool (*RdmInfoLineDropPredicate)(
+        const char *appName,
+        const char *tarFile,
+        const char *installPath,
+        int size,
+        const char *status,
+        void *ctx);
+
+    typedef struct {
+        char **removedApps;
+        int removedNames;
+    } RdmRemovedAppsCtx;
+
+    static bool rdmShouldDropInfoLineForRemovedApp(const char *appName,
+                                                   const char *tarFile,
+                                                   const char *installPath,
+                                                   int size,
+                                                   const char *status,
+                                                   void *ctx)
+    {
+        (void)tarFile;
+        (void)installPath;
+        (void)size;
+        (void)status;
+
+        RdmRemovedAppsCtx *removedCtx = (RdmRemovedAppsCtx *)ctx;
+        if (!removedCtx || !removedCtx->removedApps || removedCtx->removedNames <= 0) {
+            return false;
+        }
+
+        for (INT32 k = 0; k < removedCtx->removedNames; k++) {
+            if (removedCtx->removedApps[k] && strcmp(removedCtx->removedApps[k], appName) == 0) {
+                RDMInfo("Removing info entry for app '%s' (install/downloads dir deleted)\n",
+                        appName);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static void rdmRewriteInfoFileFiltered(const char *infoFilePath,
+                                           RdmInfoLineDropPredicate predicate,
+                                           void *ctx,
+                                           int *keptCountOut,
+                                           int *droppedCountOut)
+    {
+        if (!infoFilePath || !*infoFilePath) {
+            return;
+        }
+
         FILE *fp = fopen(infoFilePath, "r");
         if (!fp) {
             RDMInfo("Info file '%s' not found, skipping rewrite.\n", infoFilePath);
-        } else {
-            char line[512];
-            char *lines[MAX_INFO_LINE_SIZE];
-	    int   lineCount = 0;
+            return;
+        }
 
-            while (fgets(line, sizeof(line), fp) && lineCount < (int)(sizeof(lines)/sizeof(lines[0]))) {
-                lines[lineCount] = strdup(line);
-                if (!lines[lineCount]) { RDMError("OOM duplicating line\n"); break; }
-                lineCount++;
+        char line[512];
+        char *lines[MAX_INFO_LINE_SIZE];
+        int   lineCount = 0;
+
+        while (fgets(line, sizeof(line), fp) &&
+               lineCount < (int)(sizeof(lines) / sizeof(lines[0]))) {
+            lines[lineCount] = strdup(line);
+            if (!lines[lineCount]) {
+                RDMError("OOM duplicating line\n");
+                break;
+            }
+            lineCount++;
+        }
+        fclose(fp);
+
+        char *kept[MAX_INFO_LINE_SIZE];
+        int keptCount = 0;
+        int droppedCount = 0;
+
+        for (int i = 0; i < lineCount; i++) {
+            if (!lines[i]) {
+                continue;
+            }
+
+            char appName[128]                 = {0};
+            char tarFile[MAX_INFO_LINE_SIZE] = {0};
+            char installPath[MAX_INFO_LINE_SIZE] = {0};
+            int  size                         = 0;
+            char status[32]                   = {0};
+
+            if (sscanf(lines[i], "%127s %255s %255s %d %31s",
+                       appName, tarFile, installPath, &size, status) != 5)
+            {
+                RDMError("Bad entry in info file: %s", lines[i]);
+                free(lines[i]);
+                continue;
+            }
+
+            bool drop = false;
+            if (predicate) {
+                drop = predicate(appName, tarFile, installPath, size, status, ctx);
+            }
+
+            if (drop) {
+                free(lines[i]);
+                droppedCount++;
+            } else {
+                kept[keptCount++] = lines[i];
+            }
+        }
+
+        fp = fopen(infoFilePath, "w");
+        if (!fp) {
+            RDMError("Failed to open %s for rewriting\n", infoFilePath);
+            for (int i = 0; i < keptCount; i++) {
+                free(kept[i]);
+            }
+        } else {
+            for (int i = 0; i < keptCount; i++) {
+                fputs(kept[i], fp);
+                free(kept[i]);
             }
             fclose(fp);
+            RDMInfo("%s updated — kept %d entries (removed %d entries)\n",
+                    infoFilePath, keptCount, droppedCount);
+        }
 
-            char *kept[MAX_INFO_LINE_SIZE];
-	    int keptCount = 0;
-
-            for (int i = 0; i < lineCount; i++) {
-                char appName[128]     = {0};
-                char tarFile[MAX_INFO_LINE_SIZE]     = {0};
-                char installPath[MAX_INFO_LINE_SIZE] = {0};
-                int  size             = 0;
-                char status[32]       = {0};
-
-                if (sscanf(lines[i], "%127s %255s %255s %d %31s",
-                           appName, tarFile, installPath, &size, status) != 5)
-                {
-                    RDMError("Bad entry in info file: %s", lines[i]);
-                    free(lines[i]);
-                    continue;
-                }
-
-                /* Drop entries for apps we removed */
-                bool drop = false;
-                for (INT32 k = 0; k < removedNames; k++) {
-                    if (removedApps[k] && strcmp(removedApps[k], appName) == 0) {
-                        RDMInfo("Removing info entry for app '%s' (install/downloads dir deleted)\n",
-                                appName);
-                        drop = true;
-                        break;
-                    }
-                }
-
-                if (drop) {
-                    free(lines[i]);
-                } else {
-                    kept[keptCount++] = lines[i];
-                }
-            }
-
-            fp = fopen(infoFilePath, "w");
-            if (!fp) {
-                RDMError("Failed to open %s for rewriting\n", infoFilePath);
-                for (int i = 0; i < keptCount; i++) free(kept[i]);
-            } else {
-                for (int i = 0; i < keptCount; i++) {
-                    fputs(kept[i], fp);
-                    free(kept[i]);
-                }
-                fclose(fp);
-                RDMInfo("%s updated — kept %d entries (removed %d entries)\n",
-                        infoFilePath, keptCount, removedNames);
-            }
+        if (keptCountOut) {
+            *keptCountOut = keptCount;
+        }
+        if (droppedCountOut) {
+            *droppedCountOut = droppedCount;
         }
     }
 
+    if (infoFilePath && *infoFilePath) {
+        RdmRemovedAppsCtx ctx;
+        ctx.removedApps  = removedApps;
+        ctx.removedNames = removedNames;
+
+        int keptCount    = 0;
+        int droppedCount = 0;
+
+        rdmRewriteInfoFileFiltered(infoFilePath,
+                                   rdmShouldDropInfoLineForRemovedApp,
+                                   &ctx,
+                                   &keptCount,
+                                   &droppedCount);
+    }
     for (INT32 m = 0; m < removedNames; m++) {
         free(removedApps[m]);
     }
