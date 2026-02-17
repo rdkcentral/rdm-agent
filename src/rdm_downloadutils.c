@@ -1087,7 +1087,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
         INT32 oldApps = rdmDeleteStalePackages(dlInfoFile, app_manifests, numOfAppsManifest);
         RDMInfo("Removed %d old packages\n", oldApps);
 
-        RDMInfo("Checking for Old Packages in %s\n", dlInfoFile);
+        RDMInfo("Checking for old packages in %s\n", dlInfoFile);
         rdmCleanupOldPackagesFromInfo(dlInfoFile, app_manifests, numOfAppsManifest);
 
         status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled);
