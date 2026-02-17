@@ -771,7 +771,17 @@ static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_ma
     RDMInfo("Reading download info: %s\n", infoFilePath);
 
     while (fgets(line, sizeof(line), fp) && lineCount < 256) {
-        lines[lineCount] = strdup(line);
+        char *dupLine = strdup(line);
+        if (!dupLine) {
+            RDMError("Memory allocation failed while reading %s\n", infoFilePath);
+            /* Clean up any lines that were already duplicated */
+            for (int i = 0; i < lineCount; i++) {
+                free(lines[i]);
+            }
+            fclose(fp);
+            return;
+        }
+        lines[lineCount] = dupLine;
         lineCount++;
     }
     fclose(fp);
