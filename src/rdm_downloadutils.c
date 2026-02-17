@@ -727,7 +727,7 @@ error:
     return ret;
 }
 
-static int rdm_unlink_cb(const char *fpath)
+static int rdm_unlink_cb(const char *fpath, const struct stat *_sb, int _type, struct FTW *_ftwbuf)
 {
     if (remove(fpath) == -1) {
         RDMError("remove('%s') failed: %s\n", fpath, strerror(errno));
@@ -779,7 +779,7 @@ VOID rdmCleanupOldPackagesFromInfo(const char *infoFilePath, char *app_manifests
 
     RDMInfo("Reading download info: %s\n", infoFilePath);
 
-    while (fgets(line, sizeof(line), fp) && lineCount < 256) {
+    while (fgets(line, sizeof(line), fp) && lineCount < MAX_INFO_LINE_SIZE) {
         char *dupLine = strdup(line);
         if (!dupLine) {
             RDMError("Memory allocation failed while reading %s\n", infoFilePath);
@@ -818,12 +818,15 @@ VOID rdmCleanupOldPackagesFromInfo(const char *infoFilePath, char *app_manifests
         }
 
         RDMInfo("App '%s' NOT FOUND in manifest — deleting\n", appName);
-        RDMInfo("Stale app detected: %s\n", appName);
 
         /* Remove install directory */
         if (installPath[0] && access(installPath, F_OK) == 0) {
             RDMInfo("Removing install dir: %s\n", installPath);
-            rdmRemoveDirectoryRecursiveSafe(installPath);
+            int result = rdmRemoveDirectoryRecursiveSafe(installPath);
+	    if (result != 0) {
+                RDMError("Failed to remove install dir: %s\n", installPath);
+                continue;
+            }
         }
 
         /* Remove downloads/<app> */
@@ -831,7 +834,7 @@ VOID rdmCleanupOldPackagesFromInfo(const char *infoFilePath, char *app_manifests
 
         if (dlLen < 0 || (size_t)dlLen >= sizeof(dlFolder)) {
              RDMError("Download directory path too long, skipping removal for app '%s'\n", appName);
-	} else if (access(dlFolder, F_OK) == 0) {
+        } else if (access(dlFolder, F_OK) == 0) {
             RDMInfo("Removing download dir: %s\n", dlFolder);
             rdmRemoveDirectoryRecursiveSafe(dlFolder);
         }
@@ -1047,25 +1050,23 @@ static bool rdmShouldDropInfoLineForRemovedApp(const char *appName,
       *droppedCountOut = droppedCount;
   }
 
-  if (infoFilePath && *infoFilePath) {
-      RdmRemovedAppsCtx ctx;
-      ctx.removedApps  = removedApps;
-      ctx.removedNames = removedNames;
+  RdmRemovedAppsCtx ctx;
+  ctx.removedApps  = removedApps;
+  ctx.removedNames = removedNames;
 
-      int keptCount    = 0;
-      int droppedCount = 0;
+  int keptCount    = 0;
+  int droppedCount = 0;
 
-      rdmRewriteInfoFileFiltered(infoFilePath,
+  rdmRewriteInfoFileFiltered(infoFilePath,
                                    rdmShouldDropInfoLineForRemovedApp,
                                    &ctx,
                                    &keptCount,
                                    &droppedCount);
-    }
-    for (INT32 m = 0; m < removedNames; m++) {
+  for (INT32 m = 0; m < removedNames; m++) {
         free(removedApps[m]);
-    }
+  }
 
-    return removedAppsCount;
+  return removedAppsCount;
 }
 
 /** @brief This Function uninstalls the apps that not present in the manifest
