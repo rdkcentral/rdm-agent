@@ -43,6 +43,23 @@
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
+#include <ftw.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <unistd.h>
+
+typedef bool (*RdmInfoLineDropPredicate)(
+        const char *appName,
+        const char *tarFile,
+        const char *installPath,
+        int size,
+        const char *status,
+        void *ctx);
+
+typedef struct {
+        char **removedApps;
+        int removedNames;
+} RdmRemovedAppsCtx;
 
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
@@ -800,10 +817,12 @@ static VOID rdmCleanupOldPackagesFromInfo(const CHAR *infoFilePath, CHAR *app_ma
         }
 
         /* Remove downloads/<app> */
-        char dlFolder[512];
-        snprintf(dlFolder, sizeof(dlFolder), "%s/%s", RDM_DOWNLOAD_DIR, appName);
+        char dlFolder[512] = {0};
+        int dlLen = snprintf(dlFolder, sizeof(dlFolder), "%s/%s", RDM_DOWNLOAD_DIR, appName);
 
-        if (access(dlFolder, F_OK) == 0) {
+        if (dlLen < 0 || (size_t)dlLen >= sizeof(dlFolder)) {
+             RDMError("Download directory path too long, skipping removal for app '%s'\n", appName);
+	} else if (access(dlFolder, F_OK) == 0) {
             RDMInfo("Removing download dir: %s\n", dlFolder);
             rdmRemoveDirectoryRecursiveSafe(dlFolder);
         }
@@ -897,19 +916,6 @@ static INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifest
 
         free(dlDirs[i]);
     }
-
-    typedef bool (*RdmInfoLineDropPredicate)(
-        const char *appName,
-        const char *tarFile,
-        const char *installPath,
-        int size,
-        const char *status,
-        void *ctx);
-
-    typedef struct {
-        char **removedApps;
-        int removedNames;
-    } RdmRemovedAppsCtx;
 
     static bool rdmShouldDropInfoLineForRemovedApp(const char *appName,
                                                    const char *tarFile,
