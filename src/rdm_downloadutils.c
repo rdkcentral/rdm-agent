@@ -1082,7 +1082,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
     status = rdmGetManifestApps(app_manifests, &numOfAppsManifest);
 
     if(status == RDM_SUCCESS){
-        const CHAR*dlInfoFile = is_broadband ? RDM_DL_INFO_BR : RDM_DL_INFO;
+        const CHAR *dlInfoFile = is_broadband ? RDM_DL_INFO_BR : RDM_DL_INFO;
         RDMInfo("Checking old packages in %s location...\n", RDM_DOWNLOAD_DIR);
         INT32 oldApps = rdmDeleteStalePackages(dlInfoFile, app_manifests, numOfAppsManifest);
         RDMInfo("Removed %d old packages\n", oldApps);
