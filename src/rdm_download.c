@@ -154,7 +154,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     else {
         INT32 count = 0;
         while(count < RDM_RETRY_COUNT) {
-            *pDLStatus = rdmDownloadMgr(pRdmAppDet);
+            *pDLStatus = rdmDownloadMgr(pRdmAppDet, NULL);
             if(*pDLStatus == RDM_DL_NOERROR) {
                 RDMInfo("rdmDownloadMgr is sucess\n");
                 rdm_status = "SUCCESS";
@@ -187,32 +187,50 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     if(DLInfoStatus == RDM_SUCCESS) {
         fp_met = fopen(pRdmAppDet->app_dwnl_info, "a+");
         if(fp_met) {
-            char buffer[4096]={0};
+            char buffer[4096] = {0};
             char line[256];
             size_t buffer_index = 0;
 
             RDMInfo("Opened %s file successfully\n", pRdmAppDet->app_dwnl_info);
             fseek(fp_met, 0, SEEK_SET);
             while (fgets(line, sizeof(line), fp_met)) {
+                size_t line_len = strlen(line);
                 if(strncmp(line, pRdmAppDet->app_name, strlen(pRdmAppDet->app_name)) != 0 ){
-                    strncpy(buffer + buffer_index, line, sizeof(buffer) - buffer_index);
-                    buffer_index += strlen(line);
+                    if (buffer_index + line_len < sizeof(buffer) - 1) {
+                        strncpy(buffer + buffer_index, line, line_len);
+                        buffer_index += line_len;
+                    } else {
+                        RDMError("Buffer overflow risk, stopping copy at %zu bytes\n", buffer_index);
+                        break;
+                    }
                 }
             }
+            RDMInfo("After reading lines, buffer_index=%zu\n", buffer_index);
 
-            ftruncate(fileno(fp_met), 0);
+            if (ftruncate(fileno(fp_met), 0) != 0) {
+                RDMError("ftruncate failed\n");
+            }
+            RDMInfo("After ftruncate\n");
+
             fseek(fp_met, 0, SEEK_SET);
-
-            fputs(buffer, fp_met);
+            if (fputs(buffer, fp_met) < 0) {
+                RDMError("fputs failed\n");
+            }
+            RDMInfo("After fputs\n");
 
             fseek(fp_met, 0, SEEK_END);
-            fprintf(fp_met, "%s %s %s/%s %d %s\n", pRdmAppDet->app_name,
-                                                   pRdmAppDet->pkg_name,
-                                                   pRdmAppDet->app_home,
-                                                   pRdmAppDet->app_name,
-                                                   pRdmAppDet->app_size_kb,
-                                                   rdm_status);
+            if (fprintf(fp_met, "%s %s %s/%s %d %s\n", pRdmAppDet->app_name,
+                        pRdmAppDet->pkg_name,
+                        pRdmAppDet->app_home,
+                        pRdmAppDet->app_name,
+                        pRdmAppDet->app_size_kb,
+                        rdm_status) < 0) {
+                RDMError("fprintf failed\n");
+            }
+            RDMInfo("After fprintf\n");
+
             fclose(fp_met);
+            RDMInfo("After fclose\n");
         }
         else {
             RDMWarn("Unable to open meta data file: %s\n", pRdmAppDet->app_dwnl_info);
