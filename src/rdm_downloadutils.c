@@ -933,6 +933,24 @@ INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], IN
 
         free(dlDirs[i]);
     }
+    RdmRemovedAppsCtx ctx;
+    ctx.removedApps  = removedApps;
+    ctx.removedNames = removedNames;
+
+    int keptCount    = 0;
+    int droppedCount = 0;
+
+    rdmRewriteInfoFileFiltered(infoFilePath,
+                                   rdmShouldDropInfoLineForRemovedApp,
+                                   &ctx,
+                                   &keptCount,
+                                   &droppedCount);
+    for (INT32 m = 0; m < removedNames; m++) {
+        free(removedApps[m]);
+    }
+
+    return removedAppsCount;
+
 }
 
 static bool rdmShouldDropInfoLineForRemovedApp(const char *appName,
@@ -1050,23 +1068,6 @@ static bool rdmShouldDropInfoLineForRemovedApp(const char *appName,
       *droppedCountOut = droppedCount;
   }
 
-  RdmRemovedAppsCtx ctx;
-  ctx.removedApps  = removedApps;
-  ctx.removedNames = removedNames;
-
-  int keptCount    = 0;
-  int droppedCount = 0;
-
-  rdmRewriteInfoFileFiltered(infoFilePath,
-                                   rdmShouldDropInfoLineForRemovedApp,
-                                   &ctx,
-                                   &keptCount,
-                                   &droppedCount);
-  for (INT32 m = 0; m < removedNames; m++) {
-        free(removedApps[m]);
-  }
-
-  return removedAppsCount;
 }
 
 /** @brief This Function uninstalls the apps that not present in the manifest
