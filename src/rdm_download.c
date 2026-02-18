@@ -186,7 +186,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     /*If the rdmDownloadInfo.txt file doesn't exist, it will be created*/
     if(DLInfoStatus == RDM_SUCCESS) {
         char tmpfile[512];
-        snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", pRdmAppDet->app_dwnl_info);
+        snprintf(tmpfile, sizeof(tmpfile), "/tmp/rdmDownloadInfo.tmp");
         FILE *fp_in = fopen(pRdmAppDet->app_dwnl_info, "r");
         FILE *fp_out = fopen(tmpfile, "w");
         if (fp_out) {
@@ -229,4 +229,5 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     }
     return status;
 }
+
 
