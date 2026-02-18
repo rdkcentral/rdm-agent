@@ -154,7 +154,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     else {
         INT32 count = 0;
         while(count < RDM_RETRY_COUNT) {
-            *pDLStatus = rdmDownloadMgr(pRdmAppDet, NULL);
+            *pDLStatus = rdmDownloadMgr(pRdmAppDet);
             if(*pDLStatus == RDM_DL_NOERROR) {
                 RDMInfo("rdmDownloadMgr is sucess\n");
                 rdm_status = "SUCCESS";
