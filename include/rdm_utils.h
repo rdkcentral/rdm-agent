@@ -24,7 +24,7 @@
 #include <string.h>
 
 #ifdef RDK_LOGGER_ENABLED
-#include "rdk_debug.h"
+#include "rdk_logger.h"
 #endif
 
 /* RDM Error Codes */

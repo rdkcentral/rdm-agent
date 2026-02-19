@@ -55,6 +55,37 @@ static INT32 rdmDwnlLXCIPKExctact()
     return RDM_SUCCESS;
 }
 
+#ifdef L2_TEST_ENABLED
+static INT32 rdmDwnlRetryIfPackageJsonMissing(RDMAPPDetails *pRdmAppDet, CHAR *signed_file, const CHAR *required_file)
+{
+    CHAR pkg_file[RDM_APP_PATH_LEN];
+    INT32 status = RDM_SUCCESS;
+
+    strncpy(pkg_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+    pkg_file[sizeof(pkg_file) - 1] = '\0';
+    strcat(pkg_file, "/");
+    strcat(pkg_file, required_file);
+    pkg_file[sizeof(pkg_file) - 1] = '\0';
+
+    if(fileCheck(pkg_file)) {
+        return RDM_SUCCESS;
+    }
+
+    CHAR pkg_cmd[RDM_APP_PATH_LEN * 2];
+    snprintf(pkg_cmd, sizeof(pkg_cmd), "tar -xf %s -C %s",
+            signed_file, pRdmAppDet->app_dwnl_path);
+    RDMInfo("Trying system command extraction: %s\n", pkg_cmd);
+    copyCommandOutput(pkg_cmd, NULL, 0);
+
+    if(!fileCheck(pkg_file)) {
+        RDMWarn("%s not found after retries for %s. Continuing extraction flow\n", required_file, signed_file);
+    }
+
+
+    return status;
+}
+#endif
+
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
@@ -79,6 +110,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     }
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
+
+      #ifdef L2_TEST_ENABLED
+            status = rdmDwnlRetryIfPackageJsonMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest");
+            if(!status) {
+                RDMInfo("Extraction check successful for %s\n", "pkg_cpemanifest");
+            }
+      #endif
 	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 	    tmp_file[sizeof(tmp_file) - 1] = '\0';
 	    strcat(tmp_file, "/");
@@ -102,6 +140,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		    RDMError("Failed to extract the package: %s\n", tmp_file);
             }
 	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
+            
+        #ifdef L2_TEST_ENABLED
+            status = rdmDwnlRetryIfPackageJsonMissing(pRdmAppDet, tmp_file, "package.json");
+            if(!status) {
+		RDMInfo("Extraction check successful for %s\n", "package.json");
+            }
+        #endif
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
 	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
@@ -133,12 +178,30 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         status = RDM_FAILURE;
     }
 
+#ifdef L2_TEST_ENABLED
+    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    strcat(tmp_file, "/");
+    strcat(tmp_file, "pkg_cpemanifest");
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
+#else
     strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
     tmp_file[sizeof(tmp_file) - 1] = '\0';
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
     tmp_file[sizeof(tmp_file) - 1] = '\0';
+#endif
+
+
+#ifdef L2_TEST_ENABLED
+    status = rdmDwnlRetryIfPackageJsonMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest");
+    if(!status) 
+    {
+       RDMInfo("Extraction check successful for %s\n", "pkg_cpemanifest");
+    }
+#endif
+    
 
     if(fileCheck(tmp_file)) {
         RDMInfo("%s Package already extracted\n", tmp_file);

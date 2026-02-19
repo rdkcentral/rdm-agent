@@ -25,6 +25,10 @@ def test_is_rdm_packages_install():
     result = run_shell_command(command_to_check)
     assert result != "", "rdm process did not start"
 
+#def test_with_sleep():
+#    time.sleep(60)  # sleep for 60 seconds
+#    assert True
+
 def test_media_apps_exists():
     """Verify /media/apps exists and is a directory"""
     path = "/media/apps"

@@ -122,3 +122,9 @@ def is_rdm_running():
 def check_file_exists(file_path):
     return os.path.isfile(file_path)
 
+def kill_rrd(signal: int=9):
+    print(f"Received Signal to kill remotedebugger {signal} with pid {get_pid('remotedebugger')}")
+    resp = subprocess.run(f"kill -{signal} {get_pid('remotedebugger')}", shell=True, capture_output=True)
+    print(resp.stdout.decode('utf-8'))
+    print(resp.stderr.decode('utf-8'))
+    return ""
