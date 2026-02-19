@@ -390,7 +390,7 @@ error1:
 			}
 #endif
             return download_status;
-        
+
 	} else {
             rdmUnInstallApps(prdmHandle, is_broadband);
             ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);

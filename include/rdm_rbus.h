@@ -20,7 +20,9 @@
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
 
+#ifndef GTEST_ENABLE
 #include <rbus.h>
+#endif
 
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
