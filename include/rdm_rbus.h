@@ -22,6 +22,8 @@
 
 #ifndef GTEST_ENABLE
 #include <rbus.h>
+#else
+#include "mocks/mock_rdm_rbus.h"
 #endif
 
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
