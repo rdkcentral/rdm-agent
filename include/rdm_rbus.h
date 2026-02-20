@@ -20,16 +20,9 @@
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
-#ifndef GTEST_ENABLE
-#include <rbus.h>
-#else
-#include "mocks/mock_rdm_rbus.h"
 #endif
+#include <rbus.h>
 
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
@@ -47,7 +40,4 @@ VOID  rdmRbusUnInit(VOID *pRDMbusHandle);
 
 INT32 rdmRbusSetDownloadStatus(rbusHandle_t handle, bool value);
 
-#ifdef __cplusplus
-}
-#endif
 #endif //_DCM_RBUS_H_
