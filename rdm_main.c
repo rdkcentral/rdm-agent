@@ -381,7 +381,7 @@ error1:
 #ifndef IARMBUS_SUPPORT
             if (prdmHandle && prdmHandle->pRbusHandle) {
                 ret = rdmRbusSetDownloadStatus(prdmHandle->pRbusHandle, true);
-				RDMInfo(" Updating Download status ");
+                RDMInfo("Updating Download status");
                 if (ret != RDM_SUCCESS) {
                     RDMError("Failed to set download status via rbus\n");
                 }
