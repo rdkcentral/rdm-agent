@@ -33,4 +33,4 @@ INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName);
 INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue);
 VOID  rdmRbusUnInit(VOID *pRDMbusHandle);
 INT32 rdmRbusSetDownloadStatus(rbusHandle_t handle, bool value);
-#endif //_DCM_RBUS_H_
+#endif //_RDM_RBUS_H_
