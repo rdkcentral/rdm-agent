@@ -20,6 +20,11 @@
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef GTEST_ENABLE
 #include <rbus.h>
 #else
@@ -41,4 +46,8 @@ INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue);
 VOID  rdmRbusUnInit(VOID *pRDMbusHandle);
 
 INT32 rdmRbusSetDownloadStatus(rbusHandle_t handle, bool value);
+
+#ifdef __cplusplus
+}
+#endif
 #endif //_DCM_RBUS_H_
