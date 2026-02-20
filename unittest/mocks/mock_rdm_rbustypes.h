@@ -20,7 +20,6 @@
 #include "rdm_utils.h"
 #include "rdm_rbus.h"
 
-#define RBUS_ERROR_SUCCESS 0
 #define RBUS_ENABLED 1
 typedef enum
 {
