@@ -20,10 +20,6 @@
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
 
-
-#endif
-#include <rbus.h>
-
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
 #define RDM_INIT_NAME "RFCCHECK"
