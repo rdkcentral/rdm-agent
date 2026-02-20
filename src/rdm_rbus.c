@@ -184,14 +184,16 @@ VOID rdmRbusUnInit(VOID *pRDMbusHandle)
  */
 INT32 rdmRbusSetDownloadStatus(rbusHandle_t handle, bool value)
 {
+    rbusValue_t rbusVal;
+    rbusError_t rbusErr;
+
     if (!handle) {
         RDMError("Invalid rbus handle\n");
         return RDM_FAILURE;
     }
-    rbusValue_t rbusVal;
     rbusValue_Init(&rbusVal);
     rbusValue_SetBoolean(rbusVal, value);
-    rbusError_t rbusErr = rbus_set(handle, "Device.DeviceInfo.X_RDKCENTRAL-COM_RDKDownloadManager.DownloadStatus", rbusVal, NULL);
+    rbusErr = rbus_set(handle, "Device.DeviceInfo.X_RDKCENTRAL-COM_RDKDownloadManager.DownloadStatus", rbusVal, NULL);
     if(rbusErr != RBUS_ERROR_SUCCESS) {
         RDMError("Failed to set DownloadStatus RFC param: %d\n", rbusErr);
         rbusValue_Release(rbusVal);

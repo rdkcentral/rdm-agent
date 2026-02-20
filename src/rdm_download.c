@@ -230,4 +230,3 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     return status;
 }
 
-
