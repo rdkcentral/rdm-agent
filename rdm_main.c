@@ -379,18 +379,13 @@ error1:
         if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 #ifndef IARMBUS_SUPPORT
-		    RDMInfo("RDK broadband device - updating download status");
             if (prdmHandle && prdmHandle->pRbusHandle) {
                 ret = rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
+				RDMInfo(" Updating Download status ");
                 if (ret != RDM_SUCCESS) {
                     RDMError("Failed to set download status via rbus\n");
                 }
-				RDMInfo(" Updating Download status ");
             }
-		    else
-			{  
-               RDMInfo("RDM handle is NULL");
-			}
 #endif
             return download_status;
 
