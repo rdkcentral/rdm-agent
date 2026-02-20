@@ -380,7 +380,7 @@ error1:
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
 #ifndef IARMBUS_SUPPORT
             if (prdmHandle && prdmHandle->pRbusHandle) {
-                ret = rdmRbusSetDownloadStatus((rbusHandle_t)prdmHandle->pRbusHandle, true);
+                ret = rdmRbusSetDownloadStatus(prdmHandle->pRbusHandle, true);
 				RDMInfo(" Updating Download status ");
                 if (ret != RDM_SUCCESS) {
                     RDMError("Failed to set download status via rbus\n");
