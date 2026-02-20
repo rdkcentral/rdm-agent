@@ -177,7 +177,7 @@ VOID rdmRbusUnInit(VOID *pRDMbusHandle)
 }
 
 /**
- * @brief Set RFC parameter Device.DeviceInfo.X_RDKCENTRAL-COM_RDKDownloadManager.DownloadStatus
+ * @brief Set parameter Device.DeviceInfo.X_RDKCENTRAL-COM_RDKDownloadManager.DownloadStatus
  * @param handle rbus handle
  * @param value boolean value to set
  * @return RDM_SUCCESS on success, RDM_FAILURE otherwise
