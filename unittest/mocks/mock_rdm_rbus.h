@@ -25,13 +25,14 @@
 // Add mock typedef and stub for gtest builds
 typedef void* rbusHandle_t;
 typedef void* rbusValue_t;
-typedef enum _rbusError
-{
-    RBUS_ERROR_SUCCESS,
-    RBUS_ERROR_NOT_INITIALIZED,
-    RBUS_ERROR_BUS_ERROR,
-} rbusError_t;
 
+typedef enum {
+    RBUS_ERROR_SUCCESS = 0,
+    RBUS_ERROR_BUS_ERROR,
+    RBUS_ERROR_INVALID_INPUT,
+    RBUS_ERROR_NOT_INITIALIZED,
+    RBUS_ERROR_DESTINATION_NOT_FOUND
+} rbusError_t;
 
 class MockRdmRbus {
 public:
