@@ -376,9 +376,19 @@ error1:
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
-	if(pApp_det->is_versioned_app) {
+        if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
-	    return download_status;
+#ifndef IARMBUS_SUPPORT
+            if (prdmHandle && prdmHandle->pRbusHandle) {
+                ret = rdmRbusSetDownloadStatus(prdmHandle->pRbusHandle, true);
+                RDMInfo("Updating Download status");
+                if (ret != RDM_SUCCESS) {
+                    RDMError("Failed to set download status via rbus\n");
+                }
+            }
+#endif
+            return download_status;
+
 	} else {
             rdmUnInstallApps(prdmHandle, is_broadband);
             ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);

@@ -32,4 +32,5 @@ enum rfcType
 INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName);
 INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue);
 VOID  rdmRbusUnInit(VOID *pRDMbusHandle);
-#endif //_DCM_RBUS_H_
+INT32 rdmRbusSetDownloadStatus(VOID *handle, bool value);
+#endif //_RDM_RBUS_H_

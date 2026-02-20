@@ -66,6 +66,18 @@ extern "C"{
     INT32 rbus_close(void* handle) {
 	return mockRdmRbus->rbus_close(handle);
     }
+
+    void rbusValue_SetBoolean(rbusValue_t value, bool val){
+        return mockRdmRbus->rbusValue_SetBoolean(value,val);
+    }
+
+    void rbusValue_Init(rbusValue_t* value){
+            return mockRdmRbus->rbusValue_Init(value);
+    }
+
+    rbusError_t rbus_set(void* handle, char const* val, rbusValue_t value, void** paramName) {
+        return mockRdmRbus->rbus_set(handle, val, value, paramName);
+    }
 }
 
 // Test rdmRbusGetRfc
