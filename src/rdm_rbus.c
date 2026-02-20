@@ -36,7 +36,6 @@
 #include "rdm_utils.h"
 #else
 #include "unittest/mocks/mock_rdm_rbustypes.h"
-#include "unittest/mocks/mock_rdm_rbus.h"
 #endif
 #include "rdm.h"
 
