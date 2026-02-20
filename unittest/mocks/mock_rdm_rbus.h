@@ -23,9 +23,14 @@
 #include "mock_rdm_rbustypes.h"
 
 // Add mock typedef and stub for gtest builds
-typedef int rbusError_t;
 typedef void* rbusHandle_t;
 typedef void* rbusValue_t;
+typedef enum _rbusError
+{
+    RBUS_ERROR_SUCCESS,
+    RBUS_ERROR_NOT_INITIALIZED,
+    RBUS_ERROR_BUS_ERROR,
+} rbusError_t;
 
 
 class MockRdmRbus {
