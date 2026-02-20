@@ -43,7 +43,7 @@ public:
     MOCK_METHOD(INT32, rbus_checkStatus, (), ());
     MOCK_METHOD(INT32, rbus_open, (void*, INT8*), ());
     MOCK_METHOD(INT32, rbus_close, (void*), ());
-    MOCK_METHOD(rbusError_t, rbus_set, (rbusHandle_t, const char*, rbusValue_t, void*), ());
+    MOCK_METHOD4(rbus_set, rbusError_t(rbusHandle_t, char const *, rbusValue_t, void*));
 };
 
 #endif // MOCK_RDM_RBUS_H
