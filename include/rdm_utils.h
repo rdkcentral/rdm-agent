@@ -1,3 +1,4 @@
+
 /**
  * Copyright 2023 Comcast Cable Communications Management, LLC
  *
@@ -25,6 +26,7 @@
 
 #ifdef RDK_LOGGER_ENABLED
 #include "rdk_debug.h"
+#include "rdk_logger.h"
 #endif
 
 /* RDM Error Codes */
