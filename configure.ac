@@ -159,7 +159,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
                                 #undef PACKAGE
                                 #undef VERSION
                                 #undef HAVE_STDLIB_H
-                                #include "rdk_debug.h"
+                                #include "rdk_logger.h"
                 ]])
         ],[
                 AC_MSG_RESULT([RDK logging enabled: yes])
