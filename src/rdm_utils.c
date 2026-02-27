@@ -42,9 +42,21 @@ INT32  g_rdk_logger_enabled = 0;
 void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
-    if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
+	 /* Initialize RDK Logger */
+        static char RDMLOG[] = "LOG.RDK.RDMAGENT";
+		rdk_logger_ext_config_t config = {
+            .pModuleName = RDMLOG,                 /* Module name */
+            .loglevel = RDK_LOG_INFO,                 /* Default log level */
+            .output = RDKLOG_OUTPUT_CONSOLE,          /* Output to console (stdout/stderr) */
+            .format = RDKLOG_FORMAT_WITH_TS,          /* Timestamped format */
+            .pFilePolicy = NULL                       /* Not using file output, so NULL */
+        };
+
+        if (rdk_logger_ext_init(&config) != RDK_SUCCESS) {
+            printf("RFC : ERROR - Extended logger init failed\n");
+        }
+
         g_rdk_logger_enabled = 1;
-    }
 #endif
 }
 /*****************************************************************************

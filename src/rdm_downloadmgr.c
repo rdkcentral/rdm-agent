@@ -133,12 +133,20 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         status = RDM_FAILURE;
     }
 
+#ifdef L2_TEST_ENABLED
+    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    strcat(tmp_file, "/");
+    strcat(tmp_file, "pkg_cpemanifest");
+    tmp_file[sizeof(tmp_file) - 1] = '\0';
+#else
     strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
     tmp_file[sizeof(tmp_file) - 1] = '\0';
     strcat(tmp_file, "/");
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
     tmp_file[sizeof(tmp_file) - 1] = '\0';
+#endif
 
     if(fileCheck(tmp_file)) {
         RDMInfo("%s Package already extracted\n", tmp_file);
