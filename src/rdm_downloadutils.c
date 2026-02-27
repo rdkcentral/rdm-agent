@@ -711,6 +711,90 @@ error:
     return ret;
 }
 
+/**
+ * @brief Remove stale app data not present in current manifest.
+ *        This leverages existing cleanup helpers in rdm_downloadutils
+ *        to avoid introducing new deletion mechanisms.
+ *
+ * @param infoFilePath   Path to the downloads info file to update (may be NULL).
+ * @param app_manifests  Array of app names present in the manifest.
+ * @param numOfAppsManifest Number of entries in app_manifests.
+ *
+ * @return Number of apps removed.
+ */
+INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest)
+{
+    INT32 removedAppsCount = 0;
+
+    /* Consider both homes: standard and broadband */
+    const CHAR *homes[2] = { APP_MOUNT_PATH, APPLN_HOME_PATH_DEF };
+
+    for (INT32 h = 0; h < 2; h++) {
+        CHAR downloadsHome[RDM_APP_PATH_LEN] = {0};
+        snprintf(downloadsHome, sizeof(downloadsHome), "%s/rdm/downloads", homes[h]);
+
+        CHAR *dlDirs[RDM_TMP_LEN_64] = {0};
+        INT32 dlCount = 0;
+        if (rdmListDirectory(downloadsHome, dlDirs, &dlCount) != RDM_SUCCESS) {
+            /* Not fatal; continue with other home */
+            continue;
+        }
+
+        for (INT32 i = 0; i < dlCount; i++) {
+            CHAR *name = dlDirs[i];
+            if (!name || !*name ||
+                strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
+                strcmp(name, "etc") == 0 || strcmp(name, "rdm") == 0) {
+                if (dlDirs[i]) free(dlDirs[i]);
+                continue;
+            }
+
+            /* If app is in manifest → do nothing */
+            if (isDataInList(app_manifests, name, numOfAppsManifest)) {
+                if (dlDirs[i]) free(dlDirs[i]);
+                continue;
+            }
+
+            /* Build install paths in both homes */
+            CHAR installPathStd[RDM_APP_PATH_LEN] = {0};
+            CHAR installPathBB[RDM_APP_PATH_LEN]  = {0};
+            CHAR dlPath[RDM_APP_PATH_LEN]         = {0};
+            snprintf(installPathStd, sizeof(installPathStd), "%s/%s/", APP_MOUNT_PATH, name);
+            snprintf(installPathBB,  sizeof(installPathBB),  "%s/%s/", APPLN_HOME_PATH_DEF, name);
+            snprintf(dlPath,         sizeof(dlPath),         "%s/%s",  downloadsHome, name);
+            bool anyDeleted = false;
+            if (folderCheck(installPathStd) /* exists */) {
+                RDMInfo("Removing install dir for app '%s': %s\n", name, installPathStd);
+                rdmDwnlAppCleanUp(installPathStd);
+                anyDeleted = true;
+            }
+            if (folderCheck(installPathBB) /* exists */) {
+                RDMInfo("Removing install dir for app '%s': %s\n", name, installPathBB);
+                rdmDwnlAppCleanUp(installPathBB);
+                anyDeleted = true;
+            }
+
+            if (folderCheck(dlPath) /* exists */) {
+                RDMInfo("Removing downloads dir for app '%s': %s\n", name, dlPath);
+                rdmDwnlCleanUp(dlPath);
+                anyDeleted = true;
+            }
+
+            if (anyDeleted) {
+                removedAppsCount++;
+                /* Update info file: remove entries for this app */
+                if (infoFilePath && *infoFilePath) {
+                    rdmRemvDwnlAppInfo(name, (CHAR *)infoFilePath);
+                }
+            }
+
+            if (dlDirs[i]) free(dlDirs[i]);
+        }
+    }
+
+    return removedAppsCount;
+}
+
 
 /** @brief This Function uninstalls the apps that not present in the manifest
  *
@@ -1047,87 +1131,4 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
     return ret;
 }
 
-/**
- * @brief Remove stale app data not present in current manifest.
- *        This leverages existing cleanup helpers in rdm_downloadutils
- *        to avoid introducing new deletion mechanisms.
- *
- * @param infoFilePath   Path to the downloads info file to update (may be NULL).
- * @param app_manifests  Array of app names present in the manifest.
- * @param numOfAppsManifest Number of entries in app_manifests.
- *
- * @return Number of apps removed.
- */
-INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], INT32 numOfAppsManifest)
-{
-    INT32 removedAppsCount = 0;
-
-    /* Consider both homes: standard and broadband */
-    const CHAR *homes[2] = { APP_MOUNT_PATH, APPLN_HOME_PATH_DEF };
-
-    for (INT32 h = 0; h < 2; h++) {
-        CHAR downloadsHome[RDM_APP_PATH_LEN] = {0};
-        snprintf(downloadsHome, sizeof(downloadsHome), "%s/rdm/downloads", homes[h]);
-
-        CHAR *dlDirs[RDM_TMP_LEN_64] = {0};
-        INT32 dlCount = 0;
-        if (rdmListDirectory(downloadsHome, dlDirs, &dlCount) != RDM_SUCCESS) {
-            /* Not fatal; continue with other home */
-            continue;
-        }
-
-        for (INT32 i = 0; i < dlCount; i++) {
-            CHAR *name = dlDirs[i];
-            if (!name || !*name ||
-                strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
-                strcmp(name, "etc") == 0 || strcmp(name, "rdm") == 0) {
-                if (dlDirs[i]) free(dlDirs[i]);
-                continue;
-            }
-
-            /* If app is in manifest → do nothing */
-            if (isDataInList(app_manifests, name, numOfAppsManifest)) {
-                if (dlDirs[i]) free(dlDirs[i]);
-                continue;
-            }
-
-            /* Build install paths in both homes */
-            CHAR installPathStd[RDM_APP_PATH_LEN] = {0};
-            CHAR installPathBB[RDM_APP_PATH_LEN]  = {0};
-            CHAR dlPath[RDM_APP_PATH_LEN]         = {0};
-            snprintf(installPathStd, sizeof(installPathStd), "%s/%s/", APP_MOUNT_PATH, name);
-            snprintf(installPathBB,  sizeof(installPathBB),  "%s/%s/", APPLN_HOME_PATH_DEF, name);
-            snprintf(dlPath,         sizeof(dlPath),         "%s/%s",  downloadsHome, name);
-            bool anyDeleted = false;
-            if (folderCheck(installPathStd) /* exists */) {
-                RDMInfo("Removing install dir for app '%s': %s\n", name, installPathStd);
-                rdmDwnlAppCleanUp(installPathStd);
-                anyDeleted = true;
-            }
-            if (folderCheck(installPathBB) /* exists */) {
-                RDMInfo("Removing install dir for app '%s': %s\n", name, installPathBB);
-                rdmDwnlAppCleanUp(installPathBB);
-                anyDeleted = true;
-            }
-
-            if (folderCheck(dlPath) /* exists */) {
-                RDMInfo("Removing downloads dir for app '%s': %s\n", name, dlPath);
-                rdmDwnlCleanUp(dlPath);
-                anyDeleted = true;
-            }
-
-            if (anyDeleted) {
-                removedAppsCount++;
-                /* Update info file: remove entries for this app */
-                if (infoFilePath && *infoFilePath) {
-                    rdmRemvDwnlAppInfo(name, (CHAR *)infoFilePath);
-                }
-            }
-
-            if (dlDirs[i]) free(dlDirs[i]);
-        }
-    }
-
-    return removedAppsCount;
-}
 
