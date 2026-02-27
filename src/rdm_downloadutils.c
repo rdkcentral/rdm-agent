@@ -1097,19 +1097,7 @@ INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], IN
             CHAR dlPath[RDM_APP_PATH_LEN]         = {0};
             snprintf(installPathStd, sizeof(installPathStd), "%s/%s/", APP_MOUNT_PATH, name);
             snprintf(installPathBB,  sizeof(installPathBB),  "%s/%s/", APPLN_HOME_PATH_DEF, name);
-
-            size_t homeLen = strlen(downloadsHome);
-            size_t nameLen = strlen(name);
-            if (homeLen + 1 + nameLen + 1 <= sizeof(dlPath)) {
-                memcpy(dlPath, downloadsHome, homeLen);
-                dlPath[homeLen] = '/';
-                memcpy(dlPath + homeLen + 1, name, nameLen);
-                dlPath[homeLen + 1 + nameLen] = '\0';
-            } else {
-                RDMError("dlPath buffer too small for '%s/%s' (need %zu, have %zu)\n", downloadsHome, name, homeLen + 1 + nameLen + 1, sizeof(dlPath));
-                dlPath[0] = '\0';
-            }
-
+            snprintf(dlPath,         sizeof(dlPath),         "%s/%s",  downloadsHome, name);
             bool anyDeleted = false;
             if (folderCheck(installPathStd) /* exists */) {
                 RDMInfo("Removing install dir for app '%s': %s\n", name, installPathStd);
