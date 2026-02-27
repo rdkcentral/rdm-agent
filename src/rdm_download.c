@@ -185,37 +185,38 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 
     /*If the rdmDownloadInfo.txt file doesn't exist, it will be created*/
     if(DLInfoStatus == RDM_SUCCESS) {
-        fp_met = fopen(pRdmAppDet->app_dwnl_info, "a+");
-        if(fp_met) {
-            char buffer[4096]={0};
+        char tmpfile[512];
+        snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", pRdmAppDet->app_dwnl_info);
+        FILE *fp_in = fopen(pRdmAppDet->app_dwnl_info, "r");
+        FILE *fp_out = fopen(tmpfile, "w");
+        if (fp_out) {
             char line[256];
-            size_t buffer_index = 0;
-
-            RDMInfo("Opened %s file successfully\n", pRdmAppDet->app_dwnl_info);
-            fseek(fp_met, 0, SEEK_SET);
-            while (fgets(line, sizeof(line), fp_met)) {
-                if(strncmp(line, pRdmAppDet->app_name, strlen(pRdmAppDet->app_name)) != 0 ){
-                    strncpy(buffer + buffer_index, line, sizeof(buffer) - buffer_index);
-                    buffer_index += strlen(line);
+            if (fp_in) {
+                while (fgets(line, sizeof(line), fp_in)) {
+                    if (strncmp(line, pRdmAppDet->app_name, strlen(pRdmAppDet->app_name)) != 0) {
+                        fputs(line, fp_out);
+                    }
                 }
+                fclose(fp_in);
             }
-
-            ftruncate(fileno(fp_met), 0);
-            fseek(fp_met, 0, SEEK_SET);
-
-            fputs(buffer, fp_met);
-
-            fseek(fp_met, 0, SEEK_END);
-            fprintf(fp_met, "%s %s %s/%s %d %s\n", pRdmAppDet->app_name,
-                                                   pRdmAppDet->pkg_name,
-                                                   pRdmAppDet->app_home,
-                                                   pRdmAppDet->app_name,
-                                                   pRdmAppDet->app_size_kb,
-                                                   rdm_status);
-            fclose(fp_met);
-        }
-        else {
-            RDMWarn("Unable to open meta data file: %s\n", pRdmAppDet->app_dwnl_info);
+            // Append the new entry
+            fprintf(fp_out, "%s %s %s/%s %d %s\n",
+                pRdmAppDet->app_name,
+                pRdmAppDet->pkg_name,
+                pRdmAppDet->app_home,
+                pRdmAppDet->app_name,
+                pRdmAppDet->app_size_kb,
+                rdm_status);
+            fclose(fp_out);
+            // Atomically replace the original file
+            if (rename(tmpfile, pRdmAppDet->app_dwnl_info) != 0) {
+                RDMError("Failed to rename temp file to %s\n", pRdmAppDet->app_dwnl_info);
+            } else {
+                RDMInfo("Meta data file updated successfully\n");
+            }
+        } else {
+            RDMWarn("Unable to open temp meta data file: %s\n", tmpfile);
+            if (fp_in) fclose(fp_in);
         }
     }
     else{
@@ -228,3 +229,4 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     }
     return status;
 }
+

@@ -22,6 +22,10 @@
 #include <gmock/gmock.h>
 #include "mock_rdm_rbustypes.h"
 
+// Add mock typedef and stub for gtest builds
+typedef void* rbusHandle_t;
+typedef void* rbusValue_t;
+
 class MockRdmRbus {
 public:
     MOCK_METHOD(rbusValueType_t, rbusValue_GetType, (void*), ());
@@ -32,6 +36,9 @@ public:
     MOCK_METHOD(INT32, rbus_checkStatus, (), ());
     MOCK_METHOD(INT32, rbus_open, (void*, INT8*), ());
     MOCK_METHOD(INT32, rbus_close, (void*), ());
+    MOCK_METHOD4(rbus_set, rbusError_t(rbusHandle_t, char const *, rbusValue_t, void*));
+    MOCK_METHOD1(rbusValue_Init, rbusError_t(rbusValue_t *));
+    MOCK_METHOD(void, rbusValue_SetBoolean, (rbusValue_t, bool), ());
 };
 
 #endif // MOCK_RDM_RBUS_H
