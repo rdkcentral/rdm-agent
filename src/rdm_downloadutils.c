@@ -1065,7 +1065,7 @@ INT32 rdmDeleteStalePackages(const CHAR *infoFilePath, CHAR *app_manifests[], IN
     /* Consider both homes: standard and broadband */
     const CHAR *homes[2] = { APP_MOUNT_PATH, APPLN_HOME_PATH_DEF };
 
-    for (int h = 0; h < 2; h++) {
+    for (INT32 h = 0; h < 2; h++) {
         CHAR downloadsHome[RDM_APP_PATH_LEN] = {0};
         snprintf(downloadsHome, sizeof(downloadsHome), "%s/rdm/downloads", homes[h]);
 
