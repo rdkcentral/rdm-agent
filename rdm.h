@@ -43,6 +43,7 @@ typedef struct _rdmAppDetails {
     CHAR  pkg_name[RDM_DL_PKGNAME_LEN];
     CHAR  pkg_type[RDM_DL_PKGTYPE_LEN];
     CHAR  pkg_ver[RDM_DL_PKGVER_LEN];
+    CHAR  bundle_type[RDM_TMP_LEN_64];
     CHAR  app_size[RDM_DL_APPSIZE_LEN];
     CHAR  dwld_method_controller[RDM_JSONQ_LEN];
     CHAR  app_home[RDM_APP_PATH_LEN];

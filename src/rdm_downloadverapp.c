@@ -23,12 +23,87 @@
 #include "rdm_download.h"
 #include "rdm_downloadutils.h"
 #include "rdm_downloadverapp.h"
+#include <unistd.h>
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
 
+/**
+ * Determine metadata path and file based on bundle type
+ * Returns: RDM_SUCCESS if metadata file found, RDM_FAILURE otherwise
+ */
+static INT32 rdmDwnlVAResolveMetadata(const RDMAPPDetails *pRdmAppDet,
+                                      const CHAR *bundle_metadata_path,
+                                      const CHAR *fallback_dir,
+                                      const CHAR *bundle_desc,
+                                      CHAR *app_cpe_metadata_file)
+{
+    
+    if (pRdmAppDet == NULL) {
+     RDMError("rdmDwnlVAResolveMetadata: pRdmAppDet is NULL\n");
+     return RDM_FAILURE;
+    }
+
+    CHAR temp_path[RDM_APP_PATH_LEN] = {0};
+
+    RDMInfo("Checking Metadata for %s Bundles in %s\n", bundle_desc, bundle_metadata_path);
+    
+    /* Check if package metadata exists in primary location */
+    
+    snprintf(temp_path, sizeof(temp_path), "%s/%s_package.json",
+             bundle_metadata_path, pRdmAppDet->app_name);
+    
+    if (access(temp_path, F_OK) == 0) {
+        RDMInfo("Metadata for %s package found in %s\n",
+                pRdmAppDet->app_name, bundle_metadata_path);
+        strncpy(app_cpe_metadata_file, temp_path, RDM_APP_PATH_LEN - 1);
+        return RDM_SUCCESS;
+    }
+    
+    /* Check fallback location for bundles */
+    
+    snprintf(temp_path, sizeof(temp_path), "%s/%s_package.json",
+             fallback_dir, pRdmAppDet->app_name);
+    
+    if (access(temp_path, F_OK) == 0) {
+        RDMInfo("Metadata for %s package found in %s\n",
+                pRdmAppDet->app_name, fallback_dir);
+        strncpy(app_cpe_metadata_file, temp_path, RDM_APP_PATH_LEN - 1);
+        return RDM_SUCCESS;
+    }
+    
+    RDMInfo("Metadata for %s package not found\n", pRdmAppDet->app_name);
+    return RDM_FAILURE;
+}
+static INT32 rdmDwnlVAGetMetadataPath(RDMAPPDetails *pRdmAppDet,
+                                      CHAR *bundle_type,
+                                      CHAR *app_cpe_metadata_file)
+{
+    CHAR bundle_metadata_path[RDM_APP_PATH_LEN] = {0};
+    
+    if (strcmp(bundle_type, "cert") == 0) {
+        /* Set metadata path for cert bundles */
+        snprintf(bundle_metadata_path, RDM_APP_PATH_LEN, "%s", BUNDLE_METADATA_CERT_PATH);
+        return rdmDwnlVAResolveMetadata(pRdmAppDet,
+                                        bundle_metadata_path,
+                                        "/etc/certs",
+                                        "Cert",
+                                        app_cpe_metadata_file);
+    } else if (strcmp(bundle_type, "app") == 0) {
+        /* Set metadata path for app bundles */
+        snprintf(bundle_metadata_path, RDM_APP_PATH_LEN, "%s", BUNDLE_METADATA_APPS_PATH);
+        return rdmDwnlVAResolveMetadata(pRdmAppDet,
+                                        bundle_metadata_path,
+                                        "/etc/apps",
+                                        "App",
+                                        app_cpe_metadata_file);
+    }
+    
+    RDMError("Unknown bundle type: %s\n", bundle_type);
+    return RDM_FAILURE;
+}
 static INT32 rdmDwnlVAVerifyApp(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 {
     if(rdmDwnlValidation(pRdmAppDet, pVer)) {
@@ -47,9 +122,24 @@ static VOID  rdmDwnlVAGetInstallVer(RDMAPPDetails *pRdmAppDet,
     INT32 status = RDM_SUCCESS;
     INT32 i = 0;
     CHAR *pkg_json[RDM_MAX_VER_LIST];
+    CHAR app_cpe_metadata_file[RDM_APP_PATH_LEN] = {0};
 
     for(i = 0; i < RDM_MAX_VER_LIST; i++) {
         pkg_json[i] = calloc(RDM_APP_PATH_LEN, 1);
+    }
+
+    /* Check for metadata based on bundle type if bundle_type is set */
+    if (pRdmAppDet->bundle_type[0] != '\0') {
+        RDMInfo("Bundle type detected: %s. Checking metadata paths.\n", pRdmAppDet->bundle_type);
+        status = rdmDwnlVAGetMetadataPath(pRdmAppDet, 
+                                           pRdmAppDet->bundle_type,
+                                           app_cpe_metadata_file);
+        if (status == RDM_SUCCESS) {
+            RDMInfo("Found metadata file: %s\n", app_cpe_metadata_file);
+            /* Add metadata file to pkg_json list for version processing */
+            strncpy(pkg_json[num_ver], app_cpe_metadata_file, RDM_APP_PATH_LEN - 1);
+            num_ver++;
+        }
     }
 
     findPFileAll(pRdmAppDet->app_home, RDM_JSON_VER, pkg_json, &num_ver, RDM_MAX_VER_LIST);

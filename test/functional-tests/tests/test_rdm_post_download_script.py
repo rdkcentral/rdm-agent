@@ -29,6 +29,6 @@ def test_rdm_post_services_status():
     RUN_SCRIPT_RDM_DL_MSG = "Running Scripts after RDM Download"
     assert RUN_SCRIPT_RDM_DL_MSG in grep_RDMlogs(RUN_SCRIPT_RDM_DL_MSG)
 
-    POST_DL_SCRIPT_MSG = "RDM - Executing post-download scripts /media/apps/RDK-RRD-Test/etc/rdm/post-services/post_cadl.sh"
+    POST_DL_SCRIPT_MSG = "RDM - Executing post-download scripts /media/apps/RDK-RRD-Test/etc/rdm/post-services//post_cadl.sh"
     assert POST_DL_SCRIPT_MSG in grep_RDMlogs(POST_DL_SCRIPT_MSG)
 

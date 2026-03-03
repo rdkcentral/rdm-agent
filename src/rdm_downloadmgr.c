@@ -179,6 +179,15 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     }
 
 #ifdef L2_TEST_ENABLED
+    status = rdmDwnlRetryIfPackageJsonMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest");
+    if(!status)
+    {
+       RDMInfo("Extraction check successful for %s\n", "pkg_cpemanifest");
+    }
+#endif
+
+    
+#ifdef L2_TEST_ENABLED
     strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
     tmp_file[sizeof(tmp_file) - 1] = '\0';
     strcat(tmp_file, "/");
@@ -192,16 +201,6 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     strcat(tmp_file, "_cpemanifest");
     tmp_file[sizeof(tmp_file) - 1] = '\0';
 #endif
-
-
-#ifdef L2_TEST_ENABLED
-    status = rdmDwnlRetryIfPackageJsonMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest");
-    if(!status) 
-    {
-       RDMInfo("Extraction check successful for %s\n", "pkg_cpemanifest");
-    }
-#endif
-    
 
     if(fileCheck(tmp_file)) {
         RDMInfo("%s Package already extracted\n", tmp_file);
