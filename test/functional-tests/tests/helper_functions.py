@@ -40,6 +40,13 @@ def remove_file(file_path):
     except Exception as e:
         print(f"Could not remove file {file_path}: {e}")
 
+def kill_rrd(signal: int=9):
+    print(f"Received Signal to kill remotedebugger {signal} with pid {get_pid('remotedebugger')}")
+    resp = subprocess.run(f"kill -{signal} {get_pid('remotedebugger')}", shell=True, capture_output=True)
+    print(resp.stdout.decode('utf-8'))
+    print(resp.stderr.decode('utf-8'))
+    return ""
+
 def remove_dir(dir_path: str):
     """Delete a directory and all its contents, without asking for confirmation."""
     if not os.path.exists(dir_path):
