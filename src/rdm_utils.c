@@ -34,6 +34,7 @@
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
+#include "rdk_logger.h"
 
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
@@ -44,7 +45,7 @@ void RDMLOGInit()
 #ifdef RDK_LOGGER_ENABLED
 	 /* Initialize RDK Logger */
         static char RDMLOG[] = "LOG.RDK.RDMAGENT";
-		rdk_logger_ext_config_t config = {
+	rdk_logger_ext_config_t config = {
             .pModuleName = RDMLOG,                 /* Module name */
             .loglevel = RDK_LOG_INFO,                 /* Default log level */
             .output = RDKLOG_OUTPUT_CONSOLE,          /* Output to console (stdout/stderr) */
