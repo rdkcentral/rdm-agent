@@ -105,6 +105,99 @@ VOID rdmUnInit(RDMHandle *prdmHandle)
     }
 }
 
+/**
+ * @brief Helper function to extract and parse bundles for a given type
+ * 
+ * @param[in]  input_str       Input string to search in
+ * @param[in]  search_prefix   Prefix to search for (e.g., "dlCertBundle=")
+ * @param[in]  type_prefix     Type prefix to add (e.g., "cert:")
+ * @param[out] parsed_list     Output buffer to append parsed bundles
+ * @param[in]  max_len         Maximum length of output buffer
+ */
+static VOID rdmExtractBundleType(const CHAR *input_str, 
+                                  const CHAR *search_prefix,
+                                  const CHAR *type_prefix,
+                                  CHAR *parsed_list,
+                                  INT32 max_len)
+{
+    CHAR *bundle_start = strstr(input_str, search_prefix);
+    if (!bundle_start) {
+        return;
+    }
+    
+    bundle_start += strlen(search_prefix);
+    CHAR bundle_list[MAX_BUFF_SIZE] = {0};
+    
+    /* Find end of bundle list (either | or end of string) */
+    CHAR *pipe_pos = strchr(bundle_start, '|');
+    if (pipe_pos) {
+        strncpy(bundle_list, bundle_start, pipe_pos - bundle_start);
+        bundle_list[pipe_pos - bundle_start < sizeof(bundle_list) ? pipe_pos - bundle_start : sizeof(bundle_list) - 1] = '\0';
+    } else {
+        strncpy(bundle_list, bundle_start, sizeof(bundle_list) - 1);
+        bundle_list[sizeof(bundle_list) - 1] = '\0';
+    }
+    
+    /* Parse comma-separated bundle names using strtok_r for reentrancy */
+    CHAR *saveptr = NULL;
+    CHAR *bundle_token = strtok_r(bundle_list, ",", &saveptr);
+    while (bundle_token != NULL) {
+        /* Trim leading/trailing spaces */
+        while (*bundle_token == ' ') bundle_token++;
+        
+        if (strlen(bundle_token) > 0) {
+            if (strlen(parsed_list) + strlen(type_prefix) + strlen(bundle_token) + 2 < max_len) {
+                if (strlen(parsed_list) > 0) {
+                    strcat(parsed_list, " ");
+                }
+                strcat(parsed_list, type_prefix);
+                strcat(parsed_list, bundle_token);
+            }
+        }
+        bundle_token = strtok_r(NULL, ",", &saveptr);
+    }
+}
+
+/**
+ * @brief Parse bundle list format and extract individual bundles
+ * 
+ * Parses input like "dlCertBundle=cert1,cert2|dlAppBundle=app1,app2"
+ * and converts to space-separated list with prefixes: "cert:cert1 cert:cert2 app:app1 app:app2"
+ * 
+ * @param[in]  bundle_list_input  Input bundle list string
+ * @param[out] parsed_list        Output buffer for parsed list
+ * @param[in]  max_len            Maximum length of output buffer
+ * @return     1 if bundle format detected and parsed successfully,
+ *             0 if no bundle format detected (not an error),
+ *            -1 on actual error (NULL parameters)
+ */
+static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list, INT32 max_len)
+{
+    if (!bundle_list_input || !parsed_list || max_len <= 0) {
+        return -1;
+    }
+    
+    /* Check if input contains bundle format markers */
+    if (strstr(bundle_list_input, "dlCertBundle=") == NULL && 
+        strstr(bundle_list_input, "dlAppBundle=") == NULL) {
+        /* No bundle format detected, return as-is */
+        return 0;
+    }
+    
+    memset(parsed_list, 0, max_len);
+    
+    RDMInfo("Parsing bundle list: %s\n", bundle_list_input);
+    
+    /* Extract and add cert bundles if present - rdmExtractBundleType doesn't modify input */
+    rdmExtractBundleType(bundle_list_input, "dlCertBundle=", "cert:", parsed_list, max_len);
+    
+    /* Extract and add app bundles if present - can safely use same input */
+    rdmExtractBundleType(bundle_list_input, "dlAppBundle=", "app:", parsed_list, max_len);
+    
+    RDMInfo("Parsed bundle list: %s\n", parsed_list);
+    return 1;
+}
+
 static VOID rdmHelp()
 {
     RDMInfo("Usage:\n");
@@ -344,31 +437,94 @@ int main(int argc, char* argv[])
     } //usb_install
 
     else if(download_versionedapp) {
-	    char result[20];
-
-	    RDMInfo("Install App from custom path: %s\n", app_name);
-	    char *ver = strchr(app_name, ':');
-	    if (ver != NULL) {
-		    strncpy(pApp_det->pkg_ver, ver + 1, sizeof(pApp_det->pkg_ver) - 1);
-		    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
+	    RDMInfo("Starting versioned app download for: %s\n", app_name ? app_name : "(null)");
+	    CHAR parsed_bundle_list[MAX_BUFF_SIZE * 2] = {0};
+	    CHAR *bundle_list_to_use = app_name;
+	    
+	    /* Try to parse bundle list format */
+	    INT32 parse_result = rdmParseBundleList(app_name, parsed_bundle_list, sizeof(parsed_bundle_list));
+	    if (parse_result == 1) {
+		    /* Successfully parsed bundle list format */
+		    bundle_list_to_use = parsed_bundle_list;
+		    RDMInfo("Using parsed bundle list: %s\n", bundle_list_to_use);
+	    } else if (parse_result == 0) {
+		    /* No bundle format detected, using original format */
+		    RDMInfo("No bundle format detected, using original input: %s\n", app_name ? app_name : "(null)");
+	    } else {
+		    /* Error occurred during parsing */
+		    RDMError("Error parsing bundle list, using original input: %s\n", app_name ? app_name : "(null)");
 	    }
-	    sscanf(app_name, "%[^:]", result);
-	    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
-            pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
-	    snprintf(pApp_det->pkg_name, sizeof(pApp_det->pkg_name), "%s_%s-signed.tar", result, pApp_det->pkg_ver);
-	    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
-	    pApp_det->is_versioned_app = 1;
-
-	    /* Update App paths */
-	    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
-	    rdmPrintAppDetails(pApp_det);
-	    ret = rdmDownloadApp(pApp_det, &download_status);
-	    if(ret) {
-		    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name,download_status);
-            } else {
-		RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
-		t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
-            }
+	    
+	    /* Process each bundle in the list */
+	    CHAR bundle_list_copy[MAX_BUFF_SIZE * 2] = {0};
+	    strncpy(bundle_list_copy, bundle_list_to_use, sizeof(bundle_list_copy) - 1);
+	    bundle_list_copy[sizeof(bundle_list_copy) - 1] = '\0';
+	    
+	    CHAR *bundle_token = strtok(bundle_list_copy, " ");
+	    while (bundle_token != NULL) {
+		    /* Reset app details for each bundle */
+		    memset(pApp_det, 0, sizeof(RDMAPPDetails));
+		    pApp_det->bFsCheck = bFsCheck;
+		    pApp_det->is_oss = is_oss;
+		    
+		    char result[20] = {0};
+		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
+		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
+		    current_bundle[sizeof(current_bundle) - 1] = '\0';
+		    
+		    RDMInfo("Processing bundle: %s\n", current_bundle);
+		    
+		    /* Check if bundle has cert: or app: prefix */
+		    CHAR *bundle_name = current_bundle;
+		    if (strncmp(current_bundle, "cert:", 5) == 0) {
+			    bundle_name = current_bundle + 5;
+			    strncpy(pApp_det->bundle_type, "cert", sizeof(pApp_det->bundle_type) - 1);
+			    pApp_det->bundle_type[sizeof(pApp_det->bundle_type) - 1] = '\0';
+			    RDMInfo("Detected cert bundle type for %s\n", bundle_name);
+		    } else if (strncmp(current_bundle, "app:", 4) == 0) {
+			    bundle_name = current_bundle + 4;
+			    strncpy(pApp_det->bundle_type, "app", sizeof(pApp_det->bundle_type) - 1);
+			    pApp_det->bundle_type[sizeof(pApp_det->bundle_type) - 1] = '\0';
+			    RDMInfo("Detected app bundle type for %s\n", bundle_name);
+		    }
+		    /* No prefix - bundle_type will remain empty and can be set later if needed */
+		    
+		    /* Parse version from bundle name (format: name:version) */
+		    char *ver = strchr(bundle_name, ':');
+		    if (ver != NULL) {
+			    strncpy(pApp_det->pkg_ver, ver + 1, sizeof(pApp_det->pkg_ver) - 1);
+			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
+		    } else {
+			    /* No version specified, use NA */
+			    strncpy(pApp_det->pkg_ver, "NA", sizeof(pApp_det->pkg_ver) - 1);
+			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
+			    RDMWarn("No version specified for %s, using NA\n", bundle_name);
+		    }
+		    sscanf(bundle_name, "%[^:]", result);
+		    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
+		    pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
+		    
+		    RDMInfo("Parsed app_name: %s, pkg_ver: %s\n", pApp_det->app_name, pApp_det->pkg_ver);
+		    snprintf(pApp_det->pkg_name, sizeof(pApp_det->pkg_name), "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+		    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
+		    pApp_det->is_versioned_app = 1;
+		    
+		    /* Update App paths */
+		    rdmUpdateAppDetails(prdmHandle, pApp_det, is_broadband);
+		    rdmPrintAppDetails(pApp_det);
+		    
+		    /* Download the bundle */
+		    ret = rdmDownloadApp(pApp_det, &download_status);
+		    if(ret) {
+			    RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
+		    } else {
+			    RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+			    t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name);
+		    }
+		    
+		    /* Move to next bundle */
+		    bundle_token = strtok(NULL, " ");
+	    }
     }
 
 error1:
@@ -376,9 +532,19 @@ error1:
     if(download_status == 0) {
         RDMInfo("App download success, sending status as %d\n", download_status);
         t2CountNotify("RDM_INFO_AppDownloadSuccess", 1);
-	if(pApp_det->is_versioned_app) {
+        if(pApp_det->is_versioned_app) {
             RDMInfo("Post Installation Successful for %s\n", pApp_det->app_name);
-	    return download_status;
+#ifndef IARMBUS_SUPPORT
+            if (prdmHandle && prdmHandle->pRbusHandle) {
+                ret = rdmRbusSetDownloadStatus(prdmHandle->pRbusHandle, true);
+                RDMInfo("Updating Download status");
+                if (ret != RDM_SUCCESS) {
+                    RDMError("Failed to set download status via rbus\n");
+                }
+            }
+#endif
+            return download_status;
+
 	} else {
             rdmUnInstallApps(prdmHandle, is_broadband);
             ret = rdmIARMEvntSendStatus(RDM_PKG_UNINSTALL);

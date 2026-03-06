@@ -24,4 +24,8 @@
 
 #define RDM_JSON_VER "*_package.json"
 
+/* Bundle metadata paths */
+#define BUNDLE_METADATA_CERT_PATH "/opt/certs/metadata"
+#define BUNDLE_METADATA_APPS_PATH "/opt/apps/metadata"
+
 #endif //_RDM_DOWNLOADVERAPP_H_

@@ -35,8 +35,15 @@ cp /mnt/RDK-RRD-Test_1.0-signed.tar /mnt/usb/RDK-RRD-Test_1.0-pkg.tar
 
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.rdm_ssr_location
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.xconfssrdownloadurl
+rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string https://mockxconf:50056/rdmUploadFile
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_install.json test/functional-tests/tests/test_rdm_packages_install.py
+
+cat /opt/logs/rdm_status.log.0
+cat /opt/logs/rdm_status.log.1
+
+ls -l /opt/logs/
+
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_info.json test/functional-tests/tests/test_rdm_download_info.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_url_notset.json test/functional-tests/tests/test_rdm_download_url_notset.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_cleared.json test/functional-tests/tests/test_rdm_packages_cleared.py
