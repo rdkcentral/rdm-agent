@@ -146,6 +146,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     strcat(tmp_file, pRdmAppDet->app_name);
     strcat(tmp_file, "_cpemanifest");
     tmp_file[sizeof(tmp_file) - 1] = '\0';
+    RDMInfo("Sara1 : tmp_file = %s\n", tmp_file);
 #endif
 
     if(fileCheck(tmp_file)) {
@@ -187,6 +188,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 }
             }//tar
             else if(!strcmp(extn, "ipk")) {
+		RDMInfo("Sara2 : Inside ipk extraction tmp_file = %s\n", tmp_file);
                 if(rdmDownlLXCCheck(tmp_file, pRdmAppDet->app_name)) {
                     is_lxc = 1;
                 }
@@ -197,6 +199,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		ip_file[sizeof(ip_file) - 1] = '\0';
         	strcat(ip_file, tmp_file);
 		ip_file[sizeof(ip_file) - 1] = '\0';
+		RDMInfo("Sara3 : ip_file = %s\n", ip_file);
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
@@ -211,6 +214,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 strcat(tmp_file, "/data.tar.xz");
 		tmp_file[sizeof(tmp_file) - 1] = '\0';
 
+		RDMInfo("Sara 4: tar_extract tmp_file = %s, pRdmAppDet->app_home = %s\n", tmp_file, pRdmAppDet->app_home);
                 status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
@@ -220,6 +224,8 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
+		RDMInfo("Sara5: tar_extract is successful... listing app_home files\n");
+		sleep(50);
                 if(is_lxc) {
                     rdmDwnlLXCIPKExctact();
                 }
