@@ -39,13 +39,10 @@ rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl s
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_install.json test/functional-tests/tests/test_rdm_packages_install.py
 
-cat /opt/logs/rdm_status.log.0
-cat /opt/logs/rdm_status.log.1
-
-ls -l /opt/logs/
-
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_info.json test/functional-tests/tests/test_rdm_download_info.py
+rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string ""
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_url_notset.json test/functional-tests/tests/test_rdm_download_url_notset.py
+rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string https://mockxconf:50056/rdmUploadFile
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_cleared.json test/functional-tests/tests/test_rdm_packages_cleared.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_clear_old_packages.json test/functional-tests/tests/test_rdm_clear_old_packages.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/test_rdm_packages_install_rfc_param.json test/functional-tests/tests/test_rdm_packages_install_rfc_param.py
@@ -59,14 +56,16 @@ pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_tm
 umount /media/apps
 
 
-pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_packages_install.json test/functional-tests/tests/test_rdm_cert_bundle_packages_install.py  
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_packages_install.json test/functional-tests/tests/test_rdm_cert_bundle_packages_install.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_skip_download_validate_pkg.json test/functional-tests/tests/test_rdm_cert_bundle_skip_download_validate_pkg.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_bundle_downgrade_packages_install.json test/functional-tests/tests/test_rdm_cert_bundle_downgrade_packages_install.py
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_cert_selector.json test/functional-tests/tests/test_rdm_cert_selector.py
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_usb_download_packages_install.json test/functional-tests/tests/test_rdm_usb_download_packages_install.py
 
+nohup /usr/local/bin/remotedebugger > /dev/null 2>&1 &
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rrd_rdm_packages_install.json test/functional-tests/tests/test_rrd_rdm_packages_install.py
+
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_post_download_script.json test/functional-tests/tests/test_rdm_post_download_script.py
 
