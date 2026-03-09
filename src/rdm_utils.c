@@ -43,7 +43,7 @@ INT32  g_rdk_logger_enabled = 0;
 void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
-#ifdef IS_RDKB
+#ifndef IARMBUS_SUPPORT
         if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
             g_rdk_logger_enabled = 1;
         }
