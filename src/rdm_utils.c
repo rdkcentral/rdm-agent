@@ -43,6 +43,11 @@ INT32  g_rdk_logger_enabled = 0;
 void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
+#ifdef IS_RDKB
+        if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
+            g_rdk_logger_enabled = 1;
+        }
+#else
 	 /* Initialize RDK Logger */
         static char RDMLOG[] = "LOG.RDK.RDMAGENT";
 	rdk_logger_ext_config_t config = {
@@ -58,6 +63,7 @@ void RDMLOGInit()
         }
 
         g_rdk_logger_enabled = 1;
+#endif
 #endif
 }
 /*****************************************************************************
