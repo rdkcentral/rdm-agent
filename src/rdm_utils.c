@@ -34,7 +34,10 @@
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
+
+#ifdef RDK_LOGGER_ENABLED
 #include "rdk_logger.h"
+#endif
 
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
@@ -43,12 +46,12 @@ INT32  g_rdk_logger_enabled = 0;
 void RDMLOGInit()
 {
 #ifdef RDK_LOGGER_ENABLED
+    /* Initialize RDK Logger */	
 #ifndef IARMBUS_SUPPORT
-    if (rdk_logger_init(DEBUG_INI_NAME) == 0) {
+    if (0 == rdk_logger_init(DEBUG_INI_NAME)) {
         g_rdk_logger_enabled = 1;
     }
 #else
-    /* Initialize RDK Logger */
     rdk_logger_ext_config_t config = {
         .pModuleName = "LOG.RDK.RDMAGENT",        /* Module name */
         .loglevel = RDK_LOG_INFO,                 /* Default log level */

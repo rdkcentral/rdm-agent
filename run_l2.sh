@@ -73,4 +73,3 @@ pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_po
 # The cert selector test cases  are commented for now. Once the code changes are moved to open source, it will be enabled.
 #pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_dynamic_cert_selector.json test/functional-tests/tests/test_rdm_dynamic_cert_selector.py
 #pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_static_cert_selector.json test/functional-tests/tests/test_rdm_static_cert_selector.py
-
