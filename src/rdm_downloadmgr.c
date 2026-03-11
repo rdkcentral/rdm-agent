@@ -211,7 +211,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 }
                 strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 		tmp_file[sizeof(tmp_file) - 1] = '\0';
-                strcat(tmp_file, "/data.tar.xz");
+                strcat(tmp_file, "/data.tar.gz");
 		tmp_file[sizeof(tmp_file) - 1] = '\0';
 
 		RDMInfo("Sara 4: tar_extract tmp_file = %s, pRdmAppDet->app_home = %s\n", tmp_file, pRdmAppDet->app_home);
