@@ -209,13 +209,30 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		if(findPFile(pRdmAppDet->app_dwnl_path, "data.tar.*", tmp_file)) {
+                /* Extract the package */
+                    RDMInfo("Data file: %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+                    status = tarExtract(tmp_file, pRdmAppDet->app_home);
+                    if(status) {
+                        RDMError("Failed to extract the package\n");
+			rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                                           pRdmAppDet->pkg_ver,
+                                           pRdmAppDet->app_home,
+                                           RDM_PKG_EXTRACT_ERROR);
+                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    continue;
+                    }
+                }       
+
+               /* strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 		tmp_file[sizeof(tmp_file) - 1] = '\0';
                 strcat(tmp_file, "/data.tar.gz");
 		tmp_file[sizeof(tmp_file) - 1] = '\0';
+                strcat(tmp_file, "/data.tar.xz");
+		tmp_file[sizeof(tmp_file) - 1] = '\0';*/
 
 		RDMInfo("Sara 4: tar_extract tmp_file = %s, pRdmAppDet->app_home = %s\n", tmp_file, pRdmAppDet->app_home);
-                status = tarExtract(tmp_file, pRdmAppDet->app_home);
+               /* status = tarExtract(tmp_file, pRdmAppDet->app_home);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
@@ -223,9 +240,9 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            RDM_PKG_EXTRACT_ERROR);
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
-                }
+                }*/
 		RDMInfo("Sara5: tar_extract is successful... listing app_home files\n");
-		sleep(50);
+		//sleep(50);
                 if(is_lxc) {
                     rdmDwnlLXCIPKExctact();
                 }
