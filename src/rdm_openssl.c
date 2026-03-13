@@ -733,7 +733,6 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
                                INT32 *reply_msg_len)
 {
     EVP_MD_CTX *mdctx = NULL;
-    FILE     *sig_fh  = NULL;
     EVP_PKEY *pkey    = NULL;
     CHAR hash_ascii[SHA256_ASCII_DIGEST_LENGTH + 1];
     UINT8 *sig;
@@ -837,12 +836,11 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
 err:
 error:
 
-    if (sig_fh != NULL) fclose(sig_fh);
 #if !defined(LIBRDKCONFIG_BUILD)    
-    if (pub_fh != NULL) fclose(pub_fh);
+    if (pub_fh) fclose(pub_fh);
 #endif
-    if (mdctx  != NULL) EVP_MD_CTX_destroy(mdctx);
-    if (pkey   != NULL) EVP_PKEY_free(pkey);
+    if (mdctx) EVP_MD_CTX_destroy(mdctx);
+    if (pkey) EVP_PKEY_free(pkey);
 
     /* other clean here */
     snprintf( reply_msg, (size_t)REPLY_MSG_LEN, "c_l_s_v performance status: %x", retval );
@@ -955,7 +953,7 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
 #if !defined LIBRDKCONFIG_BUILD
         else {
               if (0 != prepare_kms_pubkey()) {
-                printf("prepare_kms_pubkey failed\n");
+                RDMError("prepare_kms_pubkey failed\n");
                 return status;
             }
         }
