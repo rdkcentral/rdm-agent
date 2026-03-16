@@ -216,10 +216,18 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
-                    continue;
+                        RDMError("Failed to extract the package: %s\n", tmp_file);
+                        continue;
                     }
-                }       
+                } else {
+                    RDMError("Failed to find data.tar.* in extracted IPK at path: %s\n", pRdmAppDet->app_dwnl_path);
+                    rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                                           pRdmAppDet->pkg_ver,
+                                           pRdmAppDet->app_home,
+                                           RDM_PKG_EXTRACT_ERROR);
+                    status = RDM_FAILURE;
+                    continue;
+                }
 
                 if(is_lxc) {
                     rdmDwnlLXCIPKExctact();
