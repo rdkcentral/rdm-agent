@@ -34,9 +34,6 @@
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
-#ifdef RDK_LOGGER_ENABLED
-#include "rdk_logger.h"
-#endif
 
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
