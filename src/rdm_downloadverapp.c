@@ -309,12 +309,24 @@ static INT32 rdmDwnlVAInstall(RDMAPPDetails *pRdmAppDet, CHAR **ppVer, INT32 num
         RDMInfo("Install the %s version of %s\n", pRdmAppDet->app_name, ppVer[i]);
         pRdmAppDet->app_dwnl_path[dlen] = 0;
         pRdmAppDet->app_home[hlen] = 0;
-        strcat(pRdmAppDet->app_dwnl_path, "/v");
-        strcat(pRdmAppDet->app_dwnl_path, ppVer[i]);
-        strcat(pRdmAppDet->app_home, "/v");
-        strcat(pRdmAppDet->app_home, ppVer[i]);
-        strcat(pRdmAppDet->app_home, "/package");
-
+	size_t app_dwnl_total_len = dlen + 2 + strlen(ppVer[i]); 
+        if (app_dwnl_total_len < RDM_APP_PATH_LEN) {
+            strcat(pRdmAppDet->app_dwnl_path, "/v");
+            strcat(pRdmAppDet->app_dwnl_path, ppVer[i]);
+        } else {
+            RDMError("Version path exceeds buffer, skipping.\n");
+            continue;
+        } 
+	size_t needed_hlen = hlen + 2 + strlen(ppVer[i]) + 8; 
+        if (needed_hlen < RDM_APP_PATH_LEN) {
+            strcat(pRdmAppDet->app_home, "/v");
+            strcat(pRdmAppDet->app_home, ppVer[i]);
+            strcat(pRdmAppDet->app_home, "/package");
+        } else {
+            RDMError("App home path exceeds buffer length for %s/v%s/package\n", pRdmAppDet->app_name, ppVer[i]);
+            pRdmAppDet->app_dwnl_path[dlen] = 0;
+            continue;
+        }
         if(rdmDownloadMgr(pRdmAppDet)) {
             RDMError("Failed to Install the App %s version of %s\n", pRdmAppDet->app_name, ppVer[i]);
         }
