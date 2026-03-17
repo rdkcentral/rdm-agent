@@ -19,7 +19,19 @@
 from time import sleep
 from helper_functions import *
 
+def test_is_rdm_download_url_notset():
+    command_to_check = "./rdm -v RDK-RRD-Test:1.0, timeout=120"
+    result = run_shell_command(command_to_check)
+    assert result != "", "rdm process did not start"
+
+    RFC_PARAM_MSG = "Unable to get: Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl rc =1"
+    assert RFC_PARAM_MSG in grep_RDMlogs(RFC_PARAM_MSG)
+
 def test_is_rdm_packages_install():
+    tr181_command_to_check = "tr181 -d -s -t string -v Test Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
+    result = run_shell_command(tr181_command_to_check)
+    assert "Set operation success" in result, '"Set operation success" not found in the output'
+
     remove_file("/tmp/.xconfssrdownloadurl")
     remove_file("/tmp/.rdm_ssr_location")
     command_to_check = "./rdm -v RDK-RRD-Test:1.0, timeout=120"
@@ -28,9 +40,6 @@ def test_is_rdm_packages_install():
 
     DL_URL_MSG = "Download URL is not available in /tmp/.xconfssrdownloadurl"
     assert DL_URL_MSG in grep_RDMlogs(DL_URL_MSG)
-
-    RFC_PARAM_MSG = "Unable to get: Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl rc =1"
-    assert RFC_PARAM_MSG in grep_RDMlogs(RFC_PARAM_MSG)
 
     DL_URL_NOTSET_MSG = "RDM download url is not available in both /tmp/.xconfssrdownloadurl and RFC parameter. Exiting..."
     assert DL_URL_NOTSET_MSG in grep_RDMlogs(DL_URL_NOTSET_MSG)
