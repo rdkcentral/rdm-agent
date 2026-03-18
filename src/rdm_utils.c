@@ -67,7 +67,6 @@ void RDMLOGInit()
     g_rdk_logger_enabled = 1;
 #endif
 #endif
-#endif
 }
 /*****************************************************************************
                            IARM Bus Operations
