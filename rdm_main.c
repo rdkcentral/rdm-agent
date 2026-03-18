@@ -460,7 +460,8 @@ int main(int argc, char* argv[])
 	    strncpy(bundle_list_copy, bundle_list_to_use, sizeof(bundle_list_copy) - 1);
 	    bundle_list_copy[sizeof(bundle_list_copy) - 1] = '\0';
 	    
-	    CHAR *bundle_token = strtok(bundle_list_copy, " ");
+	    CHAR *saveptr = NULL;
+	    CHAR *bundle_token = strtok_r(bundle_list_copy, " ", &saveptr);
 	    while (bundle_token != NULL) {
 		    /* Reset app details for each bundle */
 		    memset(pApp_det, 0, sizeof(RDMAPPDetails));
@@ -523,7 +524,7 @@ int main(int argc, char* argv[])
 		    }
 		    
 		    /* Move to next bundle */
-		    bundle_token = strtok(NULL, " ");
+		    bundle_token = strtok_r(NULL, " ", &saveptr);
 	    }
     }
 
