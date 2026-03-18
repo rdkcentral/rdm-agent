@@ -243,12 +243,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     is_lxc = 1;
                 }
                 RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
-		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		        strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
                 ip_file[sizeof(ip_file) - 1] = '\0';
-		strcat(ip_file, "/");
-		ip_file[sizeof(ip_file) - 1] = '\0';
-        	strcat(ip_file, tmp_file);
-		ip_file[sizeof(ip_file) - 1] = '\0';
+		        strcat(ip_file, "/");
+		        ip_file[sizeof(ip_file) - 1] = '\0';
+        	    strcat(ip_file, tmp_file);
+		        ip_file[sizeof(ip_file) - 1] = '\0';
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
@@ -258,20 +258,29 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
-                strcat(tmp_file, "/data.tar.xz");
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
-
-                status = tarExtract(tmp_file, pRdmAppDet->app_home);
-                if(status) {
+		        if(findPFile(pRdmAppDet->app_dwnl_path, "data.tar.*", tmp_file)) {
+                /* Extract the package */
+                    RDMInfo("Data file: %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+                    status = tarExtract(tmp_file, pRdmAppDet->app_home);
+                    if(status) {
+                        RDMError("Failed to extract the package\n");
+			            rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                                           pRdmAppDet->pkg_ver,
+                                           pRdmAppDet->app_home,
+                                           RDM_PKG_EXTRACT_ERROR);
+                        RDMError("Failed to extract the package: %s\n", tmp_file);
+                        continue;
+                    }
+                } else {
+                    RDMError("Failed to find data.tar.* in extracted IPK at path: %s\n", pRdmAppDet->app_dwnl_path);
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    status = RDM_FAILURE;
                     continue;
                 }
+
                 if(is_lxc) {
                     rdmDwnlLXCIPKExctact();
                 }
