@@ -270,6 +270,7 @@ INT32 rdmJSONQuery(CHAR const* pfName,
             RDMWarn("Unable to print cJSON item\n");
         }
         free(s);
+	}
         cJSON_Delete(item);
     }
     else {
