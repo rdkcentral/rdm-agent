@@ -574,6 +574,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(dwnl_path, pVer);
     }
     strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    app_home[RDM_APP_PATH_LEN - 1] = '\0'; //Ensure null termination
     if(pVer) {
         strcat(app_home, "/v");
         strcat(app_home, pVer);
@@ -610,6 +611,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
 #endif
         strncpy(out_file, app_home, RDM_APP_PATH_LEN);
+	out_file[RDM_APP_PATH_LEN - 1] = '\0';
         strcat(out_file, "/");
         strcat(out_file, pRdmAppDet->app_name);
         strcat(out_file, "_cpemanifest");
