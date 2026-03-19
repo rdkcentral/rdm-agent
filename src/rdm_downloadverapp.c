@@ -145,7 +145,11 @@ static VOID  rdmDwnlVAGetInstallVer(RDMAPPDetails *pRdmAppDet,
     findPFileAll(pRdmAppDet->app_home, RDM_JSON_VER, pkg_json, &num_ver, RDM_MAX_VER_LIST);
 
     for(i = 0; i < num_ver; i++) {
-        rdmJSONQuery(pkg_json[i], "version", ppVer[i]);
+        status = rdmJSONQuery(pkg_json[i], "version", ppVer[i]);
+	if(status)
+	{
+            RDMWarn("Unable to get version\n"); 		
+	}	
     }
 
     if(num_ver > 1) {
