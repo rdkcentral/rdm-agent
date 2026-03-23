@@ -261,8 +261,12 @@ INT32 rdmJSONQuery(CHAR const* pfName,
                         t++;
                 }
             }
-            strncpy(pOut, t, strlen(t));
-	    pOut[strlen(t)] = '\0';  // Ensure null termination
+	    if (t != NULL) {
+               strncpy(pOut, t, strlen(t));
+               pOut[t_len] = '\0';  // Ensure null termination
+            } else {
+                RDMError("Failed to extract JSON string: t is NULL\n");
+            }
             free(s);
         }
         cJSON_Delete(item);

@@ -477,6 +477,12 @@ INT32 rdm_openssl_file_hash_sha256(const CHAR *data_file,
                                    INT32 *buffer_len)
 {
     INT32 BUFSIZE;
+    
+    if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
+        RDMError("Invalid param error\n");
+        retval = retcode_param_error;
+        goto error;
+    }
 
     if ( manifest_file_size(data_file, &BUFSIZE) != 0 )
           return retcode_datafile_err;
@@ -488,11 +494,6 @@ INT32 rdm_openssl_file_hash_sha256(const CHAR *data_file,
 
     RDMInfo("Entry\n");
 
-    if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
-        RDMError("Invalid param error\n");
-        retval = retcode_param_error;
-        goto error;
-    }
     if (*buffer_len < SHA256_DIGEST_LENGTH) {
         *buffer_len = SHA256_DIGEST_LENGTH;
         RDMError("Wrong param error\n");
@@ -589,6 +590,11 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
                                                   INT32 *buffer_len)
 {
     INT32 BUFSIZE;
+    if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
+        RDMError("Invalid param error\n");
+        retval = retcode_param_error;
+        goto error;
+    }
     if (manifest_file_size(data_file, &BUFSIZE) != 0)
           return retcode_datafile_err;
 
@@ -603,11 +609,6 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
 
     RDMInfo("Entry\n");
 
-    if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
-        RDMError("Invalid param error\n");
-        retval = retcode_param_error;
-        goto error;
-    }
     if (*buffer_len < SHA256_DIGEST_LENGTH) {
         *buffer_len = SHA256_DIGEST_LENGTH;
         RDMError("Wrong param error\n");
