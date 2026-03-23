@@ -125,41 +125,51 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
 static cJSON* cJSON_SearchFile(CHAR const* fname, CHAR const* path)
 {
     INT32 ret = 0;
-    struct stat buf;
     CHAR* text = NULL;
     cJSON* json = NULL;
     cJSON* item = NULL;
     FILE* infile = NULL;
     size_t file_size = 0;
     size_t bytes_read = 0;
-
-    memset(&buf, 0, sizeof(buf));
-
-    ret = stat(fname, &buf);
-    if (ret == -1) {
-        RDMError("failed to stat:%s. %s\n", fname, strerror(errno));
+   
+    infile = fopen(fname, "r");
+    if (!infile) {
+        RDMError("failed to open:%s. %s", fname, strerror(errno));
         return NULL;
     }
 
-    file_size = buf.st_size;
-    text = (CHAR *) malloc(file_size + 1);
-    memset(text, 0, file_size + 1);
-    infile = fopen(fname, "r");
-    if (infile) {
-        bytes_read = fread(text, 1, file_size, infile);
-        if (bytes_read == file_size) {
-            json = cJSON_Parse(text);
-            item = cJSON_Search(json, path);
-            cJSON_Delete(json);
-        }
-        else {
-            RDMWarn("only read %zd of %zd from %s\n", bytes_read, file_size, fname);
-        }
+    if (fseek(infile, 0, SEEK_END) != 0) {
+        RDMError("failed to seek end of file:%s\n", fname);
         fclose(infile);
+        return NULL;
+    }
+
+    file_size = ftell(infile);
+    if (file_size < 0) {
+        RDMError("failed to get file size:%s\n", fname);
+        fclose(infile);
+        return NULL;
+    }
+
+    rewind(infile);
+
+    text = (CHAR *) malloc(file_size + 1);
+    if (!text) {
+        RDMError("failed to allocate memory for file contents\n");
+        fclose(infile);
+        return NULL;
+    }
+    memset(text, 0, file_size + 1);
+    bytes_read = fread(text, 1, file_size, infile);
+    if (bytes_read == file_size) {
+        json = cJSON_Parse(text);
+        item = cJSON_Search(json, path);
+        cJSON_Delete(json);
     }
     else {
-        RDMError("failed to open:%s. %s", fname, strerror(errno));
+        RDMWarn("only read %zd of %zd from %s\n", bytes_read, file_size, fname);
     }
+    fclose(infile);
 
     if (text != NULL) {
         free(text);
