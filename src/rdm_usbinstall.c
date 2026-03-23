@@ -83,6 +83,7 @@ INT32 rdmUSBInstall(RDMHandle *prdmHandle, RDMAPPDetails *pRdmAppDet, CHAR *pUsb
         rdmPrintAppDetails(pRdmAppDet);
 
         strncpy(pRdmAppDet->app_usb, usb_apps[i], MAX_BUFF_SIZE);
+        pRdmAppDet->app_usb[MAX_BUFF_SIZE - 1] = '\0';
 
         /* download is not required, package is already available in USB */
         pRdmAppDet->dwld_status = 1;
