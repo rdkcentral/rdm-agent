@@ -793,20 +793,20 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
            goto error;
         }
 #else    
+#if !defined(LIBRDKCONFIG_BUILD)
     RDMInfo("reading key file: %s\n",vkey_file);
-
     pub_fh = fopen(vkey_file, "rb");
     if (pub_fh == NULL) {
         RDMError("pubkey open fail\n");
         retval = retcode_keyfile_err;
         goto error;
     }
-
     pkey = PEM_read_PUBKEY(pub_fh, NULL, NULL, NULL);
     if (pkey == NULL) {
         RDMError("pubkey read fail\n");
         goto error;
     }
+#endif
 #endif
     /* reinit a digest context */
     EVP_MD_CTX_destroy( mdctx );
