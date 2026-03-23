@@ -477,22 +477,24 @@ INT32 rdm_openssl_file_hash_sha256(const CHAR *data_file,
                                    INT32 *buffer_len)
 {
     INT32 BUFSIZE;
-
-    if ( manifest_file_size(data_file, &BUFSIZE) != 0 )
-          return retcode_datafile_err;
-
+    INT32 retval;
     EVP_MD_CTX *mdctx = NULL;
     FILE *data_fh = NULL;
-    UINT8* buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
-    INT32 retval;
-
-    RDMInfo("Entry\n");
 
     if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
         RDMError("Invalid param error\n");
         retval = retcode_param_error;
         goto error;
     }
+
+    if ( manifest_file_size(data_file, &BUFSIZE) != 0 )
+          return retcode_datafile_err;
+
+    UINT8* buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
+
+    RDMInfo("Entry\n");
+
+    
     if (*buffer_len < SHA256_DIGEST_LENGTH) {
         *buffer_len = SHA256_DIGEST_LENGTH;
         RDMError("Wrong param error\n");
@@ -589,25 +591,30 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
                                                   INT32 *buffer_len)
 {
     INT32 BUFSIZE;
-    if (manifest_file_size(data_file, &BUFSIZE) != 0)
-          return retcode_datafile_err;
-
+    INT32 retval;
     EVP_MD_CTX *mdctx = NULL;
     FILE *manifest_fh = NULL;
     FILE *data_fh     = NULL;
-    UINT8* buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
     CHAR *manifest  = NULL;
     CHAR *path_buff = NULL;
-    INT32 retval;
-    size_t bytesread = 0;
-
-    RDMInfo("Entry\n");
+    UINT8* buffer = NULL;
 
     if (data_file == NULL || hash_buffer == NULL || buffer_len == NULL) {
         RDMError("Invalid param error\n");
         retval = retcode_param_error;
         goto error;
     }
+
+    if (manifest_file_size(data_file, &BUFSIZE) != 0)
+          return retcode_datafile_err;
+
+    buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
+    
+    size_t bytesread = 0;
+
+    RDMInfo("Entry\n");
+
+  
     if (*buffer_len < SHA256_DIGEST_LENGTH) {
         *buffer_len = SHA256_DIGEST_LENGTH;
         RDMError("Wrong param error\n");
@@ -733,7 +740,6 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
                                INT32 *reply_msg_len)
 {
     EVP_MD_CTX *mdctx = NULL;
-    FILE     *sig_fh  = NULL;
     EVP_PKEY *pkey    = NULL;
     CHAR hash_ascii[SHA256_ASCII_DIGEST_LENGTH + 1];
     UINT8 *sig;
@@ -792,7 +798,8 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
            debug_print("Unable to read the key from PEM.");
            goto error;
         }
-#else    
+#else
+#if !defined(LIBRDKCONFIG_BUILD)    	
     RDMInfo("reading key file: %s\n",vkey_file);
 
     pub_fh = fopen(vkey_file, "rb");
@@ -807,6 +814,7 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
         RDMError("pubkey read fail\n");
         goto error;
     }
+#endif
 #endif
     /* reinit a digest context */
     EVP_MD_CTX_destroy( mdctx );
@@ -837,12 +845,11 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
 err:
 error:
 
-    if (sig_fh != NULL) fclose(sig_fh);
-#if !defined(LIBRDKCONFIG_BUILD)    
-    if (pub_fh != NULL) fclose(pub_fh);
+    #if !defined(LIBRDKCONFIG_BUILD)    
+    if (pub_fh) fclose(pub_fh);
 #endif
-    if (mdctx  != NULL) EVP_MD_CTX_destroy(mdctx);
-    if (pkey   != NULL) EVP_PKEY_free(pkey);
+    if (mdctx) EVP_MD_CTX_destroy(mdctx);
+    if (pkey) EVP_PKEY_free(pkey);
 
     /* other clean here */
     snprintf( reply_msg, (size_t)REPLY_MSG_LEN, "c_l_s_v performance status: %x", retval );
@@ -955,7 +962,7 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
 #if !defined LIBRDKCONFIG_BUILD
         else {
               if (0 != prepare_kms_pubkey()) {
-                printf("prepare_kms_pubkey failed\n");
+                RDMError("prepare_kms_pubkey failed\n");
                 return status;
             }
         }
