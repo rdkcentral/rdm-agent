@@ -55,6 +55,36 @@ static INT32 rdmDwnlLXCIPKExctact()
     return RDM_SUCCESS;
 }
 
+#ifdef L2_TEST_ENABLED
+static INT32 rdmDwnlRetryIfRequiredFileMissing(RDMAPPDetails *pRdmAppDet, CHAR *signed_file, const CHAR *required_file)
+{
+    CHAR pkg_file[RDM_APP_PATH_LEN];
+    INT32 status = RDM_SUCCESS;
+
+    int ret = snprintf(pkg_file, sizeof(pkg_file), "%s/%s", pRdmAppDet->app_dwnl_path, required_file);
+    if(ret < 0 || (size_t)ret >= sizeof(pkg_file)) {
+        RDMWarn("Package file path truncated for %s\n", required_file);
+        return RDM_FAILURE;
+    }
+
+    if(fileCheck(pkg_file)) {
+        return RDM_SUCCESS;
+    }
+
+    CHAR pkg_cmd[RDM_APP_PATH_LEN * 2];
+    snprintf(pkg_cmd, sizeof(pkg_cmd), "tar -xf %s -C %s",
+            signed_file, pRdmAppDet->app_dwnl_path);
+    RDMInfo("Trying system command extraction: %s\n", pkg_cmd);
+    copyCommandOutput(pkg_cmd, NULL, 0);
+
+    if(!fileCheck(pkg_file)) {
+        RDMWarn("%s not found after retries for %s. Continuing extraction flow\n", required_file, signed_file);
+        status = RDM_FAILURE;
+    }
+    return status;
+}
+#endif
+
 INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
@@ -79,6 +109,14 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     }
 		    RDMInfo("Extraction of %s is Successful\n", tmp_file);
             }
+
+        #ifdef L2_TEST_ENABLED
+            if(rdmDwnlRetryIfRequiredFileMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest") == RDM_SUCCESS)
+            {
+                RDMInfo("Extraction of pkg_cpemanifest is successful\n");
+            }
+        #endif
+
 	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
 	    tmp_file[sizeof(tmp_file) - 1] = '\0';
 	    strcat(tmp_file, "/");
@@ -102,6 +140,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 		    RDMError("Failed to extract the package: %s\n", tmp_file);
             }
 	    RDMInfo("Extraction of %s is Successful \n", tmp_file);
+
+        #ifdef L2_TEST_ENABLED
+            if(rdmDwnlRetryIfRequiredFileMissing(pRdmAppDet, tmp_file, "package.json") == RDM_SUCCESS)
+            {
+                RDMInfo("Extraction of package.json is successful\n");
+            }
+        #endif
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
 	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
@@ -132,6 +177,13 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     else {
         status = RDM_FAILURE;
     }
+
+#ifdef L2_TEST_ENABLED
+    if(rdmDwnlRetryIfRequiredFileMissing(pRdmAppDet, tmp_file, "pkg_cpemanifest") == RDM_SUCCESS)
+    {
+       RDMInfo("Extraction of pkg_cpemanifest is successful\n");
+    }
+#endif
 
 #ifdef L2_TEST_ENABLED
     strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
@@ -191,12 +243,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     is_lxc = 1;
                 }
                 RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
-		strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+		        strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
                 ip_file[sizeof(ip_file) - 1] = '\0';
-		strcat(ip_file, "/");
-		ip_file[sizeof(ip_file) - 1] = '\0';
-        	strcat(ip_file, tmp_file);
-		ip_file[sizeof(ip_file) - 1] = '\0';
+		        strcat(ip_file, "/");
+		        ip_file[sizeof(ip_file) - 1] = '\0';
+        	    strcat(ip_file, tmp_file);
+		        ip_file[sizeof(ip_file) - 1] = '\0';
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
@@ -206,20 +258,29 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     RDMError("Failed to extract the package: %s\n", tmp_file);
                     continue;
                 }
-                strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
-                strcat(tmp_file, "/data.tar.xz");
-		tmp_file[sizeof(tmp_file) - 1] = '\0';
-
-                status = tarExtract(tmp_file, pRdmAppDet->app_home);
-                if(status) {
+		        if(findPFile(pRdmAppDet->app_dwnl_path, "data.tar.*", tmp_file)) {
+                /* Extract the package */
+                    RDMInfo("Data file: %s dwnd path %s\n", tmp_file,pRdmAppDet->app_dwnl_path);
+                    status = tarExtract(tmp_file, pRdmAppDet->app_home);
+                    if(status) {
+                        RDMError("Failed to extract the package\n");
+			            rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
+                                           pRdmAppDet->pkg_ver,
+                                           pRdmAppDet->app_home,
+                                           RDM_PKG_EXTRACT_ERROR);
+                        RDMError("Failed to extract the package: %s\n", tmp_file);
+                        continue;
+                    }
+                } else {
+                    RDMError("Failed to find data.tar.* in extracted IPK at path: %s\n", pRdmAppDet->app_dwnl_path);
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
                                            pRdmAppDet->pkg_ver,
                                            pRdmAppDet->app_home,
                                            RDM_PKG_EXTRACT_ERROR);
-                    RDMError("Failed to extract the package: %s\n", tmp_file);
+                    status = RDM_FAILURE;
                     continue;
                 }
+
                 if(is_lxc) {
                     rdmDwnlLXCIPKExctact();
                 }

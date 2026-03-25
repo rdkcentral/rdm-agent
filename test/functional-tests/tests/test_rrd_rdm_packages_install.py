@@ -96,4 +96,7 @@ def test_rrd_json_read_status():
     assert PARSE_READ_SUCCESS_MSG in grep_RRDlogs(PARSE_READ_SUCCESS_MSG)
 
     ISSUE_CATEGORY_MSG = "Reading Issue Category:Test..."
-    assert ISSUE_CATEGORY_MSG in grep_RRDlogs(ISSUE_CATEGORY_MSG)    
+    assert ISSUE_CATEGORY_MSG in grep_RRDlogs(ISSUE_CATEGORY_MSG)
+
+def test_check_and_stop_remotedebugger():
+    kill_rrd()
