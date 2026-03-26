@@ -126,30 +126,34 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 {
     INT32 status = RDM_SUCCESS;
     CHAR  tmp[RDM_APP_PATH_LEN]  = {0};
+    
+    if (snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm", pAppPath) >= RDM_APP_PATH_LEN)
+        return RDM_FAILURE;
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/rdm");
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/downloads");
+    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads", pAppPath) >= RDM_APP_PATH_LEN)
+        return RDM_FAILURE;	    
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/");
-    strncat(tmp, pAppname, RDM_APP_PATH_LEN - strlen(tmp) - 1);
+    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads/%s", pAppPath, pAppname) >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/");
-    strncat(tmp, pAppname,RDM_APP_PATH_LEN - strlen(tmp) - 1);
+    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/%s", pAppPath, pAppname) >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
