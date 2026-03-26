@@ -54,6 +54,7 @@ UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 
     last_mod_time = getFileLastModifyTime(file);
     if (last_mod_time != 0) {
+	// coverity[copy_paste_error : FALSE] Intentional
         current_time = getCurrentSysTimeSec();
         modification_time = current_time - last_mod_time;
         remtime = (block_time/60) - (modification_time/60);
@@ -125,30 +126,39 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 {
     INT32 status = RDM_SUCCESS;
     CHAR  tmp[RDM_APP_PATH_LEN]  = {0};
+    int ret = 0;
+   
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm", pAppPath); 
+    if ( ret < 0 || ret >= RDM_APP_PATH_LEN )
+        return RDM_FAILURE;
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/rdm");
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/downloads");
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads", pAppPath);
+    if(ret < 0 || ret >= RDM_APP_PATH_LEN)
+        return RDM_FAILURE;	    
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/");
-    strcat(tmp, pAppname);
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/");
-    strcat(tmp, pAppname);
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
@@ -260,9 +270,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.chunk_dwnl_retry_time = 0;
     strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) -1);
-    strcat(file_dwnl.pathname, "/");
-    strcat(file_dwnl.pathname, pPkgName);
+    snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName);
     file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
     strcpy(pOut, file_dwnl.pathname);
 
@@ -567,17 +575,73 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         return RDM_FAILURE;
     }
 
-    strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN);
-    dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
+    strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+    dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';
     if(pVer) {
-        strcat(dwnl_path, "/v");
-        strcat(dwnl_path, pVer);
-    }
-    strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
-    if(pVer) {
-        strcat(app_home, "/v");
-        strcat(app_home, pVer);
-        strcat(app_home, "/package");
+        size_t curr_len = strlen(dwnl_path);
+        size_t remain = RDM_APP_PATH_LEN - curr_len - 1; // Reserve space for null terminator
+
+       // Append "/v"
+        if(remain >= 2) {  // "/v" == 2 chars
+            strncat(dwnl_path, "/v", remain);
+            curr_len = strlen(dwnl_path);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append /v to dwnl_path");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append pVer
+        size_t ver_len = strlen(pVer);
+        if(remain >= ver_len) {
+            strncat(dwnl_path, pVer, remain);
+        } else {
+            RDMError("Not enough space to append version to dwnl_path");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+   }
+    
+    // Build app_home safely
+   strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
+   app_home[RDM_APP_PATH_LEN - 1] = '\0';
+
+   if(pVer) {
+        size_t curr_len = strlen(app_home);
+        size_t remain = RDM_APP_PATH_LEN - curr_len - 1;
+
+    // Append "/v"
+        if(remain >= 2) {
+            strncat(app_home, "/v", remain);
+            curr_len = strlen(app_home);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append /v to app_home");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append version
+        size_t ver_len = strlen(pVer);
+        if(remain >= ver_len) {
+            strncat(app_home, pVer, remain);
+            curr_len = strlen(app_home);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append version to app_home");
+	        free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append "/package"
+        if(remain >= 8) { // "/package" is 8 chars
+            strncat(app_home, "/package", remain);
+        } else {
+            RDMError("Not enough space to append /package to app_home");
+	        free(out_buf);
+            return RDM_FAILURE;
+        }
     }
 
     if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
@@ -586,8 +650,8 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         if(status) {
             RDMError("RDM Validation Failed : Unable to read Signature file: %s\n", pkg_file);
 	    if(out_buf)
-                free(out_buf);
-            return status;
+            free(out_buf);
+        return status;
         }
     }
 
@@ -609,10 +673,13 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(tmp_file, "_cpemanifest");
 
 #endif
-        strncpy(out_file, app_home, RDM_APP_PATH_LEN);
-        strcat(out_file, "/");
-        strcat(out_file, pRdmAppDet->app_name);
-        strcat(out_file, "_cpemanifest");
+        int n = snprintf(out_file, RDM_APP_PATH_LEN, "%s/%s_cpemanifest", app_home, pRdmAppDet->app_name);
+        if (n < 0 || n >= RDM_APP_PATH_LEN)
+        {
+            RDMError("Output manifest file path is too long");
+            free(out_buf);
+            return RDM_FAILURE;
+        }
 	
         status = rdmDwnlUpdateManifest(tmp_file, out_file,
                                        app_home,
