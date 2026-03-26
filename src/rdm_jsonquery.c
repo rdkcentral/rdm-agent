@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <cJSON.h>
@@ -124,42 +125,63 @@ static cJSON* cJSON_Search(cJSON const* json, CHAR const* path)
 
 static cJSON* cJSON_SearchFile(CHAR const* fname, CHAR const* path)
 {
-    INT32 ret = 0;
-    struct stat buf;
+    
     CHAR* text = NULL;
     cJSON* json = NULL;
     cJSON* item = NULL;
     FILE* infile = NULL;
-    size_t file_size = 0;
+    long file_long = 0;
     size_t bytes_read = 0;
-
-    memset(&buf, 0, sizeof(buf));
-
-    ret = stat(fname, &buf);
-    if (ret == -1) {
-        RDMError("failed to stat:%s. %s\n", fname, strerror(errno));
+    if ((fname == NULL) || (fname[0] == '\0')) {
+        RDMError("cJSON_SearchFile: invalid file name (NULL or empty)");
         return NULL;
     }
-
-    file_size = buf.st_size;
-    text = (CHAR *) malloc(file_size + 1);
-    memset(text, 0, file_size + 1);
+    if ((path == NULL) || (path[0] == '\0')) {
+        RDMError("cJSON_SearchFile: invalid JSON path (NULL or empty)");
+        return NULL;
+    }
     infile = fopen(fname, "r");
-    if (infile) {
-        bytes_read = fread(text, 1, file_size, infile);
-        if (bytes_read == file_size) {
-            json = cJSON_Parse(text);
-            item = cJSON_Search(json, path);
-            cJSON_Delete(json);
-        }
-        else {
-            RDMWarn("only read %zd of %zd from %s\n", bytes_read, file_size, fname);
-        }
+    if (!infile) {
+        RDMError("failed to open:%s. %s", fname, strerror(errno));
+        return NULL;
+    }
+    if (fseek(infile, 0, SEEK_END) != 0) {
+        RDMError("failed to seek end of file:%s\n", fname);
         fclose(infile);
+        return NULL;
+    }
+    file_long = ftell(infile);
+    if (file_long < 0) {
+        RDMError("failed to get file size:%s\n", fname);
+        fclose(infile);
+        return NULL;
+    }
+    if ((unsigned long)file_long > SIZE_MAX - 1) 
+    {
+        RDMError("file too large to process safely: %s\n", fname);
+        fclose(infile);
+        return NULL;
+    }
+    rewind(infile); 
+
+    size_t file_size = (size_t)file_long;
+    text = (CHAR *) malloc(file_size + 1);
+    if (text == NULL) {
+        RDMError("failed to allocate memory for file:%s\n", fname);
+        fclose(infile);
+        return NULL;
+    }
+    memset(text, 0, file_size + 1);
+    bytes_read = fread(text, 1, file_size, infile);
+    if (bytes_read == file_size) {
+        json = cJSON_Parse(text);
+        item = cJSON_Search(json, path);
+        cJSON_Delete(json);
     }
     else {
-        RDMError("failed to open:%s. %s", fname, strerror(errno));
+        RDMWarn("only read %zd of %zd from %s\n", bytes_read, file_size, fname);
     }
+    fclose(infile);
 
     if (text != NULL) {
         free(text);
@@ -261,10 +283,15 @@ INT32 rdmJSONQuery(CHAR const* pfName,
                         t++;
                 }
             }
+        if(t != NULL) {
             strncpy(pOut, t, strlen(t));
-	    pOut[strlen(t)] = '\0';  // Ensure null termination
-            free(s);
+            pOut[strlen(t)] = '\0';
         }
+        else {
+            RDMWarn("Unable to print cJSON item\n");
+        }
+        free(s);
+	}
         cJSON_Delete(item);
     }
     else {
