@@ -126,8 +126,10 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 {
     INT32 status = RDM_SUCCESS;
     CHAR  tmp[RDM_APP_PATH_LEN]  = {0};
-    
-    if (snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm", pAppPath) >= RDM_APP_PATH_LEN)
+    int ret = 0;
+   
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm", pAppPath); 
+    if ( ret < 0 || ret >= RDM_APP_PATH_LEN )
         return RDM_FAILURE;
 
     status = createDir(tmp);
@@ -135,7 +137,8 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
         return RDM_FAILURE;
     }
 
-    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads", pAppPath) >= RDM_APP_PATH_LEN)
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads", pAppPath);
+    if(ret < 0 || ret >= RDM_APP_PATH_LEN)
         return RDM_FAILURE;	    
 
     status = createDir(tmp);
@@ -143,7 +146,8 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
         return RDM_FAILURE;
     }
 
-    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads/%s", pAppPath, pAppname) >= RDM_APP_PATH_LEN)
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
 	return RDM_FAILURE;
 
     status = createDir(tmp);
@@ -151,7 +155,8 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
         return RDM_FAILURE;
     }
 
-    if(snprintf(tmp, RDM_APP_PATH_LEN, "%s/%s", pAppPath, pAppname) >= RDM_APP_PATH_LEN)
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
 	return RDM_FAILURE;
 
     status = createDir(tmp);
@@ -668,11 +673,13 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         strcat(tmp_file, "_cpemanifest");
 
 #endif
-        strncpy(out_file, app_home, RDM_APP_PATH_LEN);
-        out_file[RDM_APP_PATH_LEN - 1] = '\0';
-        strcat(out_file, "/");
-        strcat(out_file, pRdmAppDet->app_name);
-        strcat(out_file, "_cpemanifest");
+        int n = snprintf(out_file, RDM_APP_PATH_LEN, "%s/%s_cpemanifest", app_home, pRdmAppDet->app_name);
+        if (n < 0 || n >= RDM_APP_PATH_LEN)
+        {
+            RDMError("Output manifest file path is too long");
+            free(out_buf);
+            return RDM_FAILURE;
+        }
 	
         status = rdmDwnlUpdateManifest(tmp_file, out_file,
                                        app_home,

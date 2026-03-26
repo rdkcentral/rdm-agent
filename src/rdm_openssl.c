@@ -491,6 +491,12 @@ INT32 rdm_openssl_file_hash_sha256(const CHAR *data_file,
 
     UINT8* buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
 
+    if (buffer == NULL) {
+        RDMError("Memory allocation failed\n");
+        retval = retcode_param_error;
+        goto error;
+    }
+
     RDMInfo("Entry\n");
 
     
@@ -607,7 +613,12 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
           return retcode_datafile_err;
 
     buffer = (UINT8*)calloc(sizeof(UINT8), BUFSIZE );
-    
+   
+    if (buffer == NULL) {
+        RDMError("Failed to allocate buffer of size %d\n", BUFSIZE);
+        retval = retcode_param_error;
+        goto error;
+    } 
     size_t bytesread = 0;
 
     RDMInfo("Entry\n");

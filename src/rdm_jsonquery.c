@@ -22,6 +22,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <cJSON.h>
@@ -131,6 +132,14 @@ static cJSON* cJSON_SearchFile(CHAR const* fname, CHAR const* path)
     FILE* infile = NULL;
     long file_long = 0;
     size_t bytes_read = 0;
+    if ((fname == NULL) || (fname[0] == '\0')) {
+        RDMError("cJSON_SearchFile: invalid file name (NULL or empty)");
+        return NULL;
+    }
+    if ((path == NULL) || (path[0] == '\0')) {
+        RDMError("cJSON_SearchFile: invalid JSON path (NULL or empty)");
+        return NULL;
+    }
     infile = fopen(fname, "r");
     if (!infile) {
         RDMError("failed to open:%s. %s", fname, strerror(errno));
@@ -144,6 +153,12 @@ static cJSON* cJSON_SearchFile(CHAR const* fname, CHAR const* path)
     file_long = ftell(infile);
     if (file_long < 0) {
         RDMError("failed to get file size:%s\n", fname);
+        fclose(infile);
+        return NULL;
+    }
+    if ((unsigned long)file_long > SIZE_MAX - 1) 
+    {
+        RDMError("file too large to process safely: %s\n", fname);
         fclose(infile);
         return NULL;
     }
