@@ -393,6 +393,10 @@ sendDownloadRequest()
                   downloadStatus=0
                   status=0
                   log_msg "sendDownloadRequest: Curl Download Success for $downloadUrl"
+            elif [ "$http_code" = "404" ]; then
+		  downloadStatus=0
+                  status=0
+                  log_msg "sendDownloadRequest: Curl Download exited due to $http_code Error"
             fi
         fi
     done
@@ -607,6 +611,9 @@ applicationDownload()
     if [ -s $DOWNLOAD_LOCATION/$downloadFile ]; then
          log_msg "applicationDownload: Size Info After Download: `ls -lh $DOWNLOAD_LOCATION/$downloadFile`"
          return 0
+    elif [ "$http_code" = "404" ]; then
+         log_msg "applicationDownload: ${downloadFile} not found on server (404)"
+	 return 0
     else
          log_msg "applicationDownload: ${downloadFile} download failed"
          return 1
