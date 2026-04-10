@@ -361,19 +361,26 @@ int main(int argc, char* argv[])
             if(pApp_det->dwld_on_demand) {
                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
 
-                if(!strcmp(pApp_det->dwld_method_controller, "RFC")) {
+                RDMInfo("pApp_det->dwld_method_controller value is %s\n",pApp_det->dwld_method_controller);
+		        if(!strcmp(pApp_det->dwld_method_controller, "RFC")) {
                     snprintf(rfc_app, sizeof(rfc_app), "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",pApp_det->app_name);
 
                     ret =  rdmRbusGetRfc(prdmHandle->pRbusHandle,
                                          rfc_app,
                                          &app_rfc_status);
-
-                    if(ret == RDM_SUCCESS && app_rfc_status == 0) {
+                    RDMInfo("app_rfc_status : %d\n", app_rfc_status);
+                    if(ret != RDM_SUCCESS || app_rfc_status == 0) {
                         RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",idx, pApp_det->app_name);
                         idx++; /*advance idx before continue to avoid re-processing same entry */
                         continue;
                     }
                 }
+		        else
+		        {
+		            RDMWarn("RFC is not defined/empty  skipping the download for:App:%d=>yes=>%s\n",idx, pApp_det->app_name);
+                    idx++; /*advance idx before continue to avoid re-processing same entry */
+                    continue;	
+		        }
             }
             RDMInfo("Start the download of App: %s\n", pApp_det->app_name);
 
