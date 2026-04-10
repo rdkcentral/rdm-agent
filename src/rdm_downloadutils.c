@@ -876,7 +876,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                                    &app_rfc_status);
 
 
-                                    if (ret == RDM_SUCCESS && app_rfc_status == 0)
+                                    if(ret != RDM_SUCCESS || app_rfc_status == 0)
                                     {
                                         RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
                                         isAppUninstalled = 1;
