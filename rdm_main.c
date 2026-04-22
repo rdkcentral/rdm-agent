@@ -296,9 +296,9 @@ int main(int argc, char* argv[])
         }
     }
 
-    if(is_broadband) {
+    /*if(is_broadband) {
         bFsCheck = 0;
-    }
+    }*/
 
     pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
     if(pApp_det == NULL) {
