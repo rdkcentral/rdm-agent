@@ -959,6 +959,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
         }
         else{
 #ifdef IARMBUS_SUPPORT
+	    RDMError("IARMBUS_SUPPORT is defined \n",IARMBUS_SUPPORT);	
             RDMError("Failed to list the %s directory\n",APP_MOUNT_PATH);
 #endif
         }
