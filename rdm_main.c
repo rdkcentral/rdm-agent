@@ -257,6 +257,8 @@ int main(int argc, char* argv[])
     RDMHandle     *prdmHandle = NULL;
 
     RDMLOGInit();
+
+	RDMInfo("Test PR to confirm whether L1 and L2 are passing\n");
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;
