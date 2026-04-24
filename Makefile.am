@@ -64,6 +64,7 @@ if IS_RDKB
   rdm_SOURCES += src/rdm-cpc/rdm/rdm_openssl.c  \
                  src/rdm-cpc/rdm/rdm_downloadutils.c
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
+		-DIS_RDKB
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
 else
