@@ -28,7 +28,11 @@
 #include <json_parse.h>
 #include <downloadUtil.h>
 #include "codebigUtils.h"
+#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
+#else
+#define RDM_PKG_INVALID_INPUT 11
+#endif
 #else
 #include "unittest/mocks/system_utils.h"
 #include "unittest/mocks/rdmMgr.h"
@@ -105,6 +109,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
 
     if(strstr(pUrl, "http")) {
         /* Replace http with https */
+#ifdef WITH_HTTPS_SUPPORT
         if(!strstr(pUrl, "https")) {
 	    RDMInfo("Replacing http with https in curl download request\n");
             memset(dwnl_url, 0, MAX_BUFF_SIZE);
@@ -112,6 +117,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
             strncpy(dwnl_url+5, pUrl+4, MAX_BUFF_SIZE-5);
             strncpy(pUrl, dwnl_url, MAX_BUFF_SIZE);
         }
+#endif
 	RDMInfo("RDM App Download URL Location is %s\n", pUrl);
     }
     else {
@@ -569,6 +575,9 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     INT32 ssl_status = 0;
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
+#ifndef WITH_HTTPS_SUPPORT
+    pRdmAppDet->sig_type = RDM_SIG_TYPE_OPENSSL;
+#endif
 
     if(out_buf == NULL) {
         RDMError("RDM Validation Failed : Unable to allocate memory\n");
