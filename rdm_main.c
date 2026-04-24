@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;
-#ifndef IARMBUS_SUPPORT
+#ifdef IS_RDKB
 	is_broadband = 1;
 #endif
     }
