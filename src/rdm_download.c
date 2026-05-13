@@ -195,8 +195,12 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
             fseek(fp_met, 0, SEEK_SET);
             while (fgets(line, sizeof(line), fp_met)) {
                 if(strncmp(line, pRdmAppDet->app_name, strlen(pRdmAppDet->app_name)) != 0 ){
-                    strncpy(buffer + buffer_index, line, sizeof(buffer) - buffer_index);
-                    buffer_index += strlen(line);
+                    int buflen = snprintf(buffer + buffer_index, sizeof(buffer) - buffer_index, "%s", line);
+                    if (buflen < 0 || (size_t)buflen >= (sizeof(buffer) - buffer_index)) {
+                        RDMWarn("Buffer Overflow\n");
+                        break;
+                    }
+                    buffer_index += buflen;
                 }
             }
 
