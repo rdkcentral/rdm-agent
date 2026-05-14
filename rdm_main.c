@@ -204,7 +204,7 @@ static VOID rdmHelp()
     RDMInfo("To Install apps from manifset : rdm\n");
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
-    RDMInfo("To Install Versioned app      : rdm -v <app_name>\n");
+    RDMInfo("To Install Versioned app(s)   : rdm -v <app:ver[,app:ver]>\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -464,7 +464,7 @@ int main(int argc, char* argv[])
 	    bundle_list_copy[sizeof(bundle_list_copy) - 1] = '\0';
 	    
 	    CHAR *saveptr = NULL;
-	    CHAR *bundle_token = strtok_r(bundle_list_copy, " ", &saveptr);
+	    CHAR *bundle_token = strtok_r(bundle_list_copy, " ,", &saveptr);
 	    while (bundle_token != NULL) {
 		    /* Reset app details for each bundle */
 		    memset(pApp_det, 0, sizeof(RDMAPPDetails));
@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
 		    }
 		    
 		    /* Move to next bundle */
-		    bundle_token = strtok_r(NULL, " ", &saveptr);
+		    bundle_token = strtok_r(NULL, " ,", &saveptr);
 	    }
     }
 
