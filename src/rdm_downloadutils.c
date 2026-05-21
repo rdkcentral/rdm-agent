@@ -222,12 +222,6 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         }
 }
 
-//Check for StateRed. Returns 1 if in StateRed.
-INT32 rdmDwnlIsInStateRed()
-{
-    return 0;
-}
-
 INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
 {
     //Read your Cert details here
