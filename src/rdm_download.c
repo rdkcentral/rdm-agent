@@ -184,7 +184,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 
     /*If the rdmDownloadInfo.txt file doesn't exist, it will be created*/
     if(DLInfoStatus == RDM_SUCCESS) {
-        char tmpfile[512];
+        char tmpfile[RDM_APP_PATH_LEN + 5];
         snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", pRdmAppDet->app_dwnl_info);
         FILE *fp_in = fopen(pRdmAppDet->app_dwnl_info, "r");
         FILE *fp_out = fopen(tmpfile, "w");
@@ -210,6 +210,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
             // Atomically replace the original file
             if (rename(tmpfile, pRdmAppDet->app_dwnl_info) != 0) {
                 RDMError("Failed to rename temp file to %s\n", pRdmAppDet->app_dwnl_info);
+		remove(tmpfile);
             } else {
                 RDMInfo("Meta data file updated successfully\n");
             }
