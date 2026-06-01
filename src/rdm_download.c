@@ -105,7 +105,6 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     CHAR *DLInfoPath = NULL;
     CHAR *DLInfoFile = NULL;
     INT32 DLInfoStatus = RDM_SUCCESS;
-    FILE  *fp_met = NULL;
 
     *pDLStatus = RDM_DL_NOERROR;
 
