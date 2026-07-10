@@ -44,7 +44,6 @@
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
 
-#define RDM_DWNLD_MAX_RETRIES 2
 
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
