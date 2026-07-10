@@ -15,6 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+/* trial */
 #ifndef GTEST_ENABLE
 #ifdef IARMBUS_SUPPORT
 #include "libIBus.h"
