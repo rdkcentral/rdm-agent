@@ -316,12 +316,12 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
 
     /* Check for direct download is blocked */
     if(!(rdmDwnlIsBlocked(DIRECT_BLOCK_FILENAME, DIRECT_BLOCK_TIME))) {
-        while(retry_count <= 2) {
+        while(retry_count <= RDM_DWNLD_MAX_RETRIES) {
 	    if(retry_count == 1) {
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(10);
 	    }
-	    else if(retry_count == 2) {
+	    else if(retry_count == RDM_DWNLD_MAX_RETRIES) {
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(30);
 	    }
