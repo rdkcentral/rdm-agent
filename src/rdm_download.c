@@ -62,12 +62,12 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 
         fs_status = emptyFolder(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
-            RDMError("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
+            RDMWarn("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
         }
 
         fs_status = emptyFolder(pRdmAppDet->app_home);
         if(fs_status) {
-            RDMError("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
+            RDMWarn("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
         }
 
         fs_freespace = getFreeSpace(pRdmAppDet->app_mnt);
