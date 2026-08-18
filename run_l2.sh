@@ -38,6 +38,7 @@ echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.xconfssrdownloadurl
 rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string https://mockxconf:50056/rdmUploadFile
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_install.json test/functional-tests/tests/test_rdm_packages_install.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_install_package_validation.json test/functional-tests/tests/test_rdm_install_package_validation.py
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_info.json test/functional-tests/tests/test_rdm_download_info.py
 

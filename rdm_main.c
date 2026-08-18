@@ -211,28 +211,43 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
         return false;
     }
 
-    const CHAR *colon = strchr(token, ':');
-    if (colon == NULL || colon == token || colon[1] == '\0') {
+    const CHAR *delimit = strchr(token, ':');
+    if (delimit == NULL || delimit == token || delimit[1] == '\0') {
         return false;
     }
 
     /* Exactly one ':' is required. */
-    if (strchr(colon + 1, ':') != NULL) {
+    if (strchr(delimit + 1, ':') != NULL) {
         return false;
     }
 
-    for (const CHAR *p = token; *p != '\0'; ++p) {
-        if (*p == ':') {
-            continue;
-        }
-
+    for (const CHAR *p = token; p < delimit; ++p) {
         if (!(isalnum((unsigned char)*p) || *p == '-' || *p == '_' || *p == '.')) {
+            return false;
+        }
+    }
+
+    const CHAR *version_separator = strchr(delimit + 1, '.');
+    if (version_separator == NULL || version_separator == delimit + 1 || version_separator[1] == '\0' ||
+        strchr(version_separator + 1, '.') != NULL) {
+        return false;
+    }
+
+    for (const CHAR *p = delimit + 1; *p != '\0'; ++p) {
+        if (*p != '.' && !isdigit((unsigned char)*p)) {
             return false;
         }
     }
 
     return true;
 }
+
+#ifdef GTEST_ENABLE
+bool rdmTestIsValidInstallPackageToken(const CHAR *token)
+{
+    return rdmIsValidInstallPackageToken(token);
+}
+#endif
 
 static VOID rdmHelp()
 {
@@ -479,7 +494,6 @@ int main(int argc, char* argv[])
 	    RDMInfo("Starting versioned app download for: %s\n", app_name ? app_name : "(null)");
             if (app_name == NULL || app_name[0] == '\0') {
                 RDMError("Invalid install package value: empty input\n");
-                ret = RDM_FAILURE;
                 download_status = RDM_FAILURE;
                 goto error1;
             }  
@@ -520,7 +534,6 @@ int main(int argc, char* argv[])
 
                     if (!rdmIsValidInstallPackageToken(current_bundle)) {
                         RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion\n", current_bundle);
-                        ret = RDM_FAILURE;
                         download_status = RDM_FAILURE;
                         break;
                     }
