@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -197,6 +198,56 @@ static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list
     RDMInfo("Parsed bundle list: %s\n", parsed_list);
     return 1;
 }
+
+/**
+ * @brief Validate install package token format.
+ *
+ * Accepts only: packagename:packageversion
+ * where both parts contain one or more [A-Za-z0-9._-] characters.
+ */
+static bool rdmIsValidInstallPackageToken(const CHAR *token)
+{
+    if (token == NULL || token[0] == '\0') {
+        return false;
+    }
+
+    const CHAR *delimit = strchr(token, ':');
+    if (delimit == NULL || delimit == token || delimit[1] == '\0') {
+        return false;
+    }
+
+    /* Exactly one ':' is required. */
+    if (strchr(delimit + 1, ':') != NULL) {
+        return false;
+    }
+
+    for (const CHAR *p = token; p < delimit; ++p) {
+        if (!(isalnum((unsigned char)*p) || *p == '-' || *p == '_' || *p == '.')) {
+            return false;
+        }
+    }
+
+    const CHAR *version_separator = strchr(delimit + 1, '.');
+    if (version_separator == NULL || version_separator == delimit + 1 || version_separator[1] == '\0' ||
+        strchr(version_separator + 1, '.') != NULL) {
+        return false;
+    }
+
+    for (const CHAR *p = delimit + 1; *p != '\0'; ++p) {
+        if (*p != '.' && !isdigit((unsigned char)*p)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+#ifdef GTEST_ENABLE
+bool rdmTestIsValidInstallPackageToken(const CHAR *token)
+{
+    return rdmIsValidInstallPackageToken(token);
+}
+#endif
 
 static VOID rdmHelp()
 {
@@ -441,6 +492,11 @@ int main(int argc, char* argv[])
 
     else if(download_versionedapp) {
 	    RDMInfo("Starting versioned app download for: %s\n", app_name ? app_name : "(null)");
+            if (app_name == NULL || app_name[0] == '\0') {
+                RDMError("Invalid install package value: empty input\n");
+                download_status = RDM_FAILURE;
+                goto error1;
+            }  
 	    CHAR parsed_bundle_list[MAX_BUFF_SIZE * 2] = {0};
 	    CHAR *bundle_list_to_use = app_name;
 	    
@@ -475,7 +531,13 @@ int main(int argc, char* argv[])
 		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
 		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
 		    current_bundle[sizeof(current_bundle) - 1] = '\0';
-		    
+
+                    if (!rdmIsValidInstallPackageToken(current_bundle)) {
+                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion\n", current_bundle);
+                        download_status = RDM_FAILURE;
+                        break;
+                    }
+ 
 		    RDMInfo("Processing bundle: %s\n", current_bundle);
 		    
 		    /* Check if bundle has cert: or app: prefix */
