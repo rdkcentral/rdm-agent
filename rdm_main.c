@@ -211,17 +211,25 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
         return false;
     }
 
-    const CHAR *delimit = strchr(token, ':');
-    if (delimit == NULL || delimit == token || delimit[1] == '\0') {
+    /* Skip the optional bundle-type prefix added by rdmParseBundleList(). */
+    const CHAR *token_str = token;
+    if (strncmp(token, "cert:", 5) == 0) {
+        token_str = token + 5;
+    } else if (strncmp(token, "app:", 4) == 0) {
+        token_str = token + 4;
+    }
+
+    const CHAR *delimit = strchr(token_str, ':');
+    if (delimit == NULL || delimit == token_str || delimit[1] == '\0') {
         return false;
     }
 
-    /* Exactly one ':' is required. */
+    /* Exactly one ':' is required after the prefix. */
     if (strchr(delimit + 1, ':') != NULL) {
         return false;
     }
 
-    for (const CHAR *p = token; p < delimit; ++p) {
+    for (const CHAR *p = token_str; p < delimit; ++p) {
         if (!(isalnum((unsigned char)*p) || *p == '-' || *p == '_' || *p == '.')) {
             return false;
         }
