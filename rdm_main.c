@@ -51,6 +51,10 @@
 #include "rdm_rbus.h"
 #include "rdm_usbinstall.h"
 
+#ifdef INCLUDE_BREAKPAD
+#include "breakpad_wrapper.h"
+#endif
+
 /** @brief Initializes all modules
  *
  *  @param[in]  prdmHandle  RDM handle
@@ -366,6 +370,10 @@ int main(int argc, char* argv[])
         RDMError("Rbus Init is failure\n");
         goto error2;
     }
+
+#ifdef INCLUDE_BREAKPAD
+     breakpad_ExceptionHandler();
+#endif
 
     pApp_det = prdmHandle->pApp_det;
 
