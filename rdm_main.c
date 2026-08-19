@@ -211,29 +211,37 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
         return false;
     }
 
-    const CHAR *delimit = strchr(token, ':');
-    if (delimit == NULL || delimit == token || delimit[1] == '\0') {
+    /* Skip the optional bundle-type prefix added by rdmParseBundleList(). */
+    const CHAR *token_str = token;
+    if (strncmp(token, "cert:", 5) == 0) {
+        token_str = token + 5;
+    } else if (strncmp(token, "app:", 4) == 0) {
+        token_str = token + 4;
+    }
+
+    const CHAR *delimiter = strchr(token_str, ':');
+    if (delimiter == NULL || delimiter == token_str || delimiter[1] == '\0') {
         return false;
     }
 
-    /* Exactly one ':' is required. */
-    if (strchr(delimit + 1, ':') != NULL) {
+    /* Exactly one ':' is required after the prefix. */
+    if (strchr(delimiter + 1, ':') != NULL) {
         return false;
     }
 
-    for (const CHAR *p = token; p < delimit; ++p) {
+    for (const CHAR *p = token_str; p < delimiter; ++p) {
         if (!(isalnum((unsigned char)*p) || *p == '-' || *p == '_' || *p == '.')) {
             return false;
         }
     }
 
-    const CHAR *version_separator = strchr(delimit + 1, '.');
-    if (version_separator == NULL || version_separator == delimit + 1 || version_separator[1] == '\0' ||
-        strchr(version_separator + 1, '.') != NULL) {
+    const CHAR *version_dot = strchr(delimiter + 1, '.');
+    if (version_dot == NULL || version_dot == delimiter + 1 || version_dot[1] == '\0' ||
+        strchr(version_dot + 1, '.') != NULL) {
         return false;
     }
 
-    for (const CHAR *p = delimit + 1; *p != '\0'; ++p) {
+    for (const CHAR *p = delimiter + 1; *p != '\0'; ++p) {
         if (*p != '.' && !isdigit((unsigned char)*p)) {
             return false;
         }

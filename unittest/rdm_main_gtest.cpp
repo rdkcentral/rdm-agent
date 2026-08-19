@@ -148,6 +148,11 @@ TEST(RDMInstallPackageValidationTest, AcceptsValidPackageVersions) {
     EXPECT_TRUE(rdmTestIsValidInstallPackageToken("package_name-1:0.8"));
 }
 
+TEST(RDMInstallPackageValidationTest, AcceptsBundlePrefixes) {
+    EXPECT_TRUE(rdmTestIsValidInstallPackageToken("app:stage-agent:1.0"));
+    EXPECT_TRUE(rdmTestIsValidInstallPackageToken("cert:ca-store-update-bundle:0.8"));
+}
+
 TEST(RDMInstallPackageValidationTest, RejectsInvalidPackageVersions) {
     EXPECT_FALSE(rdmTestIsValidInstallPackageToken("meminsight:1"));
     EXPECT_FALSE(rdmTestIsValidInstallPackageToken("meminsight:1.1.1"));
