@@ -371,10 +371,6 @@ int main(int argc, char* argv[])
         goto error2;
     }
 
-#ifdef INCLUDE_BREAKPAD
-     breakpad_ExceptionHandler();
-#endif
-
     pApp_det = prdmHandle->pApp_det;
 
     if(download_all) {
