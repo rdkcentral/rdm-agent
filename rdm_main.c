@@ -496,7 +496,6 @@ int main(int argc, char* argv[])
 
     else if(download_versionedapp) {
 	    RDMInfo("Starting versioned app download for: %s\n", app_name ? app_name : "(null)");
-		abort();
             if (app_name == NULL || app_name[0] == '\0') {
                 RDMError("Invalid install package value: empty input\n");
                 download_status = RDM_FAILURE;
