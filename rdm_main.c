@@ -51,6 +51,10 @@
 #include "rdm_rbus.h"
 #include "rdm_usbinstall.h"
 
+#ifdef INCLUDE_BREAKPAD
+#include "breakpad_wrapper.h"
+#endif
+
 /** @brief Initializes all modules
  *
  *  @param[in]  prdmHandle  RDM handle
