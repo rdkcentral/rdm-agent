@@ -85,10 +85,8 @@ VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
 INT32  rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app);
 UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
 VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);
-#if defined(ENABLE_RDKB_SUPPORT)
 INT32  rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time);
 INT32  rdmDwnlDebugToolCheckExpiry(void);
-#endif
 INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
 INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
 VOID   rdmMemDLFree(VOID *pvDwnData);
