@@ -364,13 +364,14 @@ int main(int argc, char* argv[])
     if (check_expiry) {
         return rdmDwnlDebugToolCheckExpiry();
     }
-    if (expiry_spec != NULL) {
+	if (expiry_spec != NULL) {
         CHAR tool[64] = {0};
         long long expiry = 0;
-        if (sscanf(expiry_spec, "%63[^:]:%lld", tool, &expiry) != 2) {
+        CHAR trailing = '\0';
+        if (sscanf(expiry_spec, "%63[^:]:%lld%c", tool, &expiry, &trailing) != 2) {
             return RDM_FAILURE;
         }
-        return rdmDwnlDebugToolSchedule(tool, expiry);
+    return rdmDwnlDebugToolSchedule(tool, expiry);
     }
 
     pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
