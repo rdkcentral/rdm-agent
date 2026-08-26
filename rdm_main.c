@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-
+#if defined(ENABLE_RDKB_SUPPORT)
     if (check_expiry) {
         return rdmDwnlDebugToolCheckExpiry();
     }
@@ -373,6 +373,7 @@ int main(int argc, char* argv[])
         }
     return rdmDwnlDebugToolSchedule(tool, expiry);
     }
+#endif
 
     pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
     if(pApp_det == NULL) {
