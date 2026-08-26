@@ -260,6 +260,8 @@ static VOID rdmHelp()
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
     RDMInfo("To Install Versioned app(s)   : rdm -v <app:ver[,app:ver]>\n");
+    RDMInfo("Schedule debug-tool expiry     : rdm -s <tool:expiry_epoch>\n");
+    RDMInfo("Check debug-tool expiry        : rdm -e\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -308,6 +310,8 @@ int main(int argc, char* argv[])
     INT32  is_oss             = 0;
     INT32  bFsCheck           = 1;
     CHAR   rfc_app[256]       = {0};
+    CHAR   *expiry_spec       = NULL;
+    INT32  check_expiry       = 0;
     RDMAPPDetails *pApp_det   = NULL;
     RDMHandle     *prdmHandle = NULL;
 
@@ -317,7 +321,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:v:x:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:x:s:ehbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -343,12 +347,31 @@ int main(int argc, char* argv[])
                     download_versionedapp = 1;
                     app_name = optarg;
                     break;
+                case 's':
+                    expiry_spec = optarg;
+                    break;
+                case 'e':
+                    check_expiry = 1;
+                    break;
                 case 'h':
                 default :
                     rdmHelp();
                     return RDM_FAILURE;
             }
         }
+    }
+
+    if (check_expiry) {
+        return rdmDwnlDebugToolCheckExpiry();
+    }
+	if (expiry_spec != NULL) {
+        CHAR tool[64] = {0};
+        long long expiry = 0;
+        CHAR trailing = '\0';
+        if (sscanf(expiry_spec, "%63[^:]:%lld%c", tool, &expiry, &trailing) != 2) {
+            return RDM_FAILURE;
+        }
+    return rdmDwnlDebugToolSchedule(tool, expiry);
     }
 
     pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
