@@ -480,6 +480,24 @@ VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
     rdmDwnlAppCleanUp(pAppPath);
 }
 
+VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
+{
+    rdmDwnlCleanUp(pDwnlPath);
+    rdmDwnlAppCleanUp(pAppPath);
+}
+
+INT32 rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time)
+{
+    (void)pTool;
+    (void)expiry_time;
+
+    return RDM_SUCCESS;
+}
+INT32 rdmDwnlDebugToolCheckExpiry(void)
+{
+    return RDM_SUCCESS;
+}
+
 /** @brief This Function updates the manifest file.
  *
  *  @param[in]   pInManifest   input manifest file path
