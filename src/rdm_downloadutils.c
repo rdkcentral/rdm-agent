@@ -480,12 +480,6 @@ VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
     rdmDwnlAppCleanUp(pAppPath);
 }
 
-VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
-{
-    rdmDwnlCleanUp(pDwnlPath);
-    rdmDwnlAppCleanUp(pAppPath);
-}
-
 INT32 rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time)
 {
     (void)pTool;
