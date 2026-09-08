@@ -45,7 +45,7 @@
 #include "rdm_packagemgr.h"
 
 
-UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
+time_T UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
     time_t modification_time = 0;
     time_t current_time = 0;
@@ -68,7 +68,7 @@ UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
             modification_time = 0;
         }
     }
-    return (UINT32)modification_time;
+    return modification_time;
 }
 
 INT32 rdmDwnlUpdateURL(CHAR *pUrl)
