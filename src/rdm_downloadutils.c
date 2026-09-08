@@ -45,7 +45,7 @@
 #include "rdm_packagemgr.h"
 
 
-time_T UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
+time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
     time_t modification_time = 0;
     time_t current_time = 0;
