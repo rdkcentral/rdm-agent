@@ -206,7 +206,7 @@ static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list
 /**
  * @brief Validate install package token format.
  *
- * Accepts only: packagename:packageversion
+ * Accepts only: [cert:|app:]packagename:packageversion
  * where both parts contain one or more [A-Za-z0-9._-] characters.
  */
 static bool rdmIsValidInstallPackageToken(const CHAR *token)
@@ -530,8 +530,9 @@ int main(int argc, char* argv[])
             if (app_name == NULL || app_name[0] == '\0') {
                 RDMError("Invalid install package value: empty input\n");
                 download_status = RDM_FAILURE;
-                goto error1;
-            }  
+		ret = RDM_FAILURE;
+		goto error2;
+            }
 	    CHAR parsed_bundle_list[MAX_BUFF_SIZE * 2] = {0};
 	    CHAR *bundle_list_to_use = app_name;
 	    
