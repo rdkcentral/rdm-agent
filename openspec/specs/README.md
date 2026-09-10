@@ -19,13 +19,16 @@ This directory contains the verified As-Is specification baseline for the rdm-ag
 
 ## Baseline conventions
 
-Each spec follows the same As-Is structure:
-- scope
-- implementation evidence
-- external boundaries
-- requirements
-- GIVEN/WHEN/THEN scenarios
-- runtime flow diagram where applicable
+Each capability specification follows the configured `spec-driven` schema:
+
+- `## Purpose`
+- `## Requirements`
+- `### Requirement: <descriptive requirement name>`
+- Normative requirement statements using `SHALL` or `MUST`
+- `#### Scenario: <descriptive scenario name>`
+- Scenario steps using `WHEN`, `THEN`, and `AND` where applicable
+
+Specifications may also include implementation evidence, external boundaries, and verified runtime-flow diagrams where applicable.
 
 ## What is intentionally excluded
 
