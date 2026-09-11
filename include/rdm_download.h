@@ -21,6 +21,11 @@
 
 #define APP_MOUNT_PATH          "/media/apps"
 #define APPLN_HOME_PATH_DEF     "/tmp"
+#ifdef IS_RDKB
+#define RDM_APP_MOUNT_PATH      APPLN_HOME_PATH_DEF
+#else
+#define RDM_APP_MOUNT_PATH      APP_MOUNT_PATH
+#endif
 #define RDM_DL_INFO             "/opt/persistent/rdmDownloadInfo.txt"
 #define RDM_DL_INFO_BR          "/nvram/persistent/rdmDownloadInfo.txt"
 #define RDM_CPEMANIFEST_PATH    "/etc/rdm/"

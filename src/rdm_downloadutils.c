@@ -817,7 +817,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
     if(status == RDM_SUCCESS){
 
-        status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled);
+        status = rdmListDirectory(RDM_APP_MOUNT_PATH, app_installed, &numOfAppsInstalled);
 
         if ( status == RDM_SUCCESS ){
 
@@ -834,7 +834,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                     CHAR path[RDM_APPNAME_LEN]        = { 0 };
                     CHAR searchFile[RDM_TMP_LEN_64]   = { 0 };
 
-                    snprintf(path, sizeof(path), "%s/%s/", APP_MOUNT_PATH, app_installed[index]);
+                    snprintf(path, sizeof(path), "%s/%s/", RDM_APP_MOUNT_PATH, app_installed[index]);
                     snprintf(searchFile, sizeof(searchFile), "%s_cpemanifest", app_installed[index]);
 
                     isFileFound = findPFile(path, searchFile, pkg_file);
@@ -964,7 +964,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 	    }
         }
         else{
-            RDMError("Failed to list the %s directory\n",APP_MOUNT_PATH);
+            RDMError("Failed to list the %s directory\n",RDM_APP_MOUNT_PATH);
         }
     }
     else{
