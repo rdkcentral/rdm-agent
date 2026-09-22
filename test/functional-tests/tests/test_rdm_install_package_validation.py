@@ -12,8 +12,8 @@ from helper_functions import grep_RDMlogs
     "RDK-RRD-Test:.1",
     "RDK-RRD-Test:1.a",
     "RDK-RRD-Test:1.0:extra",
-    "app:RDK-RRD-Test:1.0",
-    "cert:RDK-RRD-Test:1.0",
+    "app::1.0",
+    "cert::1.0",
 ])
 def test_invalid_versioned_package_value_is_rejected(package_value):
     result = subprocess.run(
