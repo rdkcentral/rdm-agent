@@ -324,7 +324,7 @@ int main(int argc, char* argv[])
     RDMHandle     *prdmHandle = NULL;
 
     RDMLOGInit();
-    RDMInfo("ThisLog line is a custom log line added to learn about Building from git \n");
+    RDMInfo("This Log line is a custom log line added to learn about Building from git \n");
     if(argc == 1) {
         RDMInfo("download all the apps mentioned in rdm-manifest.json file\n");
         download_all = 1;
