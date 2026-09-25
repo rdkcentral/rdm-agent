@@ -19,6 +19,8 @@
 #ifndef _RDM_DOWNLOADUTILS_H_
 #define _RDM_DOWNLOADUTILS_H_
 
+#include <time.h>
+
 #ifdef GTEST_ENABLE
 #include "../unittest/mocks/system_utils.h"
 #endif
@@ -83,7 +85,7 @@ INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update
 #endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
 INT32  rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app);
-UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
+time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
 VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);
 INT32  rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time);
 INT32  rdmDwnlDebugToolCheckExpiry(void);

@@ -854,10 +854,12 @@ error:
 
     #if !defined(LIBRDKCONFIG_BUILD)  
     // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional   
+    /* coverity[deadcode] INTENTIONAL: pub_fh is assigned in the #else branch above; defensive cleanup */
     if (pub_fh != NULL) fclose(pub_fh);
 #endif
     if (mdctx != NULL) EVP_MD_CTX_destroy(mdctx);
      // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
+    /* coverity[deadcode] INTENTIONAL: pkey is assigned in both #ifdef and #else branches above; defensive cleanup */
     if (pkey != NULL) EVP_PKEY_free(pkey);
 
     /* other clean here */
