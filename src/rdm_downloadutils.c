@@ -68,7 +68,7 @@ time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
             modification_time = 0;
         }
     }
-    return modification_time;
+    return (UINT32)modification_time;
 }
 
 INT32 rdmDwnlUpdateURL(CHAR *pUrl)
