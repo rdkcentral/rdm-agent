@@ -351,7 +351,7 @@ INT32 rdmJSONGetAppDetID(INT32          idx,
         RDMWarn("Unable to get dwld_on_demand\n");
         pRdmAppDet->dwld_on_demand = 0;
     }
-    else if(!strcmp(jsonq, "yes")) {
+    else if((!strcmp(jsonq, "yes")) || (!strcmp(jsonq, "true"))) {
         pRdmAppDet->dwld_on_demand = 1;
     }
 
@@ -442,7 +442,7 @@ INT32 rdmJSONGetAppDetName(CHAR          *pName,
         RDMWarn("Unable to get dwld_on_demand\n");
         pRdmAppDet->dwld_on_demand = 0;
     }
-    else if(!strcmp(jsonq, "yes")) {
+    else if((!strcmp(jsonq, "yes")) || (!strcmp(jsonq, "true"))){
         pRdmAppDet->dwld_on_demand = 1;
     }
 
