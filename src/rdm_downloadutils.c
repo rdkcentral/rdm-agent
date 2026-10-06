@@ -44,11 +44,12 @@
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
 
-UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
+
+time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
-    UINT32 modification_time = 0;
-    UINT32 current_time = 0;
-    UINT32 last_mod_time = 0;
+    time_t modification_time = 0;
+    time_t current_time = 0;
+    time_t last_mod_time = 0;
 
     INT32  remtime = 0;
 
@@ -317,12 +318,12 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
 
     /* Check for direct download is blocked */
     if(!(rdmDwnlIsBlocked(DIRECT_BLOCK_FILENAME, DIRECT_BLOCK_TIME))) {
-        while(retry_count <= 2) {
+        while(retry_count <= RDM_DWNLD_MAX_RETRIES) {
 	    if(retry_count == 1) {
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(10);
 	    }
-	    else if(retry_count == 2) {
+	    else if(retry_count == RDM_DWNLD_MAX_RETRIES) {
 	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
 	        sleep(30);
 	    }
@@ -477,6 +478,17 @@ VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
 {
     rdmDwnlCleanUp(pDwnlPath);
     rdmDwnlAppCleanUp(pAppPath);
+}
+INT32 rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time)
+{
+    (void)pTool;
+    (void)expiry_time;
+
+    return RDM_SUCCESS;
+}
+INT32 rdmDwnlDebugToolCheckExpiry(void)
+{
+    return RDM_SUCCESS;
 }
 
 /** @brief This Function updates the manifest file.
@@ -853,7 +865,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                             if(pApp_det->dwld_on_demand) {
                                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                 if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-				                    isAppUninstalled = 1;
+			                        isAppUninstalled = 1;
                                     RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                     rdmDwnlAppCleanUp(path);
                                     rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
@@ -884,7 +896,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                             RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                         }
                         else{
-			                isAppUninstalled = 1;
+		                    isAppUninstalled = 1;
                             RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                             rdmDwnlAppCleanUp(path);
                             rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
@@ -914,7 +926,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                 if(pApp_det->dwld_on_demand) {
                                     RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                     if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-					                    isAppUninstalled = 1;
+				                        isAppUninstalled = 1;
                                         RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                         rdmDwnlAppCleanUp(path);
                                         rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
@@ -944,7 +956,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                 RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                             }
                         }
-		    }
+	        }
                 }
             }
 	    if ( isAppUninstalled == 0 ) {

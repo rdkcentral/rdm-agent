@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,6 +50,10 @@
 #include "rdm_openssl.h"
 #include "rdm_rbus.h"
 #include "rdm_usbinstall.h"
+
+#ifdef INCLUDE_BREAKPAD
+#include "breakpad_wrapper.h"
+#endif
 
 /** @brief Initializes all modules
  *
@@ -198,6 +203,64 @@ static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list
     return 1;
 }
 
+/**
+ * @brief Validate install package token format.
+ *
+ * Accepts only: [cert:|app:]packagename:packageversion
+ * where both parts contain one or more [A-Za-z0-9._-] characters.
+ */
+static bool rdmIsValidInstallPackageToken(const CHAR *token)
+{
+    if (token == NULL || token[0] == '\0') {
+        return false;
+    }
+
+    /* Skip the optional bundle-type prefix added by rdmParseBundleList(). */
+    const CHAR *token_str = token;
+    if (strncmp(token, "cert:", 5) == 0) {
+        token_str = token + 5;
+    } else if (strncmp(token, "app:", 4) == 0) {
+        token_str = token + 4;
+    }
+
+    const CHAR *delimiter = strchr(token_str, ':');
+    if (delimiter == NULL || delimiter == token_str || delimiter[1] == '\0') {
+        return false;
+    }
+
+    /* Exactly one ':' is required after the prefix. */
+    if (strchr(delimiter + 1, ':') != NULL) {
+        return false;
+    }
+
+    for (const CHAR *p = token_str; p < delimiter; ++p) {
+        if (!(isalnum((unsigned char)*p) || *p == '-' || *p == '_' || *p == '.')) {
+            return false;
+        }
+    }
+
+    const CHAR *version_dot = strchr(delimiter + 1, '.');
+    if (version_dot == NULL || version_dot == delimiter + 1 || version_dot[1] == '\0' ||
+        strchr(version_dot + 1, '.') != NULL) {
+        return false;
+    }
+
+    for (const CHAR *p = delimiter + 1; *p != '\0'; ++p) {
+        if (*p != '.' && !isdigit((unsigned char)*p)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+#ifdef GTEST_ENABLE
+bool rdmTestIsValidInstallPackageToken(const CHAR *token)
+{
+    return rdmIsValidInstallPackageToken(token);
+}
+#endif
+
 static VOID rdmHelp()
 {
     RDMInfo("Usage:\n");
@@ -205,6 +268,8 @@ static VOID rdmHelp()
     RDMInfo("To Install single app         : rdm -a <app_name>\n");
     RDMInfo("To Install from USB           : rdm -u <usb_path>\n");
     RDMInfo("To Install Versioned app(s)   : rdm -v <app:ver[,app:ver]>\n");
+    RDMInfo("Schedule debug-tool expiry     : rdm -s <tool:expiry_epoch>\n");
+    RDMInfo("Check debug-tool expiry        : rdm -e\n");
     RDMInfo("Other options\n");
     RDMInfo("-b - for broadband devices\n");
     RDMInfo("-o - for OSS\n");
@@ -253,6 +318,8 @@ int main(int argc, char* argv[])
     INT32  is_oss             = 0;
     INT32  bFsCheck           = 1;
     CHAR   rfc_app[256]       = {0};
+    CHAR   *expiry_spec       = NULL;
+    INT32  check_expiry       = 0;
     RDMAPPDetails *pApp_det   = NULL;
     RDMHandle     *prdmHandle = NULL;
 
@@ -262,7 +329,7 @@ int main(int argc, char* argv[])
         download_all = 1;
     }
     else {
-        while ((opt_c = getopt (argc, argv, "a:u:v:x:hbo")) != -1) {
+        while ((opt_c = getopt (argc, argv, "a:u:v:x:s:ehbo")) != -1) {
             switch (opt_c)
             {
                 case 'a':
@@ -288,12 +355,31 @@ int main(int argc, char* argv[])
                     download_versionedapp = 1;
                     app_name = optarg;
                     break;
+                case 's':
+                    expiry_spec = optarg;
+                    break;
+                case 'e':
+                    check_expiry = 1;
+                    break;
                 case 'h':
                 default :
                     rdmHelp();
                     return RDM_FAILURE;
             }
         }
+    }
+
+    if (check_expiry) {
+        return rdmDwnlDebugToolCheckExpiry();
+    }
+	if (expiry_spec != NULL) {
+        CHAR tool[64] = {0};
+        long long expiry = 0;
+        CHAR trailing = '\0';
+        if (sscanf(expiry_spec, "%63[^:]:%lld%c", tool, &expiry, &trailing) != 2) {
+            return RDM_FAILURE;
+        }
+    return rdmDwnlDebugToolSchedule(tool, expiry);
     }
 
     pApp_det = (RDMAPPDetails *)malloc(sizeof(RDMAPPDetails));
@@ -441,6 +527,12 @@ int main(int argc, char* argv[])
 
     else if(download_versionedapp) {
 	    RDMInfo("Starting versioned app download for: %s\n", app_name ? app_name : "(null)");
+            if (app_name == NULL || app_name[0] == '\0') {
+                RDMError("Invalid install package value: empty input\n");
+                download_status = RDM_FAILURE;
+		ret = RDM_FAILURE;
+		goto error2;
+            }
 	    CHAR parsed_bundle_list[MAX_BUFF_SIZE * 2] = {0};
 	    CHAR *bundle_list_to_use = app_name;
 	    
@@ -475,7 +567,13 @@ int main(int argc, char* argv[])
 		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
 		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
 		    current_bundle[sizeof(current_bundle) - 1] = '\0';
-		    
+
+                    if (!rdmIsValidInstallPackageToken(current_bundle)) {
+                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion\n", current_bundle);
+                        download_status = RDM_FAILURE;
+                        break;
+                    }
+ 
 		    RDMInfo("Processing bundle: %s\n", current_bundle);
 		    
 		    /* Check if bundle has cert: or app: prefix */
