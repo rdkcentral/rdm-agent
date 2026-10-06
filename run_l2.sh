@@ -38,6 +38,7 @@ echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.xconfssrdownloadurl
 rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string https://mockxconf:50056/rdmUploadFile
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_packages_install.json test/functional-tests/tests/test_rdm_packages_install.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_install_package_validation.json test/functional-tests/tests/test_rdm_install_package_validation.py
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_download_info.json test/functional-tests/tests/test_rdm_download_info.py
 
@@ -69,6 +70,8 @@ nohup /usr/local/bin/remotedebugger > /dev/null 2>&1 &
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rrd_rdm_packages_install.json test/functional-tests/tests/test_rrd_rdm_packages_install.py
 
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_post_download_script.json test/functional-tests/tests/test_rdm_post_download_script.py
+
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_debugtool_expiry.json test/functional-tests/tests/test_rdm_debugtool_expiry.py
 
 # The cert selector test cases  are commented for now. Once the code changes are moved to open source, it will be enabled.
 #pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_dynamic_cert_selector.json test/functional-tests/tests/test_rdm_dynamic_cert_selector.py

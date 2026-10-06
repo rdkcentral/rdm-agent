@@ -172,7 +172,21 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 AC_SUBST([rdm_LDFLAGS])
 AC_SUBST([rdm_CFLAGS])
 
-# Checks for typedefs, structures, and compiler characteristics.
+# Check for breakpad
+BREAKPAD_CFLAGS=" "
+BREAKPAD_LFLAGS=" "
+AC_ARG_ENABLE([breakpad],
+	      AS_HELP_STRING([--enable-breakpad],[enable breakpad support (default is no)]),
+	      [
+	        case "${enableval}" in
+	         yes) BREAKPAD_CFLAGS="-DINCLUDE_BREAKPAD" ;;
+		 no) AC_MSG_ERROR([breakpad is disabled]) ;;
+		 *) AC_MSG_ERROR([bad value ${enableval} for --enable-breakpad]) ;;
+		 esac
+		 ],
+              [echo "breakpad is disabled"])
+
+# Checks for typedefs, structures, and compiler characteristics
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -33,6 +33,7 @@
 #define RDM_APP_PATH_LEN   256
 #define RDM_TMP_LEN_64     64
 #define MAX_BUFF_SIZE      512
+#define RDM_DWNLD_MAX_RETRIES 2
 
 #ifdef T2_EVENT_ENABLED
 #include <telemetry_busmessage_sender.h>

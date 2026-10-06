@@ -389,6 +389,14 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
     delete mockRdmRbus;
 }
 
+TEST(rdmDebugTool, rdmDwnlDebugToolSchedule_Success) {
+    EXPECT_EQ(RDM_SUCCESS, rdmDwnlDebugToolSchedule("tcpdump", 12345));
+}
+
+TEST(rdmDebugTool, rdmDwnlDebugToolCheckExpiry_Success) {
+    EXPECT_EQ(RDM_SUCCESS, rdmDwnlDebugToolCheckExpiry());
+}
+
 GTEST_API_ int main(int argc, char *argv[]){
     char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
     char buffer[GTEST_REPORT_FILEPATH_SIZE];
