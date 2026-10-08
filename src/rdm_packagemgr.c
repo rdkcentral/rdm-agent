@@ -121,13 +121,26 @@ static INT32 rdmPkgDwnlApplication(CHAR *pUrl)
     INT32 curl_ret_code = -1;
     INT32 httpCode = 0;
     INT32 status = RDM_SUCCESS;
+    INT32 post_len = 0;
 
     DownloadData DwnLoc;
     FileDwnl_t file_dwnl;
 
+    /* Characters that would need JSON escaping never appear unencoded in a valid URL */
+    for (const CHAR *p = pUrl; *p != '\0'; ++p) {
+        if (*p == '"' || *p == '\\' || (unsigned char)*p < 0x20) {
+            RDMError("Invalid package URL\n");
+            return RDM_FAILURE;
+        }
+    }
+
     copyCommandOutput(RDM_WPE_SECUTIL, jsondata, sizeof(jsondata));
 
-    snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"1234567890\",\"method\":\"Packager.1.install\",\"params\":{\"package\":\"%s\",\"version\":\"1.0\",\"architecture\":\"arm\"}}",pUrl);
+    post_len = snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"1234567890\",\"method\":\"Packager.1.install\",\"params\":{\"package\":\"%s\",\"version\":\"1.0\",\"architecture\":\"arm\"}}",pUrl);
+    if (post_len < 0 || post_len >= MAX_BUFF_SIZE) {
+        RDMError("Package request too long\n");
+        return RDM_FAILURE;
+    }
 
     if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
         if (DwnLoc.pvOut != NULL) {

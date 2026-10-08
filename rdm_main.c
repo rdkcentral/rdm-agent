@@ -449,7 +449,8 @@ int main(int argc, char* argv[])
 
                     ret =  rdmRbusGetRfc(prdmHandle->pRbusHandle,
                                          rfc_app,
-                                         &app_rfc_status);
+                                         &app_rfc_status,
+                                         sizeof(app_rfc_status));
                     RDMInfo("app_rfc_status : %d\n", app_rfc_status);
                     if(ret != RDM_SUCCESS || app_rfc_status == 0) {
                         RDMWarn("APP RFC is not enabled, skipping the download for:App:%d=>yes=>%s\n",idx, pApp_det->app_name);
@@ -602,7 +603,7 @@ int main(int argc, char* argv[])
 			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
 			    RDMWarn("No version specified for %s, using NA\n", bundle_name);
 		    }
-		    sscanf(bundle_name, "%[^:]", result);
+            sscanf(bundle_name, "%19[^:]", result);
 		    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
 		    pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
 		    

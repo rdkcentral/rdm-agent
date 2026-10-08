@@ -171,7 +171,7 @@ exit2:
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  */
 
-INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir)
+INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir)
 {
     struct dirent *de;  // Pointer for directory entry
     INT32 status = RDM_SUCCESS;
@@ -189,6 +189,17 @@ INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir)
 
         // for readdir()
         while ((de = readdir(dr)) != NULL){
+            /* Names that do not fit cannot be valid app names */
+            if (strlen(de->d_name) >= RDM_APPNAME_LEN) {
+                continue;
+            }
+
+            if (idx >= maxDir) {
+                RDMError("Too many entries in directory\n");
+                status = RDM_FAILURE;
+                break;
+            }
+
             pDirList[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
 
             if( pDirList[idx] == NULL ){
@@ -200,7 +211,7 @@ INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir)
             memset(pDirList[idx], 0, RDM_APPNAME_LEN);
 
             RDMInfo("%s\n", de->d_name);
-            strcpy(pDirList[idx],de->d_name);
+            snprintf(pDirList[idx], RDM_APPNAME_LEN, "%s", de->d_name);
             idx += 1;
         }
 
