@@ -564,7 +564,7 @@ int main(int argc, char* argv[])
 		    pApp_det->bFsCheck = bFsCheck;
 		    pApp_det->is_oss = is_oss;
 		    
-		    char result[20] = {0};
+		    char result[30] = {0};
 		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
 		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
 		    current_bundle[sizeof(current_bundle) - 1] = '\0';
@@ -603,7 +603,7 @@ int main(int argc, char* argv[])
 			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
 			    RDMWarn("No version specified for %s, using NA\n", bundle_name);
 		    }
-            sscanf(bundle_name, "%19[^:]", result);
+            sscanf(bundle_name, "%29[^:]", result);
 		    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
 		    pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
 		    
