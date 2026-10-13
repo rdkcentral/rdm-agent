@@ -61,15 +61,13 @@ rdm_CFLAGS +=  -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 \
 
 if USE_CPC
 if IS_RDKB
-  rdm_SOURCES += src/rdm-cpc/rdm/rdm_openssl.c  \
-                 src/rdm-cpc/rdm/rdm_downloadutils.c
+  rdm_SOURCES += src/rdm-cpc/rdm/rdm_openssl.c
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
 else
   rdm_SOURCES += src/rdm-cpc/rdm/codebigUtils.c \
-                 src/rdm-cpc/rdm/rdm_openssl.c  \
-                 src/rdm-cpc/rdm/rdm_downloadutils.c
+                 src/rdm-cpc/rdm/rdm_openssl.c  
   rdm_CFLAGS += -DRDM_ENABLE_CODEBIG \
               -I${top_srcdir}/src/rdm-cpc/rdm
   rdm_LDFLAGS += -lsecure_wrapper
@@ -88,8 +86,7 @@ endif
 endif
 else
   rdm_SOURCES += src/codebig/codebigUtils.c \
-                 src/rdm_openssl.c \
-                 src/rdm_downloadutils.c
+                 src/rdm_openssl.c
   rdm_CFLAGS += -I${top_srcdir}/src/codebig
 endif
 
