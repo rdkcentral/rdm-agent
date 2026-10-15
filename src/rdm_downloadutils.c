@@ -239,14 +239,20 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     FileDwnl_t file_dwnl;
     MtlsAuth_t sec;
 
+#ifdef LIBRDKCERTSELECTOR
+    int cert_ret_code = -1;
+    MtlsAuthStatus ret = MTLS_CERT_FETCH_SUCCESS;
+#endif
     memset(&file_dwnl, 0, sizeof(FileDwnl_t));
-    memset(&sec, 0, sizeof(MtlsAuth_t));
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
     strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName);
+    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) - 1);
+    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
+    strcat(file_dwnl.pathname, "/");
+    strcat(file_dwnl.pathname, pPkgName);
     file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
     strcpy(pOut, file_dwnl.pathname);
 
@@ -257,33 +263,82 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.pPostFields = NULL;
 
     /* Update the Certificate */
-    status = rdmDwnlGetCert(&sec);
-    if(status) {
-        RDMError("Failed to get MTLS certificate\n");
-        return RDM_FAILURE;
-    }
-
     curl = doCurlInit();
     if(curl == NULL) {
-        RDMError("CurlInit Failed\n");
+        RDMError("Failed init curl\n");
         return status;
     }
+#ifdef LIBRDKCERTSELECTOR
+    static rdkcertselector_h thisCertSel = NULL;
+    INT32 mtls_retry = 0;
+    RDMInfo("Initializing CertSelector\n");
+    if (thisCertSel == NULL)
+    {
+        const char* certGroup = "MTLS";
+        thisCertSel = rdkcertselector_new(NULL, NULL, certGroup);
+        if (thisCertSel == NULL) {
+             RDMInfo("Cert Selector Initialisation Failed\n");
+             return cert_ret_code;
+        } else {
+             RDMInfo("Cert Selector Initialisation is Successful\n");
+        }
+    } else {
+        RDMInfo("Cert selector already initialized, reusing existing instance\n");
+    }
+    memset(&sec, '\0', sizeof(MtlsAuth_t));
+    do {
+        RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
+        ret = rdmDwnlGetCert(&sec, &thisCertSel);
+        RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
+        if (ret == MTLS_CERT_FETCH_FAILURE) {
+            RDMInfo("MTLS cert Failed ret= %d\n", ret);
+            return cert_ret_code;
+        } else {
+            RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
+        }
+        RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
+        curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
+                                           max_dwnl_speed, NULL, &httpCode);
+        RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
+        if (curl_ret_code != 0) {
+            mtls_retry++;
+            if (mtls_retry >= RDM_DWNLD_MAX_RETRIES) {
+                RDMError("Max MTLS retry attempts reached (%d). Aborting.\n", RDM_DWNLD_MAX_RETRIES);
+                break;
+            }
+       }
+    }while (rdkcertselector_setCurlStatus(thisCertSel, curl_ret_code, file_dwnl.url) == TRY_ANOTHER);
+              
+    if(curl_ret_code && httpCode != 200) {
+            RDMError("Download failed\n");
+            status = RDM_FAILURE;
+    }
+    if (curl != NULL) {
+        RDMInfo("Stopping Curl Download\n");
+        doStopDownload(curl);
+        curl = NULL;
+    }
+    return status;
+#endif
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
     t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
+
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
     RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
 
     if(curl_ret_code && httpCode != 200) {
-        RDMError("Download failed\n");
-	t2CountNotify("RDM_ERR_package_failed", 1);
+        RDMError("Direct Download failed\n");
+	      t2CountNotify("RDM_ERR_package_failed", 1);
         status = RDM_FAILURE;
     }
 
     doStopDownload(curl);
+
     return status;
 }
+
 #ifdef LIBRDKCERTSELECTOR
 #define FILESCHEME "file://"
 /* Description: Use for get all mtls related certificate and key.
