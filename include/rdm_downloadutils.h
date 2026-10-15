@@ -16,90 +16,35 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef _RDM_DOWNLOADUTILS_H_
-#define _RDM_DOWNLOADUTILS_H_
+#ifndef _RDM_DOWNLOAD_H_
+#define _RDM_DOWNLOAD_H_
 
-#include <time.h>
+#define APP_MOUNT_PATH          "/media/apps"
+#define APPLN_HOME_PATH_DEF     "/tmp"
+#define RDM_DL_INFO             "/opt/persistent/rdmDownloadInfo.txt"
+#define RDM_DL_INFO_BR          "/nvram/persistent/rdmDownloadInfo.txt"
+#define RDM_CPEMANIFEST_PATH    "/etc/rdm/"
 
-#ifdef GTEST_ENABLE
-#include "../unittest/mocks/system_utils.h"
-#endif
+#define RDM_APPHOME_LEN    256
+#define RDM_APPDLP_LEN     256
+#define RDM_SIGFILE_LEN    1024
 
-//Define required file paths here
+#define RDM_KMS_SKIP_BYTES 6
 
-#ifdef L2_TEST_ENABLED
-#define RDM_DWNL_URL            "/tmp/.rdm_ssr_location"
-#define RDM_DWNLSSR_URL         "/tmp/.xconfssrdownloadurl"
-#else
-#define RDM_DWNL_URL            "/path/to/my/url/file"
-#define RDM_DWNLSSR_URL         "/path/to/my/url/file"
-#endif
+#define RDM_RETRY_COUNT 2
 
-#define RDM_NVRAM_PATH          "/nvram"
-#define RDM_NVRAM_DL_PATH       "/nvram/path"
-#define EnableOCSPStapling      "/path/to/EnableOCSPStapling"
-#define EnableOCSP              "/path/to/EnableOCSPCA"
-#define RDM_POSTSCRIPT_PATH     "/etc/rdm/post-services/"
+typedef enum _RDM_DOWNLOAD_STATUS {
+    RDM_DL_NOERROR    = 0,
+    RDM_DL_PARAMERR   = 1,
+    RDM_DL_VALERR     = 2,
+    RDM_DL_DWNLERR    = 3,
+    RDM_DL_MISC       = 4
+}RDM_DOWNLOAD_STATUS;
 
-#define CERT_DYNAMIC            "/path/to/dynamic/cert"
+INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus);
+INT32 rdmDownloadVerApp(RDMAPPDetails *pRdmAppDet);
+INT32 rdmDownloadMgr(RDMAPPDetails *pRdmAppDet);
+INT32 rdmPackageMgr(RDMAPPDetails *pRdmAppDet);
+INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet);
 
-#ifdef L2_TEST_ENABLED
-#define CERT_STATIC             "/opt/certs/client.pem"
-#define KEY_STATIC              "/opt/certs/client.pem"
-#else
-#define CERT_STATIC             "/path/to/static/cert"
-#define KEY_STATIC              "/path/to/cert/key"
-#endif
-
-#define MTLS_CERT               "/path/to/mtls/cert"
-#define MTLS_KEY                "/path/to/mtls/key"
-#define GET_CONFIG_FILE         "/usr/bin/GetConfigFile"
-#define SYS_CMD_GET_CONFIG_FILE "/usr/bin/GetConfigFile %s"
-#define KEY_GEN_BIN             "/path/to/keygen"
-
-#define RDKSSACLI           "/path/to/rdkssacli"
-
-#ifdef RDM_ENABLE_CODEBIG
-#define HTTP_XCONF_CODEBIG  3
-#define DEFAULT_DL_ALLOC   1024
-#define JSON_STR_LEN        1000
-#define URL_MAX_LEN 512
-#endif
-
-#define DIRECT_BLOCK_TIME 86400
-#define CB_BLOCK_TIME     1800
-
-#define DOWNLOAD_APP_RETRY_COUNT 2
-#define DOWNLOAD_APP_DIRECT_RETRY_DELAY 30
-#define DOWNLOAD_RETRY_COUNT 12
-
-INT32  rdmDwnlUpdateURL(CHAR *pUrl);
-INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
-INT32  rdmDwnlIsOCSPEnable(void);
-INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
-VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
-VOID   rdmDwnlAppCleanUp(CHAR *pAppPath);
-#ifdef GTEST_ENABLE
-INT32  rdmDwnlGetCert(MtlsAuth_t*);
-INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
-#endif
-VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
-INT32  rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app);
-time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time);
-VOID   rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath);
-INT32  rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time);
-INT32  rdmDwnlDebugToolCheckExpiry(void);
-INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
-INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
-VOID   rdmMemDLFree(VOID *pvDwnData);
-INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
-INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
-INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32 is_broadband );
-INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
-INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
-                          RDMAPPDetails *pRdmAppDet,
-                          INT32 is_broadband);
-VOID rdmPrintAppDetails(RDMAPPDetails *pRdmAppDet);
-INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet);
-INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size);
-#endif //_RDM_DOWNLOADUTILS_H_
+#endif //_RDM_DOWNLOAD_H_
