@@ -22,7 +22,7 @@
 #define RDM_DOWNLOADS_DIR       "/rdm/downloads/"
 #define RDM_MANIFEST_DIR        "/etc/rdm/"
 #define RDM_TMP_SIGFILE         "/tmp/sig.truncated"
-#define RDM_KMS_PUB_KEY         "/tmp/rdmconfig.file"
+#define RDM_KMS_PUB_KEY         "/opt/secure/rdmconfig.file"
 #define RDM_KMS_PADDING_FILE    "pkg_padding"
 #define RDM_SIGFILE_SUFFIX      "-pkg.sig"
 #define RDM_MANIFEST_SUFFIX     "_cpemanifest"
