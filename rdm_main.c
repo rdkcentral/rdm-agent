@@ -228,6 +228,11 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
         return false;
     }
 
+    if ((delimiter - token_str == 1 && token_str[0] == '.') ||
+        (delimiter - token_str == 2 && token_str[0] == '.' && token_str[1] == '.')) {
+        return false;
+    }
+
     /* Exactly one ':' is required after the prefix. */
     if (strchr(delimiter + 1, ':') != NULL) {
         return false;

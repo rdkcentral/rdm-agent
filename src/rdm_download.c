@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <libgen.h>
+#include <sys/stat.h>
 
 #include "rdm_types.h"
 #include "rdm.h"
@@ -34,6 +35,18 @@
 #else
 #include "unittest/mocks/system_utils.h"
 #endif
+
+static INT32 rdmEmptyFolderIfNotSymlink(const CHAR *path)
+{
+    struct stat path_stat;
+
+    if (lstat(path, &path_stat) == 0 && S_ISLNK(path_stat.st_mode)) {
+        RDMDebug("Skipping cleanup of symlink path: %s\n", path);
+        return RDM_SUCCESS;
+    }
+
+    return emptyFolder(path);
+}
 
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
@@ -60,12 +73,12 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
         UINT32 fs_freespace = 0;
         INT32  fs_status = RDM_SUCCESS;
 
-        fs_status = emptyFolder(pRdmAppDet->app_dwnl_path);
+        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
             RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
         }
 
-        fs_status = emptyFolder(pRdmAppDet->app_home);
+        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_home);
         if(fs_status) {
             RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
         }

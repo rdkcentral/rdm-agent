@@ -40,10 +40,11 @@
 static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
 {
     CHAR tmp[RDM_TMP_LEN_64] = {0};
+    INT32 len = snprintf(tmp, sizeof(tmp), "%s_container.ipk", appname);
 
-    strncpy(tmp, appname, RDM_TMP_LEN_64);
-    strcat(tmp, "_container.ipk");
-
+    if(len < 0 || (size_t)len >= sizeof(tmp)) {
+        return 0;
+    }
     if(!strcmp(package, tmp)) {
         return 1;
     }
@@ -90,6 +91,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR ip_file[RDM_APP_PATH_LEN];
     INT32 status = RDM_SUCCESS;
+    INT32 path_len = 0;
 
     /* Extract the package */
     status = tarExtract(pRdmAppDet->app_dwnl_filepath, pRdmAppDet->app_dwnl_path);
@@ -117,14 +119,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
             }
         #endif
 
-	    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';
-	    strcat(tmp_file, "/");
-	    strcat(tmp_file, pRdmAppDet->app_name);
-	    strcat(tmp_file, "_");
-	    strcat(tmp_file, pRdmAppDet->pkg_ver);
-	    strcat(tmp_file, ".tar");
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+        path_len = snprintf(tmp_file, sizeof(tmp_file), "%s/%s_%s.tar",
+                            pRdmAppDet->app_dwnl_path, pRdmAppDet->app_name, pRdmAppDet->pkg_ver);
+        if(path_len < 0 || (size_t)path_len >= sizeof(tmp_file)) {
+            RDMError("Package path too long\n");
+            return RDM_FAILURE;
+        }
 
 	    if(fileCheck(tmp_file)) {
 		    RDMInfo("FileCheck = %s\n", tmp_file);
@@ -149,12 +149,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         #endif
 
 	    CHAR app_file[RDM_APP_PATH_LEN];
-	    strncpy(app_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
-	    app_file[sizeof(app_file) - 1] = '\0';
-	    strcat(app_file, "/");
-	    strcat(app_file, pRdmAppDet->app_name);
-	    strcat(app_file, ".tar");
-	    app_file[sizeof(app_file) - 1] = '\0';
+        path_len = snprintf(app_file, sizeof(app_file), "%s/%s.tar",
+                            pRdmAppDet->app_dwnl_path, pRdmAppDet->app_name);
+        if(path_len < 0 || (size_t)path_len >= sizeof(app_file)) {
+            RDMError("Package path too long\n");
+            return RDM_FAILURE;
+        }
 
 	    status = tarExtract(app_file, pRdmAppDet->app_home);
 	    if(status) {
@@ -186,19 +186,15 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
 #endif
 
 #ifdef L2_TEST_ENABLED
-    strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
-    strcat(tmp_file, "/");
-    strcat(tmp_file, "pkg_cpemanifest");
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    path_len = snprintf(tmp_file, sizeof(tmp_file), "%s/pkg_cpemanifest", pRdmAppDet->app_dwnl_path);
 #else
-    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
-    strcat(tmp_file, "/");
-    strcat(tmp_file, pRdmAppDet->app_name);
-    strcat(tmp_file, "_cpemanifest");
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    path_len = snprintf(tmp_file, sizeof(tmp_file), "%s/%s_cpemanifest",
+                        pRdmAppDet->app_home, pRdmAppDet->app_name);
 #endif
+    if(path_len < 0 || (size_t)path_len >= sizeof(tmp_file)) {
+        RDMError("Package path too long\n");
+        return RDM_FAILURE;
+    }
 
     if(fileCheck(tmp_file)) {
         RDMInfo("%s Package already extracted\n", tmp_file);
@@ -208,11 +204,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
         CHAR *extn = NULL;
         INT32 is_lxc = 0;
 
-        strncpy(tmp_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-	tmp_file[sizeof(tmp_file) - 1] = '\0';
-        strcat(tmp_file, "/packages.list");
-	tmp_file[sizeof(tmp_file) - 1] = '\0';
-	
+        path_len = snprintf(tmp_file, sizeof(tmp_file), "%s/packages.list", pRdmAppDet->app_dwnl_path);
+        if(path_len < 0 || (size_t)path_len >= sizeof(tmp_file)) {
+            RDMError("Package path too long\n");
+            return RDM_FAILURE;
+        }
+
         fp = fopen(tmp_file, "r");
         if(fp == NULL) {
             RDMError("Not Found the Packages List file\n");
@@ -243,12 +240,12 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                     is_lxc = 1;
                 }
                 RDMInfo("tmp_file = %s\nprdmAppDet->app_home = %s", tmp_file, pRdmAppDet->app_home);
-		        strncpy(ip_file, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
-                ip_file[sizeof(ip_file) - 1] = '\0';
-		        strcat(ip_file, "/");
-		        ip_file[sizeof(ip_file) - 1] = '\0';
-        	    strcat(ip_file, tmp_file);
-		        ip_file[sizeof(ip_file) - 1] = '\0';
+                path_len = snprintf(ip_file, sizeof(ip_file), "%s/%s", pRdmAppDet->app_dwnl_path, tmp_file);
+                if(path_len < 0 || (size_t)path_len >= sizeof(ip_file)) {
+                    RDMError("Package path too long\n");
+                    status = RDM_FAILURE;
+                    continue;
+                }
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {
                     rdmIARMEvntSendPayload(pRdmAppDet->pkg_name,
