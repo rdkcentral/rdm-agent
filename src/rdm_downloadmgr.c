@@ -23,6 +23,7 @@
 #include "rdm_download.h"
 #include "rdm_openssl.h"
 #include "rdm_downloadutils.h"
+#include <string.h>
 #ifndef GTEST_ENABLE
 #include <system_utils.h>
 #ifdef IARMBUS_SUPPORT
@@ -40,11 +41,21 @@
 static INT32 rdmDownlLXCCheck(CHAR *package, CHAR *appname)
 {
     CHAR tmp[RDM_TMP_LEN_64] = {0};
-    INT32 len = snprintf(tmp, sizeof(tmp), "%s_container.ipk", appname);
+    const CHAR suffix[] = "_container.ipk";
+    size_t appname_len;
 
-    if(len < 0 || (size_t)len >= sizeof(tmp)) {
+    if (package == NULL || appname == NULL) {
         return 0;
     }
+
+    appname_len = strlen(appname);
+    if (appname_len > sizeof(tmp) - sizeof(suffix)) {
+        return 0;
+    }
+
+    memcpy(tmp, appname, appname_len);
+    memcpy(tmp + appname_len, suffix, sizeof(suffix));
+
     if(!strcmp(package, tmp)) {
         return 1;
     }
