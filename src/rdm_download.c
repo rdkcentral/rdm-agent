@@ -39,13 +39,26 @@
 static INT32 rdmEmptyFolderIfNotSymlink(const CHAR *path)
 {
     struct stat path_stat;
+    CHAR mutable_path[RDM_APP_PATH_LEN];
+    size_t path_len;
+
+    if (path == NULL) {
+        return RDM_FAILURE;
+    }
 
     if (lstat(path, &path_stat) == 0 && S_ISLNK(path_stat.st_mode)) {
         RDMDebug("Skipping cleanup of symlink path: %s\n", path);
         return RDM_SUCCESS;
     }
 
-    return emptyFolder(path);
+    path_len = strlen(path);
+    if (path_len >= sizeof(mutable_path)) {
+        RDMError("Path too long to empty folder\n");
+        return RDM_FAILURE;
+    }
+    memcpy(mutable_path, path, path_len + 1);
+
+    return emptyFolder(mutable_path);
 }
 
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
