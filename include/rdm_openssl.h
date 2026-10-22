@@ -57,7 +57,8 @@
 INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file,
                                        size_t      file_len,
                                        const CHAR *sig_file,
-                                       const CHAR *vkey_file,
+                                       const UINT8 *vkey,
+                                       size_t      vkey_len,
                                        CHAR       *reply_msg,
                                        INT32      *reply_msg_len);
 
@@ -65,7 +66,9 @@ INT32 rdmSignatureVerify(CHAR *cache_dir,
                          CHAR *app_name,
                          INT32 prepare_files);
 
-INT32 rdmDecryptKey(CHAR *out_key);
+INT32 rdmDecryptKey(UINT8 **out_key, size_t *out_key_len);
+
+VOID rdmFreeKmsPubKey(UINT8 **key, size_t key_len);
 
 VOID rdmInitSslLib(VOID);
 
