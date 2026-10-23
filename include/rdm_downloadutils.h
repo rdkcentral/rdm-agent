@@ -63,6 +63,7 @@
 
 #ifdef LIBRDKCERTSELECTOR
 #include "rdkcertselector.h"
+#include <urlHelper.h>
 // Below macro is invoked if the MTLS certificates retrieved by getMtlscert have failed
 #define CURL_MTLS_LOCAL_CERTPROBLEM 58
 
