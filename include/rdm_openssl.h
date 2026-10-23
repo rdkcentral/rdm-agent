@@ -21,8 +21,7 @@
 
 #define RDM_DOWNLOADS_DIR       "/rdm/downloads/"
 #define RDM_MANIFEST_DIR        "/etc/rdm/"
-#define RDM_TMP_SIGFILE         "/tmp/sig.truncated"
-#define RDM_KMS_PUB_KEY         "/opt/secure/rdmconfig.file"
+#define RDM_TMP_SIGFILE         "/tmp/sig.truncated"         
 #define RDM_KMS_PADDING_FILE    "pkg_padding"
 #define RDM_SIGFILE_SUFFIX      "-pkg.sig"
 #define RDM_MANIFEST_SUFFIX     "_cpemanifest"
@@ -54,6 +53,7 @@
 #define RDM_SIG_TYPE_KMS     0
 #define RDM_SIG_TYPE_OPENSSL 1
 
+const char *RDM_KMS_PUB_KEY=NULL;
 INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file,
                                        size_t      file_len,
                                        const CHAR *sig_file,
