@@ -223,25 +223,6 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         }
 }
 
-INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
-{
-    //Read your Cert details here
-#ifdef L2_TEST_ENABLED
-    strncpy(sec->cert_name, CERT_STATIC, sizeof(sec->cert_name) - 1);
-    strncpy(sec->cert_type, "STATIC", sizeof(sec->cert_type) - 1);
-    strncpy(sec->key_pas, KEY_STATIC, sizeof(sec->key_pas) - 1);
-#else
-    strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
-    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
-    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
-    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
-#endif
-    RDMInfo("RDM download certificate success. cert=%s, cert type=%s\n", sec->cert_name, sec->cert_type);
-    return RDM_SUCCESS;
-}
-
 //Check for OCSPEnable. Returns 1 if enabled.
 INT32 rdmDwnlIsOCSPEnable(void)
 {
@@ -258,15 +239,20 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     FileDwnl_t file_dwnl;
     MtlsAuth_t sec;
 
+#ifdef LIBRDKCERTSELECTOR
+    int cert_ret_code = -1;
+    MtlsAuthStatus ret = MTLS_CERT_FETCH_SUCCESS;
+#endif
     memset(&file_dwnl, 0, sizeof(FileDwnl_t));
-    memset(&sec, 0, sizeof(MtlsAuth_t));
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
     strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
+    if (snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName) >= (int)sizeof(file_dwnl.pathname)) {
+        RDMError("Download path is too long\n");
+        return status;
+    }
     strcpy(pOut, file_dwnl.pathname);
 
     if(rdmDwnlIsOCSPEnable()) {
@@ -276,33 +262,125 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.pPostFields = NULL;
 
     /* Update the Certificate */
-    status = rdmDwnlGetCert(&sec);
-    if(status) {
-        RDMError("Failed to get MTLS certificate\n");
-        return RDM_FAILURE;
-    }
-
     curl = doCurlInit();
     if(curl == NULL) {
-        RDMError("CurlInit Failed\n");
+        RDMError("Failed init curl\n");
         return status;
     }
+#ifdef LIBRDKCERTSELECTOR
+    static rdkcertselector_h thisCertSel = NULL;
+    INT32 mtls_retry = 0;
+    RDMInfo("Initializing CertSelector\n");
+    if (thisCertSel == NULL)
+    {
+        const char* certGroup = "MTLS";
+        thisCertSel = rdkcertselector_new(NULL, NULL, certGroup);
+        if (thisCertSel == NULL) {
+             RDMInfo("Cert Selector Initialisation Failed\n");
+             return cert_ret_code;
+        } else {
+             RDMInfo("Cert Selector Initialisation is Successful\n");
+        }
+    } else {
+        RDMInfo("Cert selector already initialized, reusing existing instance\n");
+    }
+    memset(&sec, '\0', sizeof(MtlsAuth_t));
+    do {
+        RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
+        ret = rdmDwnlGetCert(&sec, &thisCertSel);
+        RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
+        if (ret == MTLS_CERT_FETCH_FAILURE) {
+            RDMInfo("MTLS cert Failed ret= %d\n", ret);
+            return cert_ret_code;
+        } else {
+            RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
+        }
+        RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
+        curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
+                                           max_dwnl_speed, NULL, &httpCode);
+        RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
+        if (curl_ret_code != 0) {
+            mtls_retry++;
+            if (mtls_retry >= RDM_DWNLD_MAX_RETRIES) {
+                RDMError("Max MTLS retry attempts reached (%d). Aborting.\n", RDM_DWNLD_MAX_RETRIES);
+                break;
+            }
+       }
+    }while (rdkcertselector_setCurlStatus(thisCertSel, curl_ret_code, file_dwnl.url) == TRY_ANOTHER);
+              
+    if(curl_ret_code && httpCode != 200) {
+            RDMError("Download failed\n");
+            status = RDM_FAILURE;
+    }
+    if (curl != NULL) {
+        RDMInfo("Stopping Curl Download\n");
+        doStopDownload(curl);
+        curl = NULL;
+    }
+    return status;
+#endif
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
     t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
+
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
 
     RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
 
     if(curl_ret_code && httpCode != 200) {
-        RDMError("Download failed\n");
-	t2CountNotify("RDM_ERR_package_failed", 1);
+        RDMError("Direct Download failed\n");
+	      t2CountNotify("RDM_ERR_package_failed", 1);
         status = RDM_FAILURE;
     }
 
     doStopDownload(curl);
+
     return status;
 }
+
+#ifdef LIBRDKCERTSELECTOR
+#define FILESCHEME "file://"
+/* Description: Use for get all mtls related certificate and key.
+ * @param sec: This is a pointer hold the certificate, key and type of certificate.
+ * @return : MTLS_CERT_FETCH_SUCCESS on success, MTLS_CERT_FETCH_FAILURE on mtls cert failure.
+ * */
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel) {
+    char *certUri = NULL;
+    char *certPass = NULL;
+    char *engine = NULL;
+    char *certFile = NULL;
+    rdkcertselectorStatus_t certStat = rdkcertselector_getCert(*pthisCertSel, &certUri, &certPass);
+    if (certStat != certselectorOk || certUri == NULL || certPass == NULL) {
+        RDMInfo("%s, Failed to retrieve certificate for MTLS\n",  __FUNCTION__);
+        rdkcertselector_free(pthisCertSel);
+        if(*pthisCertSel == NULL){
+            RDMInfo("%s, Cert selector memory free\n", __FUNCTION__);
+        }else{
+            RDMInfo("%s, Cert selector memory free failed\n", __FUNCTION__);
+        }
+        return MTLS_CERT_FETCH_FAILURE; // Return error
+    }
+    certFile = certUri;
+    if (strncmp(certFile, FILESCHEME, sizeof(FILESCHEME)-1) == 0) {
+        certFile += (sizeof(FILESCHEME)-1); // Remove file scheme prefix
+    }
+    strncpy(sec->cert_name, certFile, sizeof(sec->cert_name) - 1);
+    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';
+    strncpy(sec->key_pas, certPass, sizeof(sec->key_pas) - 1);
+    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';
+    engine = rdkcertselector_getEngine(*pthisCertSel);
+    if (engine == NULL) {
+        sec->engine[0] = '\0';
+    }else{
+        strncpy(sec->engine, engine, sizeof(sec->engine) - 1);
+        sec->engine[sizeof(sec->engine) - 1] = '\0';
+    }
+    strncpy(sec->cert_type, "P12", sizeof(sec->cert_type) - 1);
+    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';
+    RDMInfo("%s, MTLS dynamic/static cert success. cert=%s, type=%s, engine=%s\n", __FUNCTION__, sec->cert_name, sec->cert_type, sec->engine);
+    return MTLS_CERT_FETCH_SUCCESS; // Return success
+}
+#endif
 
 #ifdef RDM_ENABLE_CODEBIG
 INT32 rdmDwnlCodebig(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
