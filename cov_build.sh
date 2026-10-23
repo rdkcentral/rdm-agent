@@ -43,6 +43,8 @@ rm -rf iarmmgrs
 rm -rf iarmbus
 git clone https://github.com/rdkcentral/iarmmgrs.git
 git clone https://github.com/rdkcentral/iarmbus.git
+git clone https://github.com/rdkcentral/rdk-cert-config.git
+cp rdk-cert-config/RdkConfigApi/include/* /usr/local/include
 
 git clone https://github.com/rdkcentral/tr69hostif.git
 cd tr69hostif
