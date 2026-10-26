@@ -19,7 +19,7 @@
 #ifndef _RDM_PACKAGEMGR_H_
 #define _RDM_PACKAGEMGR_H_
 
-#define RDM_WPEPROCESS              "ThunderPlugins -l libThunderPackager.so"
+#define RDM_WPEPROCESS              "ThunderPlugin -l libThunderPackager.so"
 #define RDM_CURL_CONTENTTYPE        "Content-Type: application/json"
 #define RDM_WPE_SECUTIL             "/usr/bin/ThunderSecurityUtility"
 #define RDM_JSONRPC_URL             "http://127.0.0.1:9998/jsonrpc"
