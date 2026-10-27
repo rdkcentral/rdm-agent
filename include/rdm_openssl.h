@@ -53,7 +53,8 @@
 #define RDM_SIG_TYPE_KMS     0
 #define RDM_SIG_TYPE_OPENSSL 1
 
-#define RDM_KMS_PUB_KEY NULL
+#define RDM_KMS_PUB_KEY "rdmconfig.file"
+
 INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file,
                                        size_t      file_len,
                                        const CHAR *sig_file,
