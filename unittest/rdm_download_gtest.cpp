@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <cstdlib>
 #include <gmock/gmock-actions.h>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
@@ -199,12 +200,20 @@ char* getJsonRpcData(const char* input) {
         return mockRdmUtils->rdmInitSslLib();
     }
 
-    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const CHAR *vkey_file, CHAR *reply_msg, INT32 *reply_msg_len) {
-        return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, reply_msg_len);
+    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const UINT8 *vkey, size_t vkey_len, CHAR *reply_msg, INT32 *reply_msg_len) {
+        return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey, vkey_len, reply_msg, reply_msg_len);
     }
 
-    INT32 rdmDecryptKey(CHAR *outKey) {
-        return mockRdmUtils->rdmDecryptKey(outKey);
+    INT32 rdmDecryptKey(UINT8 **outKey, size_t *outKeyLen) {
+        return mockRdmUtils->rdmDecryptKey(outKey, outKeyLen);
+    }
+
+    VOID rdmFreeKmsPubKey(UINT8 **key, size_t key_len) {
+        (void)key_len;
+        if (key != nullptr && *key != nullptr) {
+            std::free(*key);
+            *key = nullptr;
+        }
     }
 
     unsigned int getFileLastModifyTime(CHAR *file) {
@@ -432,6 +441,53 @@ TEST_F(RDMDownloadTest, rdmDownloadVerApp_NoManifestVersions) {
 
     INT32 status = rdmDownloadVerApp(&appDetails);
     EXPECT_EQ(status, RDM_SUCCESS);
+}
+
+TEST_F(RDMDownloadTest, rdmPackageMgr_RejectsUrlWithJsonBreakingChars) {
+    const char *badUrls[] = {
+        "https://host/pkg.ipk\",\"method\":\"Controller.1.activate",
+        "https://host/pkg\\.ipk",
+        "https://host/pkg\n.ipk"
+    };
+
+    for (const char *badUrl : badUrls) {
+        RDMAPPDetails appDetails = {};
+        strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+        strncpy(appDetails.app_dwnl_url, badUrl, sizeof(appDetails.app_dwnl_url) - 1);
+
+        EXPECT_CALL(*mockRdmUtils, getProcessID(_, _)).WillOnce(Return(1));
+        EXPECT_CALL(*mockRdmUtils, copyCommandOutput(_, _, _)).Times(0);
+        EXPECT_CALL(*mockRdmUtils, doCurlInit()).Times(0);
+
+        EXPECT_EQ(rdmPackageMgr(&appDetails), RDM_FAILURE);
+        ::testing::Mock::VerifyAndClearExpectations(mockRdmUtils);
+    }
+}
+
+TEST_F(RDMDownloadTest, rdmPackageMgr_RejectsOversizedRequest) {
+    RDMAPPDetails appDetails = {};
+    std::string longUrl = "https://host/" + std::string(480, 'a');
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_dwnl_url, longUrl.c_str(), sizeof(appDetails.app_dwnl_url) - 1);
+
+    EXPECT_CALL(*mockRdmUtils, getProcessID(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(*mockRdmUtils, copyCommandOutput(_, _, _)).Times(1);
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).Times(0);
+
+    EXPECT_EQ(rdmPackageMgr(&appDetails), RDM_FAILURE);
+}
+
+TEST_F(RDMDownloadTest, rdmPackageMgr_ValidUrlReachesRequest) {
+    RDMAPPDetails appDetails = {};
+    strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
+    strncpy(appDetails.app_dwnl_url, "https://host/pkg.ipk", sizeof(appDetails.app_dwnl_url) - 1);
+
+    EXPECT_CALL(*mockRdmUtils, getProcessID(_, _)).WillOnce(Return(1));
+    EXPECT_CALL(*mockRdmUtils, copyCommandOutput(_, _, _)).Times(1);
+    EXPECT_CALL(*mockRdmUtils, ParseJsonStr(_)).WillRepeatedly(Return(nullptr));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(nullptr));
+
+    EXPECT_EQ(rdmPackageMgr(&appDetails), RDM_FAILURE);
 }
 
 

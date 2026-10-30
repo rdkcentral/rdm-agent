@@ -116,7 +116,7 @@ TEST(RdmDirectoryTest, rdmListDirectory_Success) {
     // Create a temporary directory for testing
     system("mkdir -p /tmp/test_rdm_dir && touch /tmp/test_rdm_dir/file1 /tmp/test_rdm_dir/file2");
 
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir", dirList, &numDirs), RDM_SUCCESS);
+    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir", dirList, &numDirs, 10), RDM_SUCCESS);
     EXPECT_EQ(numDirs, 4);
 
     for (int i = 0; i < numDirs; i++) {
@@ -130,14 +130,51 @@ TEST(RdmDirectoryTest, rdmListDirectory_Failure) {
     CHAR* dirList[10];
     INT32 numDirs = 0;
 
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/nonexistent", dirList, &numDirs), RDM_FAILURE);
+    EXPECT_EQ(rdmListDirectory((CHAR*)"/nonexistent", dirList, &numDirs, 10), RDM_FAILURE);
 }
 
 TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
     CHAR* dirList[10];
     INT32 numDirs = 0;
 
-    EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs), RDM_FAILURE);
+    EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs, 10), RDM_FAILURE);
+}
+
+TEST(RdmDirectoryTest, rdmListDirectory_StopsAtMaxEntries) {
+    CHAR* sentinel = (CHAR*)"sentinel";
+    CHAR* dirList[4] = { nullptr, nullptr, nullptr, sentinel };
+    INT32 numDirs = 0;
+
+    // 5 files plus "." and ".." is more than the 3 slots allowed
+    system("mkdir -p /tmp/test_rdm_dir_max && touch /tmp/test_rdm_dir_max/f1 /tmp/test_rdm_dir_max/f2 /tmp/test_rdm_dir_max/f3 /tmp/test_rdm_dir_max/f4 /tmp/test_rdm_dir_max/f5");
+
+    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir_max", dirList, &numDirs, 3), RDM_FAILURE);
+    EXPECT_EQ(numDirs, 3);
+    EXPECT_EQ(dirList[3], sentinel);
+
+    for (int i = 0; i < numDirs; i++) {
+        free(dirList[i]);
+    }
+
+    system("rm -rf /tmp/test_rdm_dir_max");
+}
+
+TEST(RdmDirectoryTest, rdmListDirectory_SkipsNamesTooLong) {
+    CHAR* dirList[10];
+    INT32 numDirs = 0;
+    std::string longName(200, 'a');
+
+    system(("mkdir -p /tmp/test_rdm_dir_long && touch /tmp/test_rdm_dir_long/app1 /tmp/test_rdm_dir_long/" + longName).c_str());
+
+    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir_long", dirList, &numDirs, 10), RDM_SUCCESS);
+    EXPECT_EQ(numDirs, 3);
+
+    for (int i = 0; i < numDirs; i++) {
+        EXPECT_LT(strlen(dirList[i]), (size_t)RDM_APPNAME_LEN);
+        free(dirList[i]);
+    }
+
+    system("rm -rf /tmp/test_rdm_dir_long");
 }
 
 GTEST_API_ int main(int argc, char *argv[]){
