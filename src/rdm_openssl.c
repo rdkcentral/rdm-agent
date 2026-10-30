@@ -18,6 +18,9 @@
 
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -262,33 +265,12 @@ static INT32 prepare_app_manifest(CHAR *etc_manifest_file,
     return 0;
 }
 
-#ifdef LIBRDKCONFIG_BUILD
-static int prepare_kms_pubkey_config( uint8_t **pubkey, size_t *pubsize )
-{
-	/*Prepare your Public Key file here
-	uint8_t *MyPubKey=NULL;
-	size_t MyPubSize;
-	MyPubKey_get(&MyPubKey, &MyPubSize, "/Path/To/My/PublicKey");
-	*pubkey=MyPubKey;
-        *pubsize=MyPubSize;
-	Return 0 on success*/
-        return 0;
-}
-#else
-static int prepare_kms_pubkey() {
-        //Prepare your Public Key file here
-        //Return 0 on success
-	return 0;
-}
-#endif
-
 /**
  *
  * @brief This function prepares the rdm files for signature verification
  * Does the following -
  * 1. Remove header added by KMS
  * 2. Prepare cpe manifest file with correct path to extracted files
- * 3. Decrypt kms public key
  */
 static INT32 prepare_rdm_files_for_sign_verification(CHAR *cache_dir,
                                                      CHAR *app_name)
@@ -346,10 +328,6 @@ static INT32 prepare_rdm_files_for_sign_verification(CHAR *cache_dir,
     if (ret) {
         return ret;
     }
-#if !defined LIBRDKCONFIG_BUILD
-    ret = prepare_kms_pubkey();
-#endif
-
     return ret;
 }
 
@@ -660,44 +638,38 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
         RDMError("memory allocation failed\n");
         goto error;
     }
-    size_t sizeRead = fread(manifest, BUFSIZE, 1, manifest_fh);
+    size_t sizeRead = fread(manifest, 1, BUFSIZE - 1, manifest_fh);
+    if (ferror(manifest_fh)) {
+        RDMError("manifest file read error\n");
+        goto error;
+    }
     fclose(manifest_fh);
     manifest_fh = NULL; // Set the file handle to NULL after closing
 
-    // Ensure the buffer is null-terminated
-    if (sizeRead < BUFSIZE) {
-        manifest[sizeRead] = '\0';
-    } else {
-        manifest[BUFSIZE - 1] = '\0';
-    }
+    manifest[sizeRead] = '\0';
 
     path_buff = strtok(manifest, "\t\r\n");
 
     while (path_buff != NULL) {
         data_fh = fopen( path_buff, "r" );
-        if(strstr(path_buff, "tmp")     ||
-           strstr(path_buff, "media")   ||
-           strstr(path_buff, "padding") ||
-           strstr(path_buff, "json") ) {
-            if ( data_fh == NULL ) {
-                RDMError("datafile open error\n");
-                goto error;
-            }
-            bytesread=0;
+        if ( data_fh == NULL ) {
+            RDMError("datafile open error\n");
+            goto error;
+        }
+        bytesread=0;
 
-            while (1) {
-                bytesread = fread(buffer, 1, BUFSIZE, data_fh );
-                if ( bytesread > 0 ) {
-                    if( 1 != EVP_DigestUpdate(mdctx, buffer, bytesread) ) {
-                        goto error;
-                    }
+        while (1) {
+            bytesread = fread(buffer, 1, BUFSIZE, data_fh );
+            if ( bytesread > 0 ) {
+                if( 1 != EVP_DigestUpdate(mdctx, buffer, bytesread) ) {
+                    goto error;
                 }
-                if ( bytesread != BUFSIZE)
-                    break; // EoF found
             }
-            if ( ferror( data_fh ) ) {
-                goto error;
-            }
+            if ( bytesread != BUFSIZE)
+                break; // EoF found
+        }
+        if ( ferror( data_fh ) ) {
+            goto error;
         }
 
         path_buff = strtok(NULL, "\t\r\n");
@@ -733,7 +705,8 @@ error:
  * @param[in] hashval                 Hash generated over the data
  * @param[in] hashval_len             Length of hash though we know this all coded to SHA256
  * @param[in] sig_file                Contains the KMS ASCII hex signature ALL UPPER CASE as created by signing process
- * @param[in] vkey_file               PEM format public key exported from KMS
+ * @param[in] vkey                    PEM-encoded public key buffer.
+ * @param[in] vkey_len                Length of the public key buffer.
  * @param[in] reply_msg               Buffer to receive message to send to logging system
  * @param[in] reply_msg_len           Pointer to INT32 containing size of buffer.  Must be at least 65 bytes.
  *
@@ -744,20 +717,20 @@ static
 INT32 openssl_verify_signature(const UINT8 *hashval,
                                INT32 hashval_len,
                                const CHAR *sig_file,
-                               const CHAR *vkey_file,
+                               const UINT8 *vkey,
+                               size_t vkey_len,
                                CHAR *reply_msg,
                                INT32 *reply_msg_len)
 {
     EVP_MD_CTX *mdctx = NULL;
     EVP_PKEY *pkey    = NULL;
+    BIO *pBio_Pem = NULL;
     CHAR hash_ascii[SHA256_ASCII_DIGEST_LENGTH + 1];
-    UINT8 *sig;
+    UINT8 *sig = NULL;
     INT32  sig_len;
     INT32  retval;
-    FILE *pub_fh = NULL;
 
-    /* Only one parameter hasn't been checked by the calling code */
-    if (hashval == NULL) {
+    if (hashval == NULL || vkey == NULL || vkey_len == 0) {
         return retcode_param_error;
     }
 
@@ -785,60 +758,52 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
 
 #ifdef L2_TEST_ENABLED
     retval = retcode_success;
-    return retval;
+    goto error;
 #endif
 
     /**
      * Perform verify operations
      */
 
-    /* initialize `key` with a public key */
-#ifdef LIBRDKCONFIG_BUILD
-        BIO *pBio_Pem  = NULL;
-        pBio_Pem = BIO_new_mem_buf((char *)vkey_file, (int)strlen(vkey_file));
-        if (pBio_Pem == NULL) {
-            debug_print("Unable to assign the PEM to BIO buffer.");
-            goto error;
-        }
-
-        /* Convert the BIO to PKEY format. */
-        pkey = PEM_read_bio_PUBKEY(pBio_Pem, NULL, NULL, NULL);  
-        if (pkey == NULL) {
-           debug_print("Unable to read the key from PEM.");
-           goto error;
-        }
-#else
-    RDMInfo("reading key file: %s\n",vkey_file);
- // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
-    pub_fh = fopen(vkey_file, "rb");
-    if (pub_fh == NULL) {
-        RDMError("pubkey open fail\n");
+    if (vkey_len > INT_MAX) {
+        RDMError("Public key buffer is too large\n");
         retval = retcode_keyfile_err;
         goto error;
     }
 
-    pkey = PEM_read_PUBKEY(pub_fh, NULL, NULL, NULL);
-    if (pkey == NULL) {
-        RDMError("pubkey read fail\n");
+    pBio_Pem = BIO_new_mem_buf(vkey, (int)vkey_len);
+    if (pBio_Pem == NULL) {
+        RDMError("Unable to assign the PEM to BIO buffer\n");
+        retval = retcode_keyfile_err;
         goto error;
     }
-#endif
+
+    pkey = PEM_read_bio_PUBKEY(pBio_Pem, NULL, NULL, NULL);
+    if (pkey == NULL) {
+        RDMError("pubkey read fail\n");
+        retval = retcode_keyfile_err;
+        goto error;
+    }
+
     /* reinit a digest context */
     EVP_MD_CTX_destroy( mdctx );
     if((mdctx = EVP_MD_CTX_create()) == NULL) {
         RDMError("verify context create fail\n");
+        retval = retcode_ssl_err;
         goto error;
     }
 
     /* Initialize verify */
     if(1 != EVP_DigestVerifyInit(mdctx, NULL, EVP_sha256(), NULL, pkey)) {
         RDMError("digest verify init fail\n");
+        retval = retcode_ssl_err;
         goto err;
     }
 
     /* perform verify */
     if( 1 != EVP_DigestVerifyUpdate(mdctx, hash_ascii, SHA256_ASCII_DIGEST_LENGTH)) {
         RDMError("digest verify update fail\n");
+        retval = retcode_ssl_err;
         goto err;
     }
 
@@ -852,11 +817,8 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
 err:
 error:
 
-    #if !defined(LIBRDKCONFIG_BUILD)  
-    // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional   
-    /* coverity[deadcode] INTENTIONAL: pub_fh is assigned in the #else branch above; defensive cleanup */
-    if (pub_fh != NULL) fclose(pub_fh);
-#endif
+    free(sig);
+    if (pBio_Pem != NULL) BIO_free(pBio_Pem);
     if (mdctx != NULL) EVP_MD_CTX_destroy(mdctx);
      // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
     /* coverity[deadcode] INTENTIONAL: pkey is assigned in both #ifdef and #else branches above; defensive cleanup */
@@ -873,7 +835,8 @@ error:
  * @param[in] data_file              Input data file.
  * @param[in] file_len               Input data file length.
  * @param[in] sig_file               Signature file.
- * @param[in] vkey_file              Public key file.
+ * @param[in] vkey                   PEM-encoded public key buffer.
+ * @param[in] vkey_len               Length of the public key buffer.
  * @param[in] reply_msg              Return Value.
  * @param[in] reply_msg_len          Length of return value message.
  *
@@ -886,9 +849,10 @@ error:
  INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file,
                                         size_t      file_len,
                                         const CHAR *sig_file,
-                                        const CHAR *vkey_file,
-                                        CHAR       *reply_msg,
-                                        INT32      *reply_msg_len)
+                                         const UINT8 *vkey,
+                                         size_t      vkey_len,
+                                         CHAR       *reply_msg,
+                                         INT32      *reply_msg_len)
  {
     INT32 retval;
 
@@ -896,20 +860,11 @@ error:
     INT32 hashval_len = SHA256_DIGEST_LENGTH;
 
     RDMInfo("Entry:\n");
-#ifdef LIBRDKCONFIG_BUILD
-         uint8_t *key = NULL;
-         size_t keysize;
-         retval = prepare_kms_pubkey_config(&key, &keysize);
-         if (retval) {
-             debug_print("prepare_kms_pubkey_config() failed\n");
-             return retval;
-         }
-         vkey_file=(const char*)key;
-#endif
     if (data_file == NULL ||
         sig_file  == NULL ||
         reply_msg == NULL ||
-        vkey_file == NULL ||
+        vkey == NULL ||
+        vkey_len == 0 ||
         reply_msg_len == NULL ) {
         RDMError("Input Args parameter error\n");
         return retcode_param_error;
@@ -940,7 +895,8 @@ error:
     retval = openssl_verify_signature(hashval,
                                       hashval_len,
                                       sig_file,
-                                      vkey_file,
+                                      vkey,
+                                      vkey_len,
                                       reply_msg,
                                       reply_msg_len);
     return retval;
@@ -958,6 +914,8 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR  outputMsg[REPLY_MSG_LEN] = "no response received";
     CHAR *dataFile = NULL, *sigFile = NULL;
+    UINT8 *kmsPubKey = NULL;
+    size_t kmsPubKeyLen = 0;
 
     if (NULL == cache_dir || NULL == app_name)
         return status;
@@ -967,19 +925,8 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
             RDMError("prepare_rdm_files_for_sign_verification failed\n");
             return status;
         }
-    } else {
-        if (0 != prepare_kms_pubkey()) {
-	}
-#if !defined LIBRDKCONFIG_BUILD
-        else {
-              if (0 != prepare_kms_pubkey()) {
-                RDMError("prepare_kms_pubkey failed\n");
-                return status;
-            }
-        }
-   }
+    }
 
-#endif	
     /* Initialize the openSSL crypto library and configurations */
     rdmInitSslLib();
 
@@ -992,7 +939,15 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
     sprintf(sigFile, "%s%s%s/%s%s", cache_dir, RDM_DOWNLOADS_DIR, app_name,
                                                app_name, RDM_SIGFILE_SUFFIX);
 
-    status = rdmOpensslRsafileSignatureVerify(dataFile, -1, sigFile, RDM_KMS_PUB_KEY,
+    if (rdmDecryptKey(&kmsPubKey, &kmsPubKeyLen) != RDM_SUCCESS) {
+        RDMError("Unable to retrieve KMS public key\n");
+        free(dataFile);
+        free(sigFile);
+        return status;
+    }
+
+    status = rdmOpensslRsafileSignatureVerify(dataFile, -1, sigFile,
+                                              kmsPubKey, kmsPubKeyLen,
                                               outputMsg, &outputMsgLen);
     if ( status == retcode_success ) {
         RDMInfo("RSA Signature Validation Success\n");
@@ -1005,14 +960,99 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
 
     free(dataFile);
     free(sigFile);
-#if !defined LIBRDKCONFIG_BUILD
-    unlink(RDM_KMS_PUB_KEY);
-#endif    
+    rdmFreeKmsPubKey(&kmsPubKey, kmsPubKeyLen);
     return status;
 }
 
-INT32 rdmDecryptKey(CHAR *out_key)
+INT32 rdmDecryptKey(UINT8 **out_key, size_t *out_key_len)
 {
-    //Decrypt and store the key in out_key
-    return 0; //on SUCCESS
+    if (out_key == NULL || out_key_len == NULL) {
+        RDMError("Invalid KMS public key output buffer\n");
+        return RDM_FAILURE;
+    }
+
+    *out_key = NULL;
+    *out_key_len = 0;
+
+#ifdef LIBRDKCONFIG_BUILD
+    if (rdkconfig_get(out_key, out_key_len, RDM_KMS_PUB_KEY) != RDKCONFIG_OK ||
+        *out_key == NULL || *out_key_len == 0) {
+        RDMError("rdkconfig_get failed to retrieve KMS public key\n");
+        rdmFreeKmsPubKey(out_key, *out_key_len);
+        return RDM_FAILURE;
+    }
+#else
+    FILE *key_pipe = v_secure_popen("r", "/usr/bin/GetConfigFile %s stdout",
+                                    RDM_KMS_PUB_KEY);
+    UINT8 chunk[1024];
+    size_t capacity = 0;
+    size_t bytes_read;
+    int command_status;
+    int retrieval_failed = 0;
+
+    if (key_pipe == NULL) {
+        RDMError("Unable to start GetConfigFile for KMS public key\n");
+        return RDM_FAILURE;
+    }
+
+    while ((bytes_read = fread(chunk, 1, sizeof(chunk), key_pipe)) > 0) {
+        if (*out_key_len > SIZE_MAX - bytes_read - 1) {
+            RDMError("KMS public key output is too large\n");
+            retrieval_failed = 1;
+            break;
+        }
+        size_t needed = *out_key_len + bytes_read + 1;
+        if (needed > capacity) {
+            size_t new_capacity = capacity == 0 ? sizeof(chunk) + 1 : capacity;
+            while (new_capacity < needed) {
+                if (new_capacity > SIZE_MAX / 2) {
+                    new_capacity = needed;
+                    break;
+                }
+                new_capacity *= 2;
+            }
+            UINT8 *new_key = realloc(*out_key, new_capacity);
+            if (new_key == NULL) {
+                RDMError("Unable to allocate KMS public key buffer\n");
+                retrieval_failed = 1;
+                break;
+            }
+            *out_key = new_key;
+            capacity = new_capacity;
+        }
+        memcpy(*out_key + *out_key_len, chunk, bytes_read);
+        *out_key_len += bytes_read;
+        (*out_key)[*out_key_len] = '\0';
+    }
+
+    if (ferror(key_pipe)) {
+        RDMError("Failed reading KMS public key from GetConfigFile\n");
+        retrieval_failed = 1;
+    }
+    command_status = v_secure_pclose(key_pipe);
+    if (retrieval_failed || command_status == -1 ||
+        !WIFEXITED(command_status) || WEXITSTATUS(command_status) != 0 ||
+        *out_key_len == 0) {
+        RDMError("GetConfigFile failed to retrieve KMS public key\n");
+        rdmFreeKmsPubKey(out_key, *out_key_len);
+        return RDM_FAILURE;
+    }
+#endif
+    return RDM_SUCCESS;
+}
+
+VOID rdmFreeKmsPubKey(UINT8 **key, size_t key_len)
+{
+    if (key == NULL || *key == NULL) {
+        return;
+    }
+#ifdef LIBRDKCONFIG_BUILD
+    if (rdkconfig_free(key, key_len) != RDKCONFIG_OK) {
+        RDMError("rdkconfig_free failed for KMS public key\n");
+    }
+#else
+    OPENSSL_cleanse(*key, key_len);
+    free(*key);
+    *key = NULL;
+#endif
 }

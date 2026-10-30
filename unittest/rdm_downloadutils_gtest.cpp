@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <cstdlib>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/system_utils.h"
 #include "mocks/mock_rdm_rbus.h"
@@ -165,12 +166,20 @@ extern "C"{
         return mockRdmUtils->rdmInitSslLib();
     }
 
-    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const CHAR *vkey_file, CHAR *reply_msg, INT32 *reply_msg_len) {
-        return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, reply_msg_len);
+    INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file, size_t file_len, const CHAR *sig_file, const UINT8 *vkey, size_t vkey_len, CHAR *reply_msg, INT32 *reply_msg_len) {
+        return mockRdmUtils->rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey, vkey_len, reply_msg, reply_msg_len);
     }
 
-    INT32 rdmDecryptKey(CHAR *outKey) {
-        return mockRdmUtils->rdmDecryptKey(outKey);
+    INT32 rdmDecryptKey(UINT8 **outKey, size_t *outKeyLen) {
+        return mockRdmUtils->rdmDecryptKey(outKey, outKeyLen);
+    }
+
+    VOID rdmFreeKmsPubKey(UINT8 **key, size_t key_len) {
+        (void)key_len;
+        if (key != nullptr && *key != nullptr) {
+            std::free(*key);
+            *key = nullptr;
+        }
     }
 
     INT32 rdmJSONGetAppNames(INT32 idx, CHAR *pAppName) {
@@ -343,12 +352,16 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_SUccess) {
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
 
-    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
-	.WillOnce(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_, ::testing::_))
+        .WillOnce([](UINT8 **key, size_t *key_len) {
+            *key = static_cast<UINT8 *>(std::malloc(1));
+            *key_len = 1;
+            return *key == nullptr ? RDM_FAILURE : RDM_SUCCESS;
+        });
 
     EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
 
-    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
 	.WillOnce(Return(354705069));
 
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_SUCCESS);
@@ -375,12 +388,16 @@ TEST(rdmDwnlValidation, rdmDwnlValidation_Failure) {
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(1));
 
-    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_))
-        .WillOnce(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, rdmDecryptKey(::testing::_, ::testing::_))
+        .WillOnce([](UINT8 **key, size_t *key_len) {
+            *key = static_cast<UINT8 *>(std::malloc(1));
+            *key_len = 1;
+            return *key == nullptr ? RDM_FAILURE : RDM_SUCCESS;
+        });
 
     EXPECT_CALL(*mockRdmUtils, rdmInitSslLib());
 
-    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
+    EXPECT_CALL(*mockRdmUtils, rdmOpensslRsafileSignatureVerify(::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_, ::testing::_))
         .WillOnce(Return(0));
 
     EXPECT_EQ(rdmDwnlValidation(&appDetails, NULL), RDM_FAILURE);
