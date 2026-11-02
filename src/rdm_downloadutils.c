@@ -398,11 +398,11 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
     if(!(rdmDwnlIsBlocked(DIRECT_BLOCK_FILENAME, DIRECT_BLOCK_TIME))) {
         while(retry_count <= RDM_DWNLD_MAX_RETRIES) {
 	    if(retry_count == 1) {
-	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
+	        RDMInfo("appliactionDownload: Attempting retry = %d\n", retry_count);
 	        sleep(10);
 	    }
 	    else if(retry_count == RDM_DWNLD_MAX_RETRIES) {
-	        RDMInfo("applicationDownload: Attempting retry = %d\n", retry_count);
+	        RDMInfo("appliactionDownload: Attempting retry = %d\n", retry_count);
 	        sleep(30);
 	    }
             status = rdmDwnlDirect(pUrl, pDwnlPath, pPkgName, pOut);
@@ -416,10 +416,49 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
         }
     }
     else {
-        RDMInfo("applicationDownload: Direct download is blocked\n");
-	      t2CountNotify("RDM_INFO_DirectBlocked", 1);
+        RDMInfo("appliactionDownload: Direct download is blocked\n");
         status = RDM_FAILURE;
     }
+#ifdef RDM_ENABLE_CODEBIG
+#if !defined(RDKB_SUPPORT)
+        RDMWarn("Retrying to SSR via CodeBig server\n");
+	retry_count = 0;
+
+        /* Check for codebig download is blocked */
+        if(!(rdmDwnlIsBlocked(CB_BLOCK_FILENAME, CB_BLOCK_TIME))) {
+	    while(retry_count <=1) {
+	        if(retry_count == 1) {
+		    RDMInfo("appliactionDownload: Attempting retry = %d for CodeBig\n", retry_count);
+		    sleep(10);
+	        }
+                status = rdmDwnlCodebig(pUrl, pDwnlPath, pPkgName, pOut);
+	        if(status == RDM_SUCCESS) {
+		    //If Direct Failed and CodeBig succeeded, Block Direct for 24hrs
+		    int fd_dbf = open(DIRECT_BLOCK_FILENAME, O_CREAT|O_EXCL);
+		    if (fd_dbf != -1) {
+                        close(fd_dbf);  // Close the file handle immediately, we just want to create the file
+                    }
+		    RDMInfo("Use Codebig connection and Block Direct for 24 hrs\n");
+		    return status;
+	        }
+	        else {
+                    RDMError("applicationDownload: Codebig App download failed\n");
+		    retry_count++;
+		    //If CodeBig also fails, block CodeBig for 30 mins
+		    int fd_cbf = open(CB_BLOCK_FILENAME, O_CREAT|O_EXCL);
+		    if (fd_cbf != -1) {
+                        close(fd_cbf);  // Close the file handle immediately, we just want to create the file
+                    }
+		    RDMInfo("No App download attempts allowed, Blocking Codebig for 30 mins\n");
+	        }
+            }
+        }
+        else {
+            RDMInfo("appliactionDownload: CodeBig download is blocked\n");
+            status = RDM_FAILURE;
+        }
+#endif
+#endif
     return status;
 }
 
