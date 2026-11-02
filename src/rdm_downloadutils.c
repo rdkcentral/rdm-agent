@@ -417,7 +417,9 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
     }
     else {
         RDMInfo("appliactionDownload: Direct download is blocked\n");
+#if !defined(RDKB_SUPPORT)
 		t2CountNotify("RDM_INFO_DirectBlocked", 1);
+#endif
         status = RDM_FAILURE;
     }
 #ifdef RDM_ENABLE_CODEBIG
