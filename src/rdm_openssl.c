@@ -779,6 +779,7 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
     }
 
     pkey = PEM_read_bio_PUBKEY(pBio_Pem, NULL, NULL, NULL);
+    BIO_free(pBio_Pem);
     if (pkey == NULL) {
         RDMError("pubkey read fail\n");
         retval = retcode_keyfile_err;
@@ -786,7 +787,6 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
     }
 
     /* reinit a digest context */
-    EVP_MD_CTX_destroy( mdctx );
     if((mdctx = EVP_MD_CTX_create()) == NULL) {
         RDMError("verify context create fail\n");
         retval = retcode_ssl_err;
@@ -818,7 +818,6 @@ err:
 error:
 
     free(sig);
-    if (pBio_Pem != NULL) BIO_free(pBio_Pem);
     if (mdctx != NULL) EVP_MD_CTX_destroy(mdctx);
      // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
     /* coverity[deadcode] INTENTIONAL: pkey is assigned in both #ifdef and #else branches above; defensive cleanup */

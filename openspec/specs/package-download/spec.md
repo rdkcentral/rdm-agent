@@ -23,6 +23,12 @@ The service SHALL retry the legacy package installation flow when a package down
 - **WHEN** a valid app record and successful path validation are present
 - **THEN** `rdmDownloadApp` invokes `rdmDownloadMgr`, updates the download status, and writes the package metadata entry to the persistent download-info file.
 
+#### Scenario: Symlink-safe filesystem cleanup
+- **WHEN** filesystem preparation empties the app home or download directory
+- **THEN** every path component is opened without following symlinks and cleanup operates relative to the verified directory descriptors.
+- **AND** symlinks within the directory are unlinked without traversing their targets, while a symlink in the directory path is rejected and logged.
+- **AND** missing directories are treated as already empty.
+
 #### Scenario: Retry after legacy install failure
 - **WHEN** repeated failure occurs in the legacy install sequence while the retry count limit is not reached
 - **THEN** the loop invokes `rdmDwnlUnInstallApp` and retries the download/install sequence.

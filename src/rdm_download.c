@@ -36,31 +36,6 @@
 #include "unittest/mocks/system_utils.h"
 #endif
 
-static INT32 rdmEmptyFolderIfNotSymlink(const CHAR *path)
-{
-    struct stat path_stat;
-    CHAR mutable_path[RDM_APP_PATH_LEN];
-    size_t path_len;
-
-    if (path == NULL) {
-        return RDM_FAILURE;
-    }
-
-    if (lstat(path, &path_stat) == 0 && S_ISLNK(path_stat.st_mode)) {
-        RDMDebug("Skipping cleanup of symlink path: %s\n", path);
-        return RDM_SUCCESS;
-    }
-
-    path_len = strlen(path);
-    if (path_len >= sizeof(mutable_path)) {
-        RDMError("Path too long to empty folder\n");
-        return RDM_FAILURE;
-    }
-    memcpy(mutable_path, path, path_len + 1);
-
-    return emptyFolder(mutable_path);
-}
-
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
     INT32 status = RDM_SUCCESS;
@@ -86,12 +61,12 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
         UINT32 fs_freespace = 0;
         INT32  fs_status = RDM_SUCCESS;
 
-        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_dwnl_path);
+        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
             RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
         }
 
-        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_home);
+        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_home);
         if(fs_status) {
             RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
         }
@@ -254,4 +229,3 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     }
     return status;
 }
-

@@ -15,6 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <errno.h>
+#include <fcntl.h>
+
 #ifndef GTEST_ENABLE
 #ifdef IARMBUS_SUPPORT
 #include "libIBus.h"
@@ -164,13 +167,119 @@ exit2:
 #endif
     return ret;
 }
+static INT32 rdmEmptyDirectoryFd(INT32 fd)
+{
+    DIR *dir = fdopendir(fd);
+    struct dirent *entry;
+    INT32 status = RDM_SUCCESS;
+
+    if (dir == NULL) {
+        RDMError("Unable to read cleanup directory: %s\n", strerror(errno));
+        close(fd);
+        return RDM_FAILURE;
+    }
+
+    for (;;) {
+        errno = 0;
+        entry = readdir(dir);
+        if (entry == NULL) {
+            if (errno != 0) {
+                RDMError("Unable to read cleanup entry: %s\n", strerror(errno));
+                status = RDM_FAILURE;
+            }
+            break;
+        }
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        INT32 child = openat(dirfd(dir), entry->d_name,
+                             O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        INT32 flags = 0;
+        if (child >= 0) {
+            /* Keep traversal anchored to the opened directory, even if renamed. */
+            if (rdmEmptyDirectoryFd(child) != RDM_SUCCESS) {
+                status = RDM_FAILURE;
+                break;
+            }
+            flags = AT_REMOVEDIR;
+        } else if (errno == ENOENT) {
+            continue;
+        } else if (errno != ENOTDIR && errno != ELOOP) {
+            RDMError("Unable to open cleanup entry %s: %s\n", entry->d_name, strerror(errno));
+            status = RDM_FAILURE;
+            break;
+        }
+
+        if (unlinkat(dirfd(dir), entry->d_name, flags) != 0 && errno != ENOENT) {
+            RDMError("Unable to remove cleanup entry %s: %s\n", entry->d_name, strerror(errno));
+            status = RDM_FAILURE;
+            break;
+        }
+    }
+
+    if (closedir(dir) != 0) {
+        RDMError("Unable to close cleanup directory: %s\n", strerror(errno));
+        status = RDM_FAILURE;
+    }
+    return status;
+}
+
+INT32 rdmEmptyFolderNoFollow(const CHAR *path)
+{
+    CHAR path_copy[RDM_APP_PATH_LEN];
+    CHAR *saveptr = NULL;
+    CHAR *component;
+    INT32 fd;
+
+    if (path == NULL || path[0] == '\0' || strlen(path) >= sizeof(path_copy)) {
+        RDMError("Invalid directory cleanup path\n");
+        return RDM_FAILURE;
+    }
+    memcpy(path_copy, path, strlen(path) + 1);
+    component = strtok_r(path_copy, "/", &saveptr);
+    if (component == NULL) {
+        RDMError("Refusing to empty filesystem root\n");
+        return RDM_FAILURE;
+    }
+    fd = open(path[0] == '/' ? "/" : ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+    if (fd < 0) {
+        RDMError("Unable to open cleanup root: %s\n", strerror(errno));
+        return RDM_FAILURE;
+    }
+
+    while (component != NULL) {
+        INT32 next;
+        if (strcmp(component, ".") == 0 || strcmp(component, "..") == 0) {
+            RDMError("Invalid cleanup path component: %s\n", component);
+            close(fd);
+            return RDM_FAILURE;
+        }
+        next = openat(fd, component, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+        if (next < 0) {
+            INT32 error = errno;
+            close(fd);
+            if (error == ENOENT) {
+                return RDM_SUCCESS;
+            }
+            RDMError("Unable to open cleanup path component %s: %s\n",
+                     component, strerror(error));
+            return RDM_FAILURE;
+        }
+        close(fd);
+        fd = next;
+        component = strtok_r(NULL, "/", &saveptr);
+    }
+
+    return rdmEmptyDirectoryFd(fd);
+}
+
 /** @brief This Function finds the directory inside the directory.
  *
  *  @param[in]   pRdmAppDet    App details
  *.
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  */
-
 INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir)
 {
     struct dirent *de;  // Pointer for directory entry

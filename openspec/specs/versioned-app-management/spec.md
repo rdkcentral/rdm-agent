@@ -15,6 +15,11 @@ The service SHALL install the selected final version set without leaving the ver
 - **WHEN** a versioned app record with a bundle type of `cert` or `app` is processed
 - **THEN** `rdmDwnlVAGetMetadataPath` resolves the bundle metadata file for the given app under the configured metadata directory and returns `RDM_SUCCESS` when the metadata exists.
 
+#### Scenario: Install request package-name length
+- **WHEN** an install request contains a package name longer than 29 characters, excluding any `app:` or `cert:` prefix
+- **THEN** the service rejects and logs the request before deriving installation paths or archive names, rather than truncating the package name.
+- **AND** package names of exactly 29 characters remain accepted when the rest of the token is valid.
+
 #### Scenario: Installed version discovery
 - **WHEN** a versioned app is installed in the app home and bundle metadata is present in the manifest or application directory
 - **THEN** `rdmDwnlVAGetInstallVer` gathers the available version strings, de-dups them, and prepares a candidate list for validation and final installation.

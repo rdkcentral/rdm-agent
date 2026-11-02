@@ -255,7 +255,7 @@ INT32 rdmDwnlExtract(RDMAPPDetails *pRdmAppDet)
                 if(path_len < 0 || (size_t)path_len >= sizeof(ip_file)) {
                     RDMError("Package path too long\n");
                     status = RDM_FAILURE;
-                    continue;
+                    break;
                 }
                 status = arExtract(ip_file, pRdmAppDet->app_dwnl_path);
                 if(status) {

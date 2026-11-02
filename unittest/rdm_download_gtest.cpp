@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <cstdlib>
+#include <fstream>
 #include <gmock/gmock-actions.h>
 #include "mocks/mock_rdm_utils.h"
 #include "mocks/mock_rdm_downloadutils.h"
@@ -281,12 +282,19 @@ protected:
 
 class RDMDownloadTest : public ::testing::Test {
 protected:
+    char cleanupRoot[64] = "/tmp/rdm-download-cleanup-XXXXXX";
+
     void SetUp() override {
         mockRdmUtils = new MockRdmUtils();
         mockRdmDownloadUtils = new MockRdmDownloadUtils();
+        ASSERT_NE(mkdtemp(cleanupRoot), nullptr);
+        ASSERT_EQ(mkdir((std::string(cleanupRoot) + "/home").c_str(), 0700), 0);
+        ASSERT_EQ(mkdir((std::string(cleanupRoot) + "/downloads").c_str(), 0700), 0);
     }
 
     void TearDown() override {
+        EXPECT_EQ(rdmEmptyFolderNoFollow(cleanupRoot), RDM_SUCCESS);
+        EXPECT_EQ(rmdir(cleanupRoot), 0);
         delete mockRdmUtils;
         delete mockRdmDownloadUtils;
     }
@@ -297,9 +305,9 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
     strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
-    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    snprintf(appDetails.app_home, sizeof(appDetails.app_home), "%s/home", cleanupRoot);
+    snprintf(appDetails.app_dwnl_path, sizeof(appDetails.app_dwnl_path), "%s/downloads", cleanupRoot);
+    snprintf(appDetails.app_dwnl_info, sizeof(appDetails.app_dwnl_info), "%s/rdmDownloadInfo.txt", cleanupRoot);
     appDetails.app_size_mb = 100;
     appDetails.bFsCheck = true;
     appDetails.is_versioned = true;
@@ -310,10 +318,6 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     EXPECT_CALL(*mockRdmUtils, checkFileSystem(::testing::_))
         .WillRepeatedly(Return(1));
     EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
         .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
         .WillRepeatedly(Return(200));
@@ -331,9 +335,9 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);
     strncpy(appDetails.pkg_name, "test_pkg", sizeof(appDetails.pkg_name) - 1);
     strncpy(appDetails.app_mnt, "/mnt/test", sizeof(appDetails.app_mnt) - 1);
-    strncpy(appDetails.app_home, "/home/test", sizeof(appDetails.app_home) - 1);
-    strncpy(appDetails.app_dwnl_path, "/downloads/test", sizeof(appDetails.app_dwnl_path) - 1);
-    strncpy(appDetails.app_dwnl_info, "/downloads/test/rdmDownloadInfo.txt", sizeof(appDetails.app_dwnl_info) - 1);
+    snprintf(appDetails.app_home, sizeof(appDetails.app_home), "%s/home", cleanupRoot);
+    snprintf(appDetails.app_dwnl_path, sizeof(appDetails.app_dwnl_path), "%s/downloads", cleanupRoot);
+    snprintf(appDetails.app_dwnl_info, sizeof(appDetails.app_dwnl_info), "%s/rdmDownloadInfo.txt", cleanupRoot);
     appDetails.app_size_mb = 100;
     appDetails.bFsCheck = true;
     appDetails.is_versioned = false;
@@ -346,8 +350,6 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
         .WillRepeatedly(Return(1));
      EXPECT_CALL(*mockRdmUtils, findPFile(::testing::_,::testing::_,::testing::_))
         .WillRepeatedly(Return(0));
-    EXPECT_CALL(*mockRdmUtils, emptyFolder(::testing::_))
-        .WillRepeatedly(Return(0));
     EXPECT_CALL(*mockRdmUtils, getFreeSpace(::testing::_))
         .WillRepeatedly(Return(appDetails.app_size_mb + 1));
 
@@ -355,6 +357,31 @@ TEST_F(RDMDownloadTest, rdmDownloadApp_Failure) {
         .WillRepeatedly(Return(RDM_FAILURE));
 
     EXPECT_EQ(rdmDownloadApp(&appDetails, &DLStatus), RDM_SUCCESS);
+}
+
+TEST_F(RDMDownloadTest, rdmDwnlExtract_OversizedIpkPathStopsBeforeLaterArchive) {
+    RDMAPPDetails appDetails = {};
+    snprintf(appDetails.app_name, sizeof(appDetails.app_name), "test_app");
+    snprintf(appDetails.app_home, sizeof(appDetails.app_home), "%s/home", cleanupRoot);
+    snprintf(appDetails.app_dwnl_path, sizeof(appDetails.app_dwnl_path), "%s/downloads", cleanupRoot);
+    snprintf(appDetails.app_dwnl_filepath, sizeof(appDetails.app_dwnl_filepath), "%s/package.tar", cleanupRoot);
+    const std::string oversizedName(240, 'a');
+    std::ofstream packages(std::string(appDetails.app_dwnl_path) + "/packages.list");
+    ASSERT_TRUE(packages.good());
+    packages << oversizedName << ".ipk\nlater.tar\n";
+    packages.close();
+
+    EXPECT_CALL(*mockRdmUtils, tarExtract(_, _))
+        .Times(2)
+        .WillRepeatedly(Return(RDM_SUCCESS));
+    EXPECT_CALL(*mockRdmUtils, findPFile(_, _, _))
+        .WillOnce(Return(1));
+    EXPECT_CALL(*mockRdmUtils, fileCheck(_))
+        .WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, getExtension(_))
+        .WillOnce(Return("ipk"));
+
+    EXPECT_EQ(rdmDwnlExtract(&appDetails), RDM_FAILURE);
 }
 
 // Test rdmDwnlExtract

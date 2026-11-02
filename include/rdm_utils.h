@@ -92,5 +92,7 @@ INT32 rdmIARMEvntSendStatus(UINT8 status);
 INT32 rdmIARMEvntSendPayload(CHAR *pkg_name, CHAR *pkg_ver,
                              CHAR *pkg_path, INT32 pkg_status);
 INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir);
+/* Empty a directory without following symlinks in its path or contents. */
+INT32 rdmEmptyFolderNoFollow(const CHAR *path);
 void RDMLOGInit();
 #endif //_RDM_UTILS_H_

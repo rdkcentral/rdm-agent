@@ -203,11 +203,13 @@ static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list
     return 1;
 }
 
+enum { RDM_INSTALL_PACKAGE_NAME_CAPACITY = 30 };
+
 /**
  * @brief Validate install package token format.
  *
  * Accepts only: [cert:|app:]packagename:packageversion
- * where both parts contain one or more [A-Za-z0-9._-] characters.
+ * Package names contain at most 29 [A-Za-z0-9._-] characters.
  */
 static bool rdmIsValidInstallPackageToken(const CHAR *token)
 {
@@ -225,6 +227,10 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
 
     const CHAR *delimiter = strchr(token_str, ':');
     if (delimiter == NULL || delimiter == token_str || delimiter[1] == '\0') {
+        return false;
+    }
+
+    if ((size_t)(delimiter - token_str) >= RDM_INSTALL_PACKAGE_NAME_CAPACITY) {
         return false;
     }
 
@@ -569,13 +575,13 @@ int main(int argc, char* argv[])
 		    pApp_det->bFsCheck = bFsCheck;
 		    pApp_det->is_oss = is_oss;
 		    
-		    char result[30] = {0};
+		    char result[RDM_INSTALL_PACKAGE_NAME_CAPACITY] = {0};
 		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
 		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
 		    current_bundle[sizeof(current_bundle) - 1] = '\0';
 
-                    if (!rdmIsValidInstallPackageToken(current_bundle)) {
-                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion\n", current_bundle);
+                    if (!rdmIsValidInstallPackageToken(bundle_token)) {
+                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion with a package name of at most 29 characters\n", bundle_token);
                         download_status = RDM_FAILURE;
                         break;
                     }
@@ -608,7 +614,7 @@ int main(int argc, char* argv[])
 			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
 			    RDMWarn("No version specified for %s, using NA\n", bundle_name);
 		    }
-            sscanf(bundle_name, "%29[^:]", result);
+            memcpy(result, bundle_name, strcspn(bundle_name, ":"));
 		    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
 		    pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
 		    
