@@ -41,18 +41,6 @@
 #define EnableOCSP              "/path/to/EnableOCSPCA"
 #define RDM_POSTSCRIPT_PATH     "/etc/rdm/post-services/"
 
-#define CERT_DYNAMIC            "/path/to/dynamic/cert"
-
-#ifdef L2_TEST_ENABLED
-#define CERT_STATIC             "/opt/certs/client.pem"
-#define KEY_STATIC              "/opt/certs/client.pem"
-#else
-#define CERT_STATIC             "/path/to/static/cert"
-#define KEY_STATIC              "/path/to/cert/key"
-#endif
-
-#define MTLS_CERT               "/path/to/mtls/cert"
-#define MTLS_KEY                "/path/to/mtls/key"
 #define GET_CONFIG_FILE         "/usr/bin/GetConfigFile"
 #define SYS_CMD_GET_CONFIG_FILE "/usr/bin/GetConfigFile %s"
 #define KEY_GEN_BIN             "/path/to/keygen"
@@ -73,6 +61,20 @@
 #define DOWNLOAD_APP_DIRECT_RETRY_DELAY 30
 #define DOWNLOAD_RETRY_COUNT 12
 
+#ifdef LIBRDKCERTSELECTOR
+#include "rdkcertselector.h"
+#include <urlHelper.h>
+// Below macro is invoked if the MTLS certificates retrieved by getMtlscert have failed
+#define CURL_MTLS_LOCAL_CERTPROBLEM 58
+
+typedef enum {
+    MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
+    MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
+} MtlsAuthStatus;
+
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
+#endif
+
 INT32  rdmDwnlUpdateURL(CHAR *pUrl);
 INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
 INT32  rdmDwnlIsOCSPEnable(void);
@@ -80,7 +82,7 @@ INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
 VOID   rdmDwnlAppCleanUp(CHAR *pAppPath);
 #ifdef GTEST_ENABLE
-INT32  rdmDwnlGetCert(MtlsAuth_t*);
+
 INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
 #endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);

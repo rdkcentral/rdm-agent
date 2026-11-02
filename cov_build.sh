@@ -43,6 +43,8 @@ rm -rf iarmmgrs
 rm -rf iarmbus
 git clone https://github.com/rdkcentral/iarmmgrs.git
 git clone https://github.com/rdkcentral/iarmbus.git
+git clone https://github.com/rdkcentral/rdk-cert-config.git
+cp rdk-cert-config/RdkConfigApi/include/* /usr/local/include
 
 git clone https://github.com/rdkcentral/tr69hostif.git
 cd tr69hostif
@@ -58,6 +60,6 @@ export top_srcdir=`pwd`
 export top_builddir=`pwd`
 autoreconf -i
 autoupdate
-./configure --prefix=${INSTALL_DIR} --enable-unittest=yes
-make CFLAGS="-I${INSTALL_DIR}/include/rtmessage -I${INSTALL_DIR}/include/msgpack -I${INSTALL_DIR}/include/rbus -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/cjson -I/usr/include/openssl -I/usr/iarmmgrs/rdmmgr/include/ -I/usr/iarmbus/core/include/ -DL2_TEST_ENABLED -DRDK_LOGGER_ENABLED -DIARMBUS_SUPPORT" LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib -lparsejson -ldwnlutil -lfwutils -lsecure_wrapper -lIARMBus"
+./configure --prefix=${INSTALL_DIR} --enable-unittest=yes --enable-rdkcertselector=yes --enable-mountutils=yes
+make CFLAGS="-I${INSTALL_DIR}/include/rtmessage -I${INSTALL_DIR}/include/msgpack -I${INSTALL_DIR}/include/rbus -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/cjson -I/usr/include/openssl -I/usr/iarmmgrs/rdmmgr/include/ -I/usr/iarmbus/core/include/ -DL2_TEST_ENABLED -DRDK_LOGGER_ENABLED -DIARMBUS_SUPPORT -DDEBUG_ENABLED" LDFLAGS="-L/usr/local/lib -Wl,-rpath,/usr/local/lib -lparsejson -ldwnlutil -lfwutils -lsecure_wrapper -lIARMBus"
 make install
