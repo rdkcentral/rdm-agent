@@ -28,6 +28,7 @@ The service SHALL retry the legacy package installation flow when a package down
 - **THEN** every path component is opened without following symlinks and cleanup operates relative to the verified directory descriptors.
 - **AND** symlinks within the directory are unlinked without traversing their targets, while a symlink in the directory path is rejected and logged.
 - **AND** missing directories are treated as already empty.
+- **AND** cleanup failures stop use of the requested paths; any default-path fallback is checked with the same no-follow cleanup before installation continues.
 
 #### Scenario: Retry after legacy install failure
 - **WHEN** repeated failure occurs in the legacy install sequence while the retry count limit is not reached

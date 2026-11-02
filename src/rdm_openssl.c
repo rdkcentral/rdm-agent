@@ -817,7 +817,6 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
 err:
 error:
 
-    free(sig);
     if (mdctx != NULL) EVP_MD_CTX_destroy(mdctx);
      // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
     /* coverity[deadcode] INTENTIONAL: pkey is assigned in both #ifdef and #else branches above; defensive cleanup */

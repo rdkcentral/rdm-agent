@@ -63,12 +63,15 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 
         fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
-            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
+            RDMError("Failed to safely empty the download folder: %s\n",
+                     pRdmAppDet->app_dwnl_path);
+            return RDM_FAILURE;
         }
 
         fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_home);
         if(fs_status) {
-            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
+            RDMError("Failed to safely empty the app home: %s\n", pRdmAppDet->app_home);
+            return RDM_FAILURE;
         }
 
         fs_freespace = getFreeSpace(pRdmAppDet->app_mnt);
@@ -122,6 +125,11 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
         if(fs_status) {
             rdmDownloadUpdateDef(pRdmAppDet);
             RDMWarn("%s is not in working condition.\n", APP_MOUNT_PATH);
+            if (rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path) != RDM_SUCCESS ||
+                rdmEmptyFolderNoFollow(pRdmAppDet->app_home) != RDM_SUCCESS) {
+                RDMError("Unable to safely prepare default download paths\n");
+                return RDM_FAILURE;
+            }
         }
         else {
             RDMInfo("%s Disk check is fine\n", APP_MOUNT_PATH);
