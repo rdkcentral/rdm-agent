@@ -42,6 +42,7 @@
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
 #endif
+#include <urlHelper.h>
 
 void RDMLOGInit()
 {
