@@ -18,6 +18,8 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <cstdarg>
+#include <cstdio>
 #include <cstring>
 #include <openssl/evp.h>
 
@@ -86,6 +88,17 @@ extern "C" {
 
         return 0; // Always return success
     }
+    FILE *v_secure_popen(const char *direction, const char *command, ...) {
+        (void)direction;
+        (void)command;
+        return nullptr;
+    }
+
+    int v_secure_pclose(FILE *stream) {
+        (void)stream;
+        return -1;
+    }
+
     int asciihex_to_bin(const char* asciihex, size_t asciihex_length, uint8_t* bin, size_t* bin_length) {
         return global_mock->asciihex_to_bin(asciihex, asciihex_length, bin, bin_length);
     }
@@ -285,11 +298,12 @@ TEST(OpenSSLTests, RdmOpensslRsafileSignatureVerify_InvalidInput) {
     const char* data_file = nullptr; // Invalid input
     size_t file_len = 0;
     const char* sig_file = nullptr;
-    const char* vkey_file = nullptr;
+    const UINT8* vkey = nullptr;
+    size_t vkey_len = 0;
     char reply_msg[256] = {0};
     int32_t reply_msg_len = sizeof(reply_msg);
 
-    int result = rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey_file, reply_msg, &reply_msg_len);
+    int result = rdmOpensslRsafileSignatureVerify(data_file, file_len, sig_file, vkey, vkey_len, reply_msg, &reply_msg_len);
 
     EXPECT_EQ(result, retcode_param_error);
 }

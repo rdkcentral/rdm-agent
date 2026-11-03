@@ -21,8 +21,7 @@
 
 #define RDM_DOWNLOADS_DIR       "/rdm/downloads/"
 #define RDM_MANIFEST_DIR        "/etc/rdm/"
-#define RDM_TMP_SIGFILE         "/tmp/sig.truncated"
-#define RDM_KMS_PUB_KEY         "/tmp/rdmconfig.file"
+#define RDM_TMP_SIGFILE         "/tmp/sig.truncated"         
 #define RDM_KMS_PADDING_FILE    "pkg_padding"
 #define RDM_SIGFILE_SUFFIX      "-pkg.sig"
 #define RDM_MANIFEST_SUFFIX     "_cpemanifest"
@@ -54,10 +53,13 @@
 #define RDM_SIG_TYPE_KMS     0
 #define RDM_SIG_TYPE_OPENSSL 1
 
+#define RDM_KMS_PUB_KEY "rdmconfig.file"
+
 INT32 rdmOpensslRsafileSignatureVerify(const CHAR *data_file,
                                        size_t      file_len,
                                        const CHAR *sig_file,
-                                       const CHAR *vkey_file,
+                                       const UINT8 *vkey,
+                                       size_t      vkey_len,
                                        CHAR       *reply_msg,
                                        INT32      *reply_msg_len);
 
@@ -65,7 +67,9 @@ INT32 rdmSignatureVerify(CHAR *cache_dir,
                          CHAR *app_name,
                          INT32 prepare_files);
 
-INT32 rdmDecryptKey(CHAR *out_key);
+INT32 rdmDecryptKey(UINT8 **out_key, size_t *out_key_len);
+
+VOID rdmFreeKmsPubKey(UINT8 **key, size_t key_len);
 
 VOID rdmInitSslLib(VOID);
 

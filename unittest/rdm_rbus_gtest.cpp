@@ -97,7 +97,7 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessBool) {
     EXPECT_CALL(*mockRdmRbus, rbusValue_GetBoolean(::testing::_))
         .WillOnce(Return(true));
 
-    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue), RDM_SUCCESS);
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, mockValue, sizeof(INT32)), RDM_SUCCESS);
 
     delete static_cast<int*>(mockValue);
     delete mockRdmRbus;
@@ -110,11 +110,75 @@ TEST(rdmRbusGetRfc, rdmRbusGetRfc_Failure) {
     char rdmRFCName[128] = "Path.To.My.RFC";
     INT8 *ipName = rdmRFCName;
 
-    EXPECT_EQ(rdmRbusGetRfc(NULL, ipName, mockValue), RDM_FAILURE);
-    EXPECT_EQ(rdmRbusGetRfc(mockValue, NULL, mockValue), RDM_FAILURE);
-    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, NULL), RDM_FAILURE);
+    EXPECT_EQ(rdmRbusGetRfc(NULL, ipName, mockValue, sizeof(INT32)), RDM_FAILURE);
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, NULL, mockValue, sizeof(INT32)), RDM_FAILURE);
+    EXPECT_EQ(rdmRbusGetRfc(mockValue, ipName, NULL, sizeof(INT32)), RDM_FAILURE);
 
     delete static_cast<int*>(mockValue);
+
+}
+
+TEST(rdmRbusGetRfc, rdmRbusGetRfc_SuccessString) {
+
+    mockRdmRbus = new MockRdmRbus();
+    int handle = 0;
+    char rdmRFCName[128] = "Path.To.My.RFC";
+    char url[64] = {0};
+
+    EXPECT_CALL(*mockRdmRbus, rbus_get(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(RBUS_ERROR_SUCCESS));
+    EXPECT_CALL(*mockRdmRbus, rbusValue_GetType(::testing::_))
+        .WillOnce(Return(RBUS_STRING));
+    EXPECT_CALL(*mockRdmRbus, rbusValue_ToString(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(strdup("https://example.com/rdm")));
+
+    EXPECT_EQ(rdmRbusGetRfc(&handle, rdmRFCName, url, sizeof(url)), RDM_SUCCESS);
+    EXPECT_STREQ(url, "https://example.com/rdm");
+
+    delete mockRdmRbus;
+
+}
+
+TEST(rdmRbusGetRfc, rdmRbusGetRfc_StringLongerThanBufferRejected) {
+
+    mockRdmRbus = new MockRdmRbus();
+    int handle = 0;
+    char rdmRFCName[128] = "Path.To.My.RFC";
+    struct {
+        char url[16];
+        INT32 guard;
+    } out;
+    memset(out.url, 'x', sizeof(out.url));
+    out.guard = 0x5A5A5A5A;
+    std::string longValue(64, 'a');
+
+    EXPECT_CALL(*mockRdmRbus, rbus_get(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(RBUS_ERROR_SUCCESS));
+    EXPECT_CALL(*mockRdmRbus, rbusValue_GetType(::testing::_))
+        .WillOnce(Return(RBUS_STRING));
+    EXPECT_CALL(*mockRdmRbus, rbusValue_ToString(::testing::_, ::testing::_, ::testing::_))
+        .WillOnce(Return(strdup(longValue.c_str())));
+
+    EXPECT_EQ(rdmRbusGetRfc(&handle, rdmRFCName, out.url, sizeof(out.url)), RDM_FAILURE);
+    EXPECT_EQ(out.url[0], '\0');
+    EXPECT_EQ(out.guard, 0x5A5A5A5A);
+
+    delete mockRdmRbus;
+
+}
+
+TEST(rdmRbusGetRfc, rdmRbusGetRfc_UndersizedOutputRejected) {
+
+    mockRdmRbus = new MockRdmRbus();
+    int handle = 0;
+    char rdmRFCName[128] = "Path.To.My.RFC";
+    char out[sizeof(INT32)] = {0};
+
+    EXPECT_CALL(*mockRdmRbus, rbus_get(::testing::_, ::testing::_, ::testing::_)).Times(0);
+
+    EXPECT_EQ(rdmRbusGetRfc(&handle, rdmRFCName, out, sizeof(INT32) - 1), RDM_FAILURE);
+
+    delete mockRdmRbus;
 
 }
 

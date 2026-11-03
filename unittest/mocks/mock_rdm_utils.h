@@ -49,8 +49,8 @@ MOCK_METHOD(INT32, checkFileSystem, (const CHAR*), ());
     MOCK_METHOD(void, doStopDownload, (void*), ());
     MOCK_METHOD(void, copyCommandOutput, (char*, char*, int), ());
     MOCK_METHOD(void, rdmInitSslLib, (), ());
-    MOCK_METHOD(INT32, rdmOpensslRsafileSignatureVerify, (const CHAR*, size_t, const CHAR*, const CHAR*, CHAR*, INT32*), ());
-    MOCK_METHOD(INT32, rdmDecryptKey, (CHAR*), ());
+    MOCK_METHOD(INT32, rdmOpensslRsafileSignatureVerify, (const CHAR*, size_t, const CHAR*, const UINT8*, size_t, CHAR*, INT32*), ());
+    MOCK_METHOD(INT32, rdmDecryptKey, (UINT8**, size_t*), ());
     MOCK_METHOD(unsigned int, getFileLastModifyTime, (CHAR*), ());
     MOCK_METHOD(time_t, getCurrentSysTimeSec, (), ());
 
