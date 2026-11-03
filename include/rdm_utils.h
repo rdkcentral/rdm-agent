@@ -96,6 +96,8 @@ MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
 #define RDMDebug(format, ...)  LOG_DEBUG(PREFIX(format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define RDMTrace(format, ...)  LOG_TRACE(PREFIX(format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
+INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
+
 /* String Operations */
 INT32 rdmStrSplit(CHAR *in, CHAR *tok, CHAR **out, INT32 len);
 VOID  rdmQSString(CHAR *arr[], UINT32 length);
