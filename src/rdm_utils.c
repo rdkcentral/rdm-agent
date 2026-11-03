@@ -43,6 +43,7 @@
 INT32  g_rdk_logger_enabled = 0;
 #endif
 #include <urlHelper.h>
+#include <downloadUtil.h>
 
 void RDMLOGInit()
 {
