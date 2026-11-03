@@ -41,6 +41,19 @@
 
 extern int g_rdk_logger_enabled;
 
+#ifdef LIBRDKCERTSELECTOR
+#include "rdkcertselector.h"
+// Below macro is invoked if the MTLS certificates retrieved by getMtlscert have failed
+#define CURL_MTLS_LOCAL_CERTPROBLEM 58
+
+typedef enum {
+    MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
+    MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
+} MtlsAuthStatus;
+
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
+#endif
+
 #define LOG_ERROR(format, ...)   if(g_rdk_logger_enabled) {\
     RDK_LOG(RDK_LOG_ERROR,  "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
     } else {\
