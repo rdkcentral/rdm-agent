@@ -96,7 +96,6 @@ INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
 INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
 VOID   rdmMemDLFree(VOID *pvDwnData);
 INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
-INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
 INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32 is_broadband );
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
