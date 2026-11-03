@@ -23,18 +23,17 @@
 #include <time.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#ifndef GTEST_ENABLE
+#include <system_utils.h>
 #include <json_parse.h>
 #include <downloadUtil.h>
-#include <system_utils.h>
-
-#ifdef RDM_ENABLE_CODEBIG
 #include "codebigUtils.h"
-#endif
-#ifdef IARMBUS_SUPPORT
 #include "rdmMgr.h"
 #else
-#define RDM_PKG_INVALID_INPUT 11
+#include "unittest/mocks/system_utils.h"
+#include "unittest/mocks/rdmMgr.h"
 #endif
+
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -45,30 +44,26 @@
 #include "rdm_downloadutils.h"
 #include "rdm_packagemgr.h"
 
-#ifdef LIBRDKCONFIG_BUILD
-#include "rdkconfig.h"
-#endif
 
-#include "secure_wrapper.h"
-
-
-UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
+time_t rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 {
-    UINT32 current_time = 0;
-    UINT32 last_mod_time = 0;
-    UINT32 modification_time = 0;
+    time_t modification_time = 0;
+    time_t current_time = 0;
+    time_t last_mod_time = 0;
+
     INT32  remtime = 0;
 
     last_mod_time = getFileLastModifyTime(file);
     if (last_mod_time != 0) {
+	// coverity[copy_paste_error : FALSE] Intentional
         current_time = getCurrentSysTimeSec();
         modification_time = current_time - last_mod_time;
         remtime = (block_time/60) - (modification_time/60);
 
         if (modification_time <= block_time) {
-            RDMInfo("ImageUpgrade: Last failed blocking is still valid for %d mins, preventing direct\n", remtime);
+            RDMInfo("Direct Download attempt blocked due to Previous Failure. Blocking period Valid for %d minutes ", remtime);
         } else {
-            RDMInfo("ImageUpgrade: Last failed blocking has expired, removing %s, allowing direct\n", file);
+            RDMInfo("Blocking Period Expired. Removing %s. Allowing Direct Download \n", file);
             unlink(file);
             modification_time = 0;
         }
@@ -78,9 +73,10 @@ UINT32 rdmDwnlIsBlocked(CHAR *file, INT32 block_time)
 
 INT32 rdmDwnlUpdateURL(CHAR *pUrl)
 {
+    INT32 status = RDM_SUCCESS;
     CHAR dwnl_url[MAX_BUFF_SIZE];
     FILE *fp  = NULL;
-    INT32 status = RDM_SUCCESS;
+
 
     if(fileCheck(RDM_DWNL_URL)) {
         copyFiles(RDM_DWNL_URL, RDM_DWNLSSR_URL);
@@ -89,11 +85,6 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
             copyFiles(RDM_DWNLSSR_URL, RDM_NVRAM_DL_PATH);
         }
     }
-#if 0
-    else if(BOX_TYPE = "XB3"){
-
-    }
-#endif
     fp = fopen(RDM_DWNLSSR_URL, "r");
     if(fp) {
         fgets(dwnl_url, MAX_BUFF_SIZE, fp);
@@ -103,12 +94,14 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
             }
             strncpy(pUrl, dwnl_url, MAX_BUFF_SIZE);
 	    RDMInfo("Download URL available in %s is %s\n", RDM_DWNLSSR_URL, pUrl);
+	    t2ValNotify("RDM_INFO_DownloadSSRURL", pUrl);
         }
         fclose(fp);
     }
     else {
 	RDMInfo("Download URL is not available in %s\n", RDM_DWNLSSR_URL);
-	RDMInfo("Using RDM Default url %s to download from the Xconf Server\n", pUrl);
+	RDMInfo("Using RDM Default URL to download from RFC: %s\n", pUrl);
+	t2ValNotify("RDM_INFO_DefaultURL", pUrl);
     }
 
     if(strstr(pUrl, "http")) {
@@ -124,6 +117,7 @@ INT32 rdmDwnlUpdateURL(CHAR *pUrl)
     }
     else {
         RDMError("RDM download url is not available in both %s and RFC parameter. Exiting...\n", RDM_DWNLSSR_URL);
+        t2ValNotify("SYST_ERR_RDMMISSING", RDM_DWNLSSR_URL);
         status = RDM_FAILURE;
     }
     return status;
@@ -133,35 +127,43 @@ INT32 rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname)
 {
     INT32 status = RDM_SUCCESS;
     CHAR  tmp[RDM_APP_PATH_LEN]  = {0};
+    int ret = 0;
+   
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm", pAppPath); 
+    if ( ret < 0 || ret >= RDM_APP_PATH_LEN )
+        return RDM_FAILURE;
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/rdm");
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/downloads");
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads", pAppPath);
+    if(ret < 0 || ret >= RDM_APP_PATH_LEN)
+        return RDM_FAILURE;	    
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strcat(tmp, "/");
-    strcat(tmp, pAppname);
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/rdm/downloads/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
 
-    strncpy(tmp, pAppPath, RDM_APP_PATH_LEN);
-    strcat(tmp, "/");
-    strcat(tmp, pAppname);
+    ret = snprintf(tmp, RDM_APP_PATH_LEN, "%s/%s", pAppPath, pAppname);
+    if( ret < 0 || ret >= RDM_APP_PATH_LEN)
+	return RDM_FAILURE;
+
     status = createDir(tmp);
     if(status) {
         return RDM_FAILURE;
     }
-
     return status;
 }
 
@@ -171,7 +173,7 @@ VOID rdmDwnlCleanUp(CHAR *pDwnlPath)
 
     fs_status = emptyFolder(pDwnlPath);
     if(fs_status) {
-        RDMError("Failed to empty the folder: %s\n", pDwnlPath);
+        RDMError("RDM Download cleanup  Failed : Unable to clean up the folder : %s\n", pDwnlPath);
     }
 
     removeFile(pDwnlPath);
@@ -183,7 +185,7 @@ VOID rdmDwnlAppCleanUp(CHAR *pAppPath)
 
     fs_status = emptyFolder(pAppPath);
     if(fs_status) {
-        RDMError("Failed to empty the folder: %s\n", pAppPath);
+        RDMError("RDM Application download Cleanup Failed : Unable to clean up the folder : %s\n", pAppPath);
     }
 
     removeFile(pAppPath);
@@ -199,7 +201,7 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         char line[256];
         size_t buffer_index = 0;
 
-        RDMInfo("Opened %s file successfully for cleanup\n", pDwnlInfoFile);
+        RDMInfo("RDM remove application: File [%s] open successfull for cleanup\n", pDwnlInfoFile);
         fseek(fp_met, 0, SEEK_SET);
         while (fgets(line, sizeof(line), fp_met)) {
             if(strncmp(line, pAppName, strlen(pAppName)) != 0 ){
@@ -217,74 +219,13 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         fclose(fp_met);
         }
     else{
-            RDMInfo("Unable to open file %s", pDwnlInfoFile);
+            RDMInfo("RDM remove application Failed : Unable to open file %s", pDwnlInfoFile);
         }
 }
 
-INT32 rdmDwnlIsInStateRed()
-{
-    return (fileCheck(STATE_RED_SPRT_FILE) && fileCheck(STATEREDFLAG));
-}
-
-#ifdef LIBRDKCERTSELECTOR
-#define FILESCHEME "file://"
-
-/* Description: Use for get all mtls related certificate and key.
- * @param sec: This is a pointer hold the certificate, key and type of certificate.
- * @return : MTLS_CERT_FETCH_SUCCESS on success, MTLS_CERT_FETCH_FAILURE on mtls cert failure , STATE_RED_CERT_FETCH_FAILURE on state red cert failure
- * */
-MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel) {
-
-    char *certUri = NULL;
-    char *certPass = NULL;
-    char *engine = NULL;
-    char *certFile = NULL;
-
-    rdkcertselectorStatus_t certStat = rdkcertselector_getCert(*pthisCertSel, &certUri, &certPass);
-
-    if (certStat != certselectorOk || certUri == NULL || certPass == NULL) {
-        RDMInfo("%s, Failed to retrieve certificate for MTLS\n",  __FUNCTION__);
-        rdkcertselector_free(pthisCertSel);
-        if(*pthisCertSel == NULL){
-            RDMInfo("%s, Cert selector memory free\n", __FUNCTION__);
-        }else{
-            RDMInfo("%s, Cert selector memory free failed\n", __FUNCTION__);
-        }
-        return MTLS_CERT_FETCH_FAILURE; // Return error
-    }
-
-    certFile = certUri;
-    if (strncmp(certFile, FILESCHEME, sizeof(FILESCHEME)-1) == 0) {
-        certFile += (sizeof(FILESCHEME)-1); // Remove file scheme prefix
-    }
-
-    strncpy(sec->cert_name, certFile, sizeof(sec->cert_name) - 1);
-    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';
-
-    strncpy(sec->key_pas, certPass, sizeof(sec->key_pas) - 1);
-    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';
-
-    engine = rdkcertselector_getEngine(*pthisCertSel);
-    if (engine == NULL) {
-        sec->engine[0] = '\0';
-    }else{
-        strncpy(sec->engine, engine, sizeof(sec->engine) - 1);
-        sec->engine[sizeof(sec->engine) - 1] = '\0';
-    }
-
-    strncpy(sec->cert_type, "P12", sizeof(sec->cert_type) - 1);
-    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';
-
-    RDMInfo("%s, MTLS dynamic/static cert success. cert=%s, type=%s, engine=%s\n", __FUNCTION__, sec->cert_name, sec->cert_type, sec->engine);
-    return MTLS_CERT_FETCH_SUCCESS; // Return success
-}
-#endif
-
+//Check for OCSPEnable. Returns 1 if enabled.
 INT32 rdmDwnlIsOCSPEnable(void)
 {
-    if(fileCheck(EnableOCSPStapling) || fileCheck(EnableOCSP)) {
-        return 1;
-    }
     return 0;
 }
 
@@ -301,8 +242,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 #ifdef LIBRDKCERTSELECTOR
     int cert_ret_code = -1;
     MtlsAuthStatus ret = MTLS_CERT_FETCH_SUCCESS;
-#else
-    int ret = MTLS_FAILURE;
 #endif
     memset(&file_dwnl, 0, sizeof(FileDwnl_t));
 
@@ -310,11 +249,10 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.chunk_dwnl_retry_time = 0;
     strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) - 1);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
-    strcat(file_dwnl.pathname, "/");
-    strcat(file_dwnl.pathname, pPkgName);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
+    if (snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName) >= (int)sizeof(file_dwnl.pathname)) {
+        RDMError("Download path is too long\n");
+        return status;
+    }
     strcpy(pOut, file_dwnl.pathname);
 
     if(rdmDwnlIsOCSPEnable()) {
@@ -323,67 +261,66 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.pDlData = NULL;
     file_dwnl.pPostFields = NULL;
 
-        /* Update the Certificate */
-        curl = doCurlInit();
-        if(curl == NULL) {
-            RDMError("Failed init curl\n");
-            return status;
-        }
- #ifdef LIBRDKCERTSELECTOR
-        static rdkcertselector_h thisCertSel = NULL;
-        INT32 mtls_retry = 0;
-	RDMInfo("Initializing CertSelector\n");
-	if (thisCertSel == NULL)
-        {
-            const char* certGroup = "MTLS";
-	    thisCertSel = rdkcertselector_new(NULL, NULL, certGroup);
-	    if (thisCertSel == NULL) {
-                 RDMInfo("Cert Selector Initialisation Failed\n");
-		 return cert_ret_code;
-            } else {
-                RDMInfo("Cert Selector Initialisation is Successful\n");
-            }
-	} else {
-             RDMInfo("Cert selector already initialized, reusing existing instance\n");
-	}
-	memset(&sec, '\0', sizeof(MtlsAuth_t));
-	do {
-            RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
-            ret = rdmDwnlGetCert(&sec, &thisCertSel);
-	    RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
-
-	    if (ret == MTLS_CERT_FETCH_FAILURE) {
-                RDMInfo("MTLS cert Failed ret= %d\n", ret);
-		return cert_ret_code;
-            } else {
-                RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
-            }
-
-            RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-            curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
-                                               max_dwnl_speed, NULL, &httpCode);
-            RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
-            if (curl_ret_code != 0) {
-                mtls_retry++;
-                if (mtls_retry >= RDM_DWNLD_MAX_RETRIES) {
-                    RDMError("Max MTLS retry attempts reached (%d). Aborting.\n", RDM_DWNLD_MAX_RETRIES);
-                    break;
-                }
-           }     
-	}while (rdkcertselector_setCurlStatus(thisCertSel, curl_ret_code, file_dwnl.url) == TRY_ANOTHER);
-              
-        if(curl_ret_code && httpCode != 200) {
-                RDMError("Download failed\n");
-                status = RDM_FAILURE;
-        }
-        if (curl != NULL) {
-            RDMInfo("Stopping Curl Download\n");
-            doStopDownload(curl);
-            curl = NULL;
-        }
+    /* Update the Certificate */
+    curl = doCurlInit();
+    if(curl == NULL) {
+        RDMError("Failed init curl\n");
         return status;
+    }
+#ifdef LIBRDKCERTSELECTOR
+    static rdkcertselector_h thisCertSel = NULL;
+    INT32 mtls_retry = 0;
+    RDMInfo("Initializing CertSelector\n");
+    if (thisCertSel == NULL)
+    {
+        const char* certGroup = "MTLS";
+        thisCertSel = rdkcertselector_new(NULL, NULL, certGroup);
+        if (thisCertSel == NULL) {
+             RDMInfo("Cert Selector Initialisation Failed\n");
+             return cert_ret_code;
+        } else {
+             RDMInfo("Cert Selector Initialisation is Successful\n");
+        }
+    } else {
+        RDMInfo("Cert selector already initialized, reusing existing instance\n");
+    }
+    memset(&sec, '\0', sizeof(MtlsAuth_t));
+    do {
+        RDMInfo("Fetching MTLS credential for SSR/XCONF\n");
+        ret = rdmDwnlGetCert(&sec, &thisCertSel);
+        RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
+        if (ret == MTLS_CERT_FETCH_FAILURE) {
+            RDMInfo("MTLS cert Failed ret= %d\n", ret);
+            return cert_ret_code;
+        } else {
+            RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
+        }
+        RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
+        curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
+                                           max_dwnl_speed, NULL, &httpCode);
+        RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
+        if (curl_ret_code != 0) {
+            mtls_retry++;
+            if (mtls_retry >= RDM_DWNLD_MAX_RETRIES) {
+                RDMError("Max MTLS retry attempts reached (%d). Aborting.\n", RDM_DWNLD_MAX_RETRIES);
+                break;
+            }
+       }
+    }while (rdkcertselector_setCurlStatus(thisCertSel, curl_ret_code, file_dwnl.url) == TRY_ANOTHER);
+              
+    if(curl_ret_code && httpCode != 200) {
+            RDMError("Download failed\n");
+            status = RDM_FAILURE;
+    }
+    if (curl != NULL) {
+        RDMInfo("Stopping Curl Download\n");
+        doStopDownload(curl);
+        curl = NULL;
+    }
+    return status;
 #endif
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
+    t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
 
     curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
                                        max_dwnl_speed, NULL, &httpCode);
@@ -391,7 +328,8 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
 
     if(curl_ret_code && httpCode != 200) {
-        RDMError("Download failed\n");
+        RDMError("Direct Download failed\n");
+	      t2CountNotify("RDM_ERR_package_failed", 1);
         status = RDM_FAILURE;
     }
 
@@ -400,68 +338,54 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     return status;
 }
 
-#ifdef RDM_ENABLE_CODEBIG
-INT32 rdmDwnlGetCodebigUrl(char *pUrl)
-{
-    return RDM_FAILURE;
+#ifdef LIBRDKCERTSELECTOR
+#define FILESCHEME "file://"
+/* Description: Use for get all mtls related certificate and key.
+ * @param sec: This is a pointer hold the certificate, key and type of certificate.
+ * @return : MTLS_CERT_FETCH_SUCCESS on success, MTLS_CERT_FETCH_FAILURE on mtls cert failure.
+ * */
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel) {
+    char *certUri = NULL;
+    char *certPass = NULL;
+    char *engine = NULL;
+    char *certFile = NULL;
+    rdkcertselectorStatus_t certStat = rdkcertselector_getCert(*pthisCertSel, &certUri, &certPass);
+    if (certStat != certselectorOk || certUri == NULL || certPass == NULL) {
+        RDMInfo("%s, Failed to retrieve certificate for MTLS\n",  __FUNCTION__);
+        rdkcertselector_free(pthisCertSel);
+        if(*pthisCertSel == NULL){
+            RDMInfo("%s, Cert selector memory free\n", __FUNCTION__);
+        }else{
+            RDMInfo("%s, Cert selector memory free failed\n", __FUNCTION__);
+        }
+        return MTLS_CERT_FETCH_FAILURE; // Return error
+    }
+    certFile = certUri;
+    if (strncmp(certFile, FILESCHEME, sizeof(FILESCHEME)-1) == 0) {
+        certFile += (sizeof(FILESCHEME)-1); // Remove file scheme prefix
+    }
+    strncpy(sec->cert_name, certFile, sizeof(sec->cert_name) - 1);
+    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';
+    strncpy(sec->key_pas, certPass, sizeof(sec->key_pas) - 1);
+    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';
+    engine = rdkcertselector_getEngine(*pthisCertSel);
+    if (engine == NULL) {
+        sec->engine[0] = '\0';
+    }else{
+        strncpy(sec->engine, engine, sizeof(sec->engine) - 1);
+        sec->engine[sizeof(sec->engine) - 1] = '\0';
+    }
+    strncpy(sec->cert_type, "P12", sizeof(sec->cert_type) - 1);
+    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';
+    RDMInfo("%s, MTLS dynamic/static cert success. cert=%s, type=%s, engine=%s\n", __FUNCTION__, sec->cert_name, sec->cert_type, sec->engine);
+    return MTLS_CERT_FETCH_SUCCESS; // Return success
 }
+#endif
 
+#ifdef RDM_ENABLE_CODEBIG
 INT32 rdmDwnlCodebig(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
 {
-    INT32 status                   = RDM_SUCCESS;
-#ifdef IS_RDKV
-    VOID *curl                     = NULL;
-    INT32 server_type              = HTTP_SSR_CODEBIG;
-    INT32 httpCode                 = 0;
-    INT32 curl_ret_code            = -1;
-    INT32 signFailed               = 1;
-    CHAR oAuthHeader[BIG_BUF_LEN]  = "Authorization: OAuth realm=\"\", ";
-    CHAR headerInfoFile[256];
-    FileDwnl_t file_dwnl;
-    size_t len                     = 0;
-
-    memset(&file_dwnl, 0, sizeof(FileDwnl_t));
-    /* Update the file download details */
-    file_dwnl.chunk_dwnl_retry_time = 0;
-
-
-    if( (signFailed=doCodeBigSigning(server_type, pUrl, file_dwnl.url, sizeof(file_dwnl.url),
-                                        oAuthHeader, sizeof(oAuthHeader) )) == 0 )
-    {
-        strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) - 1);
-	file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
-        strcat(file_dwnl.pathname, "/");
-        strcat(file_dwnl.pathname, pPkgName);
-	file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
-        strcpy(pOut, file_dwnl.pathname);
-        file_dwnl.pDlData = NULL;
-        file_dwnl.pHeaderData = oAuthHeader;
-        file_dwnl.pPostFields = NULL;
-        snprintf(headerInfoFile, sizeof(headerInfoFile), "%s.header", file_dwnl.pathname);
-
-        curl = doCurlInit();
-        if(curl == NULL) {
-            RDMError("Failed init curl\n");
-            return status;
-        }
- 
-        curl_ret_code = doAuthHttpFileDownload(curl, &file_dwnl, &httpCode);
-
-        RDMInfo("curl_ret_code:%d httpCode:%d len %d server_type %d\n", curl_ret_code, httpCode,len,server_type);
-
-        if(curl_ret_code && httpCode != 200) {
-            RDMError("Download failed\n");
-            status = RDM_FAILURE;
-        }
-
-        doStopDownload(curl);
-    }
-    else{
-        RDMError("signing the URL has been failed [%d]\n",signFailed);
-        status = RDM_FAILURE;
-    }
-#endif
-    return status;
+    return RDM_SUCCESS;
 }
 #endif
 
@@ -493,6 +417,9 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
     }
     else {
         RDMInfo("appliactionDownload: Direct download is blocked\n");
+#if !defined(RDKB_SUPPORT)
+		t2CountNotify("RDM_INFO_DirectBlocked", 1);
+#endif
         status = RDM_FAILURE;
     }
 #ifdef RDM_ENABLE_CODEBIG
@@ -546,9 +473,10 @@ INT32 rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut
  * */
 INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
 {
+    INT32 ret = 0;
     JSON *pJson = NULL;
     INT8  status[8];
-    INT32 ret = -1;
+    ret = -1;
 
     if (token == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -560,7 +488,7 @@ INT32 rdmJRPCTokenData(CHAR *token, CHAR *pJsonStr, UINT32 token_size)
     if( pJson != NULL ) {
         GetJsonVal(pJson, "token", token, token_size);
         GetJsonVal(pJson, "success", status, sizeof(status));
-        RDMInfo( "status: %s\n", status);
+        RDMInfo( "ParseJsonString : status: %s\n", status);
         FreeJson(pJson);
         if (0 == strncmp(status, "true", 4) && 0 != *token) {
             ret = 0;
@@ -601,7 +529,7 @@ INT32 rdmMemDLAlloc(VOID *pvDwnData, size_t szDataSize)
         }
         else {
             pDwnData->memsize = 0;
-            RDMError( "rdmMemDLAlloc: Failed to allocate memory for XCONF download\n" );
+            RDMError( "Failed to allocate memory for XCONF download\n" );
         }
     }
 
@@ -618,40 +546,6 @@ VOID rdmMemDLFree(VOID *pvDwnData)
     memset(pvDwnData, 0, sizeof(DownloadData));
 }
 
-INT32 rdmExecuteScript(RDMAPPDetails *pRdmAppDet)
-{
-    CHAR pkgjson_path[RDM_APP_PATH_LEN] = {0};
-    CHAR script_value[RDM_APP_PATH_LEN] = {0};
-    CHAR script_path[RDM_APP_PATH_LEN] = {0};
-  
-    snprintf(pkgjson_path, sizeof(pkgjson_path), "%s/package.json", pRdmAppDet->app_dwnl_path);
-
-    if (fileCheck(pkgjson_path)) {
-        RDMInfo("%s found in %s\n", pkgjson_path, pRdmAppDet->app_dwnl_path);
-    } else {
-        RDMInfo("No %s found in %s\n", pkgjson_path, pRdmAppDet->app_dwnl_path);
-        return RDM_FAILURE;
-    }
-
-    getStringValueFromFile(pkgjson_path, "\":, ", "installScript", script_value);
-    if (script_value[0] == '\0') {
-        RDMInfo("No 'installScript' entry in %s; skipping JSON-based post-install\n", pkgjson_path);
-        return RDM_SUCCESS;
-    }
-  
-    snprintf(script_path, sizeof(script_path), "%s/%s", pRdmAppDet->app_home, script_value);
-    if (!fileCheck(script_path)) {
-        RDMError("Install script not found: %s\n", script_path);
-        return RDM_FAILURE;
-    }
-
-    RDMInfo("Executing post-install script: %s\n", script_path);
-
-    v_secure_system("/bin/sh '%s'",script_path);
-
-    return RDM_SUCCESS;
-}
-
 INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
 {
     CHAR tmp_file[RDM_APP_PATH_LEN];
@@ -659,20 +553,15 @@ INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
     DIR *dir;
     struct dirent *entry;
 
-    RDMInfo("RDM Start Post script Execution dwnl_path = %s\n", pRdmAppDet->app_dwnl_path);
-
-    INT32 status = rdmExecuteScript(pRdmAppDet);
-    if (status == RDM_SUCCESS) {
-        RDMInfo("Post-Install Script Execution successful....");
-        return RDM_SUCCESS;
-    } else {
-        RDMWarn("Install script not found in package.json...checking in directory");
+    if (pRdmAppDet == NULL) {
+        RDMError("Invalid RDMAPPDetails pointer passed to rdmDwnlRunPostScripts\n");
+        return RDM_FAILURE;
     }
+    RDMInfo("Running Scripts after RDM Download\n");
 
-    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
-    tmp_file[sizeof(tmp_file) - 1] = '\0';
+    strncpy(tmp_file, pRdmAppDet->app_home, RDM_APP_PATH_LEN);
+    tmp_file[RDM_APP_PATH_LEN - 1] = '\0';  // Ensure null termination
     strcat(tmp_file, RDM_POSTSCRIPT_PATH);
-    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
 
     dir = opendir(tmp_file);
 
@@ -693,155 +582,33 @@ INT32 rdmDwnlRunPostScripts(RDMAPPDetails *pRdmAppDet, INT32 versioned_app)
 
         strncpy(filePath, tmp_file, RDM_APP_PATH_LEN - 1);
 	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
-
+        strcat(filePath, "/");
         strcat(filePath, entry->d_name);
 	filePath[sizeof(filePath) - 1] = '\0';  // Ensure null termination
 
-        RDMInfo("RDM Post script Execution %s\n", filePath);
+        RDMInfo("RDM - Executing post-download scripts %s\n", filePath);
 
-        v_secure_system("/bin/sh '%s'",filePath);
+        copyCommandOutput (filePath, NULL, 0);
     }
 
     closedir(dir);
-
     return RDM_SUCCESS;
 }
-
 VOID rdmDwnlUnInstallApp(CHAR *pDwnlPath, CHAR *pAppPath)
 {
     rdmDwnlCleanUp(pDwnlPath);
     rdmDwnlAppCleanUp(pAppPath);
 }
-
-static BOOL rdmDwnlIsDebugTool(const CHAR *pTool)
-{
-    return pTool != NULL &&
-           (strcmp(pTool, "tcpdump") == 0 || strcmp(pTool, "strace") == 0);
-}
-
-static VOID rdmDwnlDebugToolCleanup(const CHAR *pTool)
-{
-    CHAR **apps = NULL;
-    INT32 app_count = 0;
-    INT32 index = 0;
-    CHAR app_path[RDM_APP_PATH_LEN] = {0};
-    CHAR download_path[RDM_APP_PATH_LEN] = {0};
-    CHAR run_path[RDM_APP_PATH_LEN] = {0};
-    CHAR tool_path[RDM_APP_PATH_LEN] = {0}; 
-   
-    if (!rdmDwnlIsDebugTool(pTool)) {
-        return;
-    }
-
-    if (rdmListDirectory(APP_MOUNT_PATH, &apps, &app_count) == RDM_SUCCESS) {
-        for (index = 0; index < app_count; ++index) {
-            if (apps[index] != NULL && strstr(apps[index], pTool) != NULL) {
-                snprintf(app_path, sizeof(app_path), "%s/%s", APP_MOUNT_PATH, apps[index]);
-                snprintf(download_path, sizeof(download_path), "%s/rdm/downloads/%s", APP_MOUNT_PATH, apps[index]);
-                rdmDwnlUnInstallApp(download_path, app_path);
-                rdmRemvDwnlAppInfo(apps[index], (CHAR *)RDM_DL_INFO_BR);
-            }
-            free(apps[index]);
-        }
-        free(apps);
-    }
-  
-    snprintf(tool_path, sizeof(tool_path), "/tmp/tools/%s", pTool);
-    snprintf(run_path, sizeof(run_path), "/run/%s", pTool);
-    removeFile(tool_path);
-    rdmDwnlAppCleanUp(run_path);
-    RDMInfo("CLEANUP: completed for %s\n", pTool);
-}
-
 INT32 rdmDwnlDebugToolSchedule(const CHAR *pTool, INT64 expiry_time)
 {
-    FILE *file = NULL;
-    FILE *tmp = NULL;
-    CHAR line[128] = {0};
-    CHAR kept[256] = {0};
+    (void)pTool;
+    (void)expiry_time;
 
-    if (!rdmDwnlIsDebugTool(pTool) || expiry_time <= 0) {
-        return RDM_FAILURE;
-    }
-
-    file = fopen(RDM_DEBUG_TOOL_EXPIRY, "r");
-    if (file != NULL) {
-        while (fgets(line, sizeof(line), file) != NULL) {
-            if (strncmp(line, pTool, strlen(pTool)) != 0) {
-                strncat(kept, line, sizeof(kept) - strlen(kept) - 1);
-            }
-        }
-        fclose(file);
-    }
-
-    tmp = fopen(RDM_DEBUG_TOOL_EXPIRY ".tmp", "w");
-    if (tmp == NULL) {
-        return RDM_FAILURE;
-    }
-    fputs(kept, tmp);
-    fprintf(tmp, "%s %lld\n", pTool, (long long)expiry_time);
-    fclose(tmp);
-    if (rename(RDM_DEBUG_TOOL_EXPIRY ".tmp", RDM_DEBUG_TOOL_EXPIRY) != 0) {
-        return RDM_FAILURE;
-    }
-
-    RDMInfo("Wrote expiry for tool %s -> %lld to %s\n", pTool, (long long)expiry_time, RDM_DEBUG_TOOL_EXPIRY);
-
-    /*
-     * Cron supports minute-level precision only.
-     * Round expiry time to the next minute so cron does not run
-     * before the current tool's actual expiry.
-     */
-    time_t cron_time = (time_t)expiry_time;
-    if ((cron_time % 60) != 0) {
-        cron_time += 60 - (cron_time % 60);
-    }
-  
-    struct tm *tm_info = localtime(&cron_time);
-  
-    if (tm_info == NULL) {
-    RDMError("Failed to convert cron expiry time\n");
-    return RDM_FAILURE;
-    }
-  
-    RDMInfo("Scheduling cron via /rdklogger/rdmDebugToolCron.sh %d %d\n", tm_info->tm_min, tm_info->tm_hour);
-    if (v_secure_system(
-            "sh /rdklogger/rdmDebugToolCron.sh %d %d",
-            tm_info->tm_min,
-            tm_info->tm_hour) != 0) {
-        RDMError("Failed to configure RDM debug-tool cron job via /rdklogger/rdmDebugToolCron.sh\n");
-        return RDM_FAILURE;
-    }
-    RDMInfo("Cron helper executed successfully for tool %s\n", pTool);
     return RDM_SUCCESS;
 }
-
 INT32 rdmDwnlDebugToolCheckExpiry(void)
 {
-    FILE *file = fopen(RDM_DEBUG_TOOL_EXPIRY, "r");
-    FILE *tmp = NULL;
-    CHAR tool[64] = {0};
-    long long expiry = 0;
-    time_t now = time(NULL);
-    RDMInfo("DEBUG LOG : rdmDwnlDebugToolCheckExpiry");
-    if (file == NULL) {
-        return RDM_SUCCESS;
-    }
-    tmp = fopen(RDM_DEBUG_TOOL_EXPIRY ".tmp", "w");
-    if (tmp == NULL) {
-        fclose(file);
-        return RDM_FAILURE;
-    }
-    while (fscanf(file, "%63s %lld", tool, &expiry) == 2) {
-        if (expiry <= (long long)now) {
-            rdmDwnlDebugToolCleanup(tool);
-        } else {
-            fprintf(tmp, "%s %lld\n", tool, expiry);
-        }
-    }
-    fclose(file);
-    fclose(tmp);
-    return rename(RDM_DEBUG_TOOL_EXPIRY ".tmp", RDM_DEBUG_TOOL_EXPIRY) == 0 ? RDM_SUCCESS : RDM_FAILURE;
+    return RDM_SUCCESS;
 }
 
 /** @brief This Function updates the manifest file.
@@ -861,37 +628,24 @@ INT32 rdmDwnlUpdateManifest(CHAR *pInManifest,
     FILE *fpin;
     FILE *fpout;
     INT32 status = RDM_SUCCESS;
-    CHAR *buff;
+    CHAR *buff = NULL;
 
     fpin = fopen(pInManifest, "r");
     if(fpin == NULL) {
-        RDMInfo("Checking available cpemanifest files in directory: %s\n", RDM_CPEMANIFEST_PATH);
-        DIR *dbg_dir = opendir(RDM_CPEMANIFEST_PATH);
-        if (dbg_dir) {
-            struct dirent *dbg_entry;
-            while ((dbg_entry = readdir(dbg_dir)) != NULL) {
-                if (strstr(dbg_entry->d_name, "cpemanifest")) {
-                    RDMInfo("Manifest file present: %s\n", dbg_entry->d_name);
-                }
-            }    
-            closedir(dbg_dir);
-        } else {
-            RDMError("Failed to open manifest directory: %s\n", RDM_CPEMANIFEST_PATH);
-        }
-        RDMError("Unable to open input file: %s\n", pInManifest);
+        RDMError("Failed : Unable to open input file: %s\n", pInManifest);
         return RDM_FAILURE;
     }
 
     fpout = fopen(pOutManifest, "w");
-    if(fpin == NULL) {
-        RDMError("Unable to open output file: %s\n", pOutManifest);
+    if(fpout == NULL) {
+        RDMError("Failed : Unable to open output file: %s\n", pOutManifest);
         status = RDM_FAILURE;
         goto error;
     }
 
     buff = calloc(MAX_BUFF_SIZE, 1);
     if(buff == NULL) {
-        RDMError("Failed to allocate memory\n");
+        RDMError("Failed : Unable to allocate memory\n");
         status = RDM_FAILURE;
         goto error;
     }
@@ -915,95 +669,10 @@ error:
     return status;
 }
 
+// Remove Signing header here
 static INT32 rdmDwnlReadSigFile(CHAR *sig_file, CHAR *pout)
 {
     INT32 status = RDM_SUCCESS;
-    FILE *fp = fopen(sig_file, "rb");
-    INT32 len = 0;
-
-    if(fp == NULL) {
-        RDMError("Failed to open Signature file: %s\n", sig_file);
-        return RDM_FAILURE;
-    }
-
-    // Since KMS is adding 6 Bytes of Header, need to remove this before validation
-    // KMS Header Removal from the Signature
-    fseek(fp, RDM_KMS_SKIP_BYTES, SEEK_CUR);
-
-    len = fread(pout, 1, RDM_SIGFILE_LEN, fp);
-    if(len == 0) {
-        RDMError("Failed to read data from signature file: %s\n", sig_file);
-        status = RDM_FAILURE;
-    }
-
-    fclose(fp);
-
-    return status;
-}
-
-INT32 rdmDwnlUpdateManifest_versionedapp(CHAR *pInManifest,
-                            CHAR *pOutManifest,
-                            CHAR *update,
-                            CHAR *padding)
-{
-    FILE *fpin = NULL;
-    FILE *fpout = NULL;
-    INT32 status = RDM_SUCCESS;
-    CHAR *buff = NULL;
-
-    fpin = fopen(pInManifest, "r");
-    if(fpin == NULL) {
-        RDMInfo("Checking available cpemanifest files in directory: %s\n", RDM_CPEMANIFEST_PATH);
-        DIR *dbg_dir = opendir(RDM_CPEMANIFEST_PATH);
-        if (dbg_dir) {
-            struct dirent *dbg_entry;
-            while ((dbg_entry = readdir(dbg_dir)) != NULL) {
-                if (strstr(dbg_entry->d_name, "cpemanifest")) {
-                    RDMInfo("Manifest file present: %s\n", dbg_entry->d_name);
-                }
-            }    
-            closedir(dbg_dir);
-        } else {
-            RDMError("Failed to open manifest directory: %s\n", RDM_CPEMANIFEST_PATH);
-        }
-        RDMError("Unable to open input file: %s\n", pInManifest);
-	status = RDM_FAILURE;
-	goto error;
-    }
-
-    fpout = fopen(pOutManifest, "w");
-    if(fpin == NULL) {
-        RDMError("Unable to open output file: %s\n", pOutManifest);
-        status = RDM_FAILURE;
-        goto error;
-    }
-
-    buff = calloc(MAX_BUFF_SIZE, 1);
-    if(buff == NULL) {
-        RDMError("Failed to allocate memory\n");
-        status = RDM_FAILURE;
-        goto error;
-    }
-
-    while (fgets(buff, MAX_BUFF_SIZE, fpin)) {
-	RDMInfo("buff = %s\n", buff);
-	if(strncmp(buff, "package.json", strlen("package.json")) == 0)
-	    fprintf(fpout, "%s/%s", padding, buff);
-	else
-	    fprintf(fpout, "%s/%s", update, buff);
-    }
-    fprintf(fpout, "%s/pkg_padding", padding);
-error:
-    if(fpin) {
-        fclose(fpin);
-    }
-    if(fpout) {
-        fclose(fpout);
-    }
-    if(buff) {
-        free(buff);
-    }
-
     return status;
 }
 
@@ -1017,59 +686,99 @@ error:
  */
 INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 {
+    INT32 status = RDM_SUCCESS;
     CHAR pkg_file[RDM_APP_PATH_LEN];
     CHAR tmp_file[RDM_APP_PATH_LEN];
     CHAR out_file[RDM_APP_PATH_LEN];
     CHAR dwnl_path[RDM_APP_PATH_LEN];
     CHAR app_home[RDM_APP_PATH_LEN];
-    INT32 status = RDM_SUCCESS;
     INT32 ssl_status = 0;
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
 
     if(out_buf == NULL) {
-        RDMError("Failed to allocate memory\n");
+        RDMError("RDM Validation Failed : Unable to allocate memory\n");
         return RDM_FAILURE;
     }
 
-    strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN -1);
-    dwnl_path[sizeof(dwnl_path) - 1] = '\0';  // Ensure null termination
+    strncpy(dwnl_path, pRdmAppDet->app_dwnl_path, RDM_APP_PATH_LEN - 1);
+    dwnl_path[RDM_APP_PATH_LEN - 1] = '\0';
     if(pVer) {
-        strcat(dwnl_path, "/v");
-        strcat(dwnl_path, pVer);
-	dwnl_path[sizeof(dwnl_path) - 1] = '\0';  // Ensure null termination
-    }
-    strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
-    app_home[sizeof(app_home) - 1] = '\0';  // Ensure null termination
-    if(pVer) {
-        strcat(app_home, "/v");
-        strcat(app_home, pVer);
-        strcat(app_home, "/package");
-	app_home[sizeof(app_home) - 1] = '\0';  // Ensure null termination
+        size_t curr_len = strlen(dwnl_path);
+        size_t remain = RDM_APP_PATH_LEN - curr_len - 1; // Reserve space for null terminator
+
+       // Append "/v"
+        if(remain >= 2) {  // "/v" == 2 chars
+            strncat(dwnl_path, "/v", remain);
+            curr_len = strlen(dwnl_path);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append /v to dwnl_path");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append pVer
+        size_t ver_len = strlen(pVer);
+        if(remain >= ver_len) {
+            strncat(dwnl_path, pVer, remain);
+        } else {
+            RDMError("Not enough space to append version to dwnl_path");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+   }
+    
+    // Build app_home safely
+   strncpy(app_home, pRdmAppDet->app_home, RDM_APP_PATH_LEN - 1);
+   app_home[RDM_APP_PATH_LEN - 1] = '\0';
+
+   if(pVer) {
+        size_t curr_len = strlen(app_home);
+        size_t remain = RDM_APP_PATH_LEN - curr_len - 1;
+
+    // Append "/v"
+        if(remain >= 2) {
+            strncat(app_home, "/v", remain);
+            curr_len = strlen(app_home);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append /v to app_home");
+	    free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append version
+        size_t ver_len = strlen(pVer);
+        if(remain >= ver_len) {
+            strncat(app_home, pVer, remain);
+            curr_len = strlen(app_home);
+            remain = RDM_APP_PATH_LEN - curr_len - 1;
+        } else {
+            RDMError("Not enough space to append version to app_home");
+	        free(out_buf);
+            return RDM_FAILURE;
+        }
+
+    // Append "/package"
+        if(remain >= 8) { // "/package" is 8 chars
+            strncat(app_home, "/package", remain);
+        } else {
+            RDMError("Not enough space to append /package to app_home");
+	        free(out_buf);
+            return RDM_FAILURE;
+        }
     }
 
-    if(pRdmAppDet->is_versioned_app) {
-        if(findPFile(dwnl_path, "*.sig", pkg_file)) {
-            /* Read the signature file */
-            status = rdmDwnlReadSigFile(pkg_file, out_buf);
-            if(status) {
-                RDMError("Failed to read Signature file: %s\n", pkg_file);
-		if(out_buf)
-                    free(out_buf);
-		return status;
-            }
-	}
-    } else {
-        if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
-            /* Read the signature file */
-            status = rdmDwnlReadSigFile(pkg_file, out_buf);
-            if(status) {
-                RDMError("Failed to read Signature file: %s\n", pkg_file);
-		if(out_buf)
-                    free(out_buf);
-                return status;
-            }
-	}
+    if(findPFile(dwnl_path, "*-pkg.sig", pkg_file)) {
+        /* Read the signature file */
+        status = rdmDwnlReadSigFile(pkg_file, out_buf);
+        if(status) {
+            RDMError("RDM Validation Failed : Unable to read Signature file: %s\n", pkg_file);
+	    if(out_buf)
+            free(out_buf);
+        return status;
+        }
     }
 
     if(pRdmAppDet->sig_type == RDM_SIG_TYPE_KMS) {
@@ -1077,87 +786,63 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
         RDMInfo("Validate the Package\n");
 
-	if (pRdmAppDet->is_versioned_app) {
-	    RDMInfo("Generating cpemanifest for RDM Bundle in %s\n", dwnl_path);
-            strncpy(tmp_file, dwnl_path, RDM_APP_PATH_LEN -1);
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
-	    strcat(tmp_file, "/");
-	    strcat(tmp_file, "pkg_cpemanifest");
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+#ifdef L2_TEST_ENABLED
+	strncpy(tmp_file, dwnl_path, RDM_APP_PATH_LEN -1);
+        tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+        strcat(tmp_file, "/");
+        strcat(tmp_file, "pkg_cpemanifest");
+        tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+#else	
+        strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN);
+        strcat(tmp_file, "/");
+        strcat(tmp_file, pRdmAppDet->app_name);
+        strcat(tmp_file, "_cpemanifest");
 
-            RDMInfo("Manifest lookup path: [%s]\n", RDM_CPEMANIFEST_PATH);
-            RDMInfo("Processing app: [%s]\n", pRdmAppDet->app_name);
-	    RDMInfo("Input manifest file: [%s] exists=%d\n", tmp_file, fileCheck(tmp_file));
-
-	    strncpy(out_file, dwnl_path, RDM_APP_PATH_LEN -1);
-	    out_file[sizeof(out_file) - 1] = '\0';  // Ensure null termination
-	    strcat(out_file, "/");
-	    strcat(out_file, "pkg_cpemanifest.updated");
-	    out_file[sizeof(out_file) - 1] = '\0';  // Ensure null termination
-
-	    RDMInfo("app_home = %s\n", app_home);
-	    RDMInfo("dwnl_path = %s\n", dwnl_path);
-            status = rdmDwnlUpdateManifest_versionedapp(tmp_file, out_file,
+#endif
+        int n = snprintf(out_file, RDM_APP_PATH_LEN, "%s/%s_cpemanifest", app_home, pRdmAppDet->app_name);
+        if (n < 0 || n >= RDM_APP_PATH_LEN)
+        {
+            RDMError("Output manifest file path is too long");
+            free(out_buf);
+            return RDM_FAILURE;
+        }
+	
+        status = rdmDwnlUpdateManifest(tmp_file, out_file,
                                        app_home,
                                        dwnl_path);
-	} else {
-	    RDMInfo("Generating cpemanifest for RDM Apps in %s\n", app_home);
-            strncpy(tmp_file, RDM_CPEMANIFEST_PATH, RDM_APP_PATH_LEN - 1);
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
-            strcat(tmp_file, "/");
-            strcat(tmp_file, pRdmAppDet->app_name);
-            strcat(tmp_file, "_cpemanifest");
-	    tmp_file[sizeof(tmp_file) - 1] = '\0';  // Ensure null termination
+        if(status) {
+            RDMWarn("RDM Validation Failed : Unable to process manifest file\n");
+        }
+        else {
 
-	    RDMInfo("Manifest lookup path: [%s]\n", RDM_CPEMANIFEST_PATH);
-            RDMInfo("Processing app: [%s]\n", pRdmAppDet->app_name);
-	    RDMInfo("Input manifest file: [%s] exists=%d\n", tmp_file, fileCheck(tmp_file));
+            rdmInitSslLib();
 
-            strncpy(out_file, app_home, RDM_APP_PATH_LEN);
-	    out_file[sizeof(out_file) - 1] = '\0';  // Ensure null termination
-            strcat(out_file, "/");
-            strcat(out_file, pRdmAppDet->app_name);
-            strcat(out_file, "_cpemanifest");
-	    out_file[sizeof(out_file) - 1] = '\0';  // Ensure null termination
-
-	    RDMInfo("Output manifest file: [%s]\n", out_file);
-	    RDMInfo("Download path for manifest generation: [%s]\n", dwnl_path);
-
-            status = rdmDwnlUpdateManifest(tmp_file, out_file,
-                                       app_home,
-                                       dwnl_path);
-       }
-       if(status) {
-           RDMWarn("Failed to process manifest file\n");
-       } else {
-
-                rdmInitSslLib();
-
-                ssl_status = rdmOpensslRsafileSignatureVerify(out_file, -1,
+            ssl_status = rdmOpensslRsafileSignatureVerify(out_file, -1,
                                                           out_buf,
                                                           RDM_KMS_PUB_KEY, tmp_file,
                                                           &outputMsgLen);
 
-                if (ssl_status == retcode_success) {
-                    RDMInfo("RSA Signature Validation Success\n");
-                } else {
-                    RDMError("RSA Signature Verification Failed\n");
-                    status = RDM_FAILURE;
-                }
-       }
+            if (ssl_status == retcode_success) {
+                RDMInfo("RSA Signature Validation Success\n");
+		t2CountNotify("RDM_INFO_rsa_valid_signature", 1);
+            } else {
+                RDMError("RSA Signature Verification Failed\n");
+		t2CountNotify("RDM_INFO_rsa_verify_signature_failure", 1);
+                status = RDM_FAILURE;
+            }
+        }
     }
     else if(pRdmAppDet->sig_type == RDM_SIG_TYPE_OPENSSL) {
       /*In the script, there is no call for this sig type. So not handled*/
     }
     else {
-        RDMError("Unknown Signature Type\n");
+        RDMError("Failed : Unknown Signature Type\n");
         status = RDM_FAILURE;
     }
 
     if(out_buf) {
         free(out_buf);
     }
-
     return status;
 }
 
@@ -1177,7 +862,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
     ret = rdmJSONGetLen(RDM_MANIFEST, &len);
 
     if(ret || len == 0) {
-        RDMError("Invalid json file\n");
+        RDMError("Failed : Invalid json file\n");
         goto error;
     }
 
@@ -1186,7 +871,7 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
         pAppsInManifest[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
 
         if(pAppsInManifest[idx] == NULL){
-            RDMError("pAppsInManifest malloc failed");
+            RDMError("Failed : Memory Allocation failed for pAppsInManifest");
             ret = RDM_FAILURE;
             break;
         }
@@ -1224,11 +909,12 @@ error:
  *  @return  Returns status of the function.
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  **/
-INT32 rdmUnInstallApps(INT32  is_broadband)
+INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 {
+    INT32 status                         = RDM_SUCCESS;
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
     CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
-    INT32 status                         = RDM_SUCCESS;
+
     INT32 numOfAppsInstalled             = 0;
     INT32 numOfAppsManifest              = 0;
     INT32 isAppUninstalled               = 0;
@@ -1236,6 +922,8 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
     RDMAPPDetails *pApp_det              = NULL;
     INT32 ret                            = RDM_SUCCESS;
     CHAR  pkg_file[RDM_APP_PATH_LEN]     = {0};
+	CHAR   rfc_app[256]                  = {0};
+    INT32 app_rfc_status                 = 0;
 
     RDMInfo("Uninstall the old packages that are not listed in current manifest\n");
 
@@ -1297,17 +985,38 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
                             if(pApp_det->dwld_on_demand) {
                                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                 if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-				    isAppUninstalled = 1;
+			                        isAppUninstalled = 1;
                                     RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                     rdmDwnlAppCleanUp(path);
                                     rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                     continue;
                                 }
+                                else {
+                                    RDMInfo("App is supported using RFC method for download, checking RFC status\n");
+                                    snprintf(rfc_app, sizeof(rfc_app),
+                                                  "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",
+                                                   pApp_det->app_name);
+
+                                    ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
+                                                   rfc_app,
+                                                   &app_rfc_status);
+
+
+                                    if(ret != RDM_SUCCESS || app_rfc_status == 0)
+                                    {
+                                        RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
+                                        isAppUninstalled = 1;
+                                        RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
+                                        rdmDwnlAppCleanUp(path);
+                                        rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
+                                        continue;
+                                   }
+                               }									
                             }
                             RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                         }
                         else{
-			    isAppUninstalled = 1;
+		                    isAppUninstalled = 1;
                             RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                             rdmDwnlAppCleanUp(path);
                             rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
@@ -1337,17 +1046,37 @@ INT32 rdmUnInstallApps(INT32  is_broadband)
                                 if(pApp_det->dwld_on_demand) {
                                     RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                     if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
-					isAppUninstalled = 1;
+				                        isAppUninstalled = 1;
                                         RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                         rdmDwnlAppCleanUp(path);
                                         rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                         continue;
                                     }
+                                    else {
+                                        RDMInfo("App is supported using RFC method for download, checking RFC status\n");
+                                        snprintf(rfc_app, sizeof(rfc_app),
+                                                  "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.%s.Enable",
+                                                   pApp_det->app_name);
+
+                                        ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
+                                                   rfc_app,
+                                                   &app_rfc_status);
+
+                                        if (ret == RDM_SUCCESS && app_rfc_status == 0)
+                                        {
+                                            RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
+                                            isAppUninstalled = 1;
+                                            RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
+                                            rdmDwnlAppCleanUp(path);
+                                            rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
+                                            continue;
+                                       }
+                                   }										
                                 }
                                 RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                             }
                         }
-		    }
+	        }
                 }
             }
 	    if ( isAppUninstalled == 0 ) {
@@ -1376,7 +1105,6 @@ error:
        }
    }
    free(pApp_det);
-
    return status;
 }
 
@@ -1408,7 +1136,12 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
         memset(pRdmAppDet->app_dwnl_url, 0, sizeof(pRdmAppDet->app_dwnl_url));
+		if (!pRdmAppDet || pRdmAppDet->app_dwnl_url[0] == '\0') {
+	        RDMError("RFC is not Enabled for RDM_RFC_URL %s\n", RDM_RFC_URL);
+		}
+	    return RDM_FAILURE;
     }
+
 
 #ifdef RDM_ENABLE_CODEBIG
     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
@@ -1433,7 +1166,6 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     strcat(pRdmAppDet->app_dwnl_url, "/");
     strcat(pRdmAppDet->app_dwnl_url, pRdmAppDet->pkg_name);
-
     return RDM_SUCCESS;
 }
 
@@ -1458,172 +1190,10 @@ VOID rdmPrintAppDetails(RDMAPPDetails *pRdmAppDet)
     RDMInfo("App Versioned          : %d\n", pRdmAppDet->is_versioned);
 }
 
+//Required for packagemanager based RDM downloads
 INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet)
 {
-    INT32 isFileFound                                = 0;
-    INT32 status                                     = RDM_SUCCESS;
-    INT32 curl_ret_code                              = -1;
-    INT32 httpCode                                   = 0;
-    INT32 retryCount                                 = 0;
-    CHAR path[MAX_BUFF_SIZE]                         = {0};
-    CHAR token_header[MAX_BUFF_SIZE]                 = {0};
-    CHAR file[RDM_APP_PATH_LEN]                      = {0};
-    CHAR status_file[RDM_APP_PATH_LEN]               = {0};
-    CHAR deactivate_status_file[RDM_APP_PATH_LEN]    = {0};
-    CHAR token[RDM_APP_PATH_LEN]                     = {0};
-    CHAR jsondata[RDM_APP_PATH_LEN]                  = {0};
-    CHAR post_data[MAX_BUFF_SIZE]                    = {0};
-    CHAR header[]                                    = RDM_CURL_CONTENTTYPE;
-    VOID *curl                                       = NULL;
-    DownloadData DwnLoc;
-    FileDwnl_t file_dwnl;
-
-    if ( pRdmAppDet ){
-        snprintf(path,sizeof(path),"%s/%s/etc/apps/",pRdmAppDet->app_mnt,pRdmAppDet->app_name);
-        snprintf(file,sizeof(file),"%s_package.json",pRdmAppDet->app_name);
-        snprintf(status_file,sizeof(file),"/tmp/%s_status",pRdmAppDet->app_name);
-        snprintf(deactivate_status_file,sizeof(file),"/tmp/%s_deactivateStatus",pRdmAppDet->app_name);
-
-        isFileFound = findFile(path,file);
-
-        if ( isFileFound ){
-            CHAR callsignValue[128]  = {0};
-            CHAR currentState[RDM_TMP_LEN_64]   = {0};
-            CHAR method[RDM_TMP_LEN_64]         = {0};
-            CHAR filepath[1024]                 = {0};
-
-            strncpy(method, "Controller.1.status@", sizeof(method));
-            snprintf(filepath,sizeof(filepath),"%s%s",path,file);
-            getStringValueFromFile(filepath, "\":, ", "callsign", callsignValue );
-            *jsondata = 0;
-            snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"3\",\"method\": \"%s%s\"}",method,callsignValue);
-
-            while( retryCount < DOWNLOAD_RETRY_COUNT ) {
-                copyCommandOutput(RDM_WPE_SECUTIL, jsondata, sizeof(jsondata));
-                rdmJRPCTokenData(token, jsondata, sizeof(token));
-
-                if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
-                    if (DwnLoc.pvOut != NULL) {
-                        file_dwnl.pHeaderData = header;
-                        snprintf(token_header, sizeof(token_header), "Authorization: Bearer %s", token);
-                        file_dwnl.pPostFields = post_data;
-                        file_dwnl.pDlData = &DwnLoc;
-                        snprintf(file_dwnl.url, sizeof(file_dwnl.url), "%s", RDM_JSONRPC_URL);
-
-                        curl = doCurlInit();
-                        if(curl == NULL) {
-                            RDMError("Failed init curl\n");
-                            status = RDM_FAILURE;
-                        }
-                        else{
-                            curl_ret_code = getJsonRpcData(curl, &file_dwnl, token_header, &httpCode);
-
-                            if(curl_ret_code && httpCode != 200) {
-                                RDMError("Download failed\n");
-                                status = RDM_FAILURE;
-                            }
-                            else{
-                                FILE *file = fopen(status_file,"w+");
-                                size_t writebytes = 0;
-                                if(file){
-                                    writebytes = fwrite(DwnLoc.pvOut,1,strlen((CHAR*)DwnLoc.pvOut),file);
-                                    RDMInfo("writebytes %u\n",writebytes);
-                                    fclose(file);
-                                }
-                                else{
-                                    RDMError("%s file open failed",status_file);
-                                }
-                                getStringValueFromFile( status_file, "\":, ", "state", currentState);
-                            }
-                            doStopDownload(curl);
-                        }
-                    }
-                    else{
-                        RDMError("DwnLoc.pvOut is NULL\n");
-                        status = RDM_FAILURE;
-                    }
-
-                    rdmMemDLFree(&DwnLoc);
-
-                    if ( ( strcmp(currentState,"unavailable") == 0 ) || ( strcmp(currentState,"deactivated") == 0 ) ) {
-                        break;
-                    }
-                }
-                retryCount = retryCount + 1;
-                sleep(5);
-            }
-
-            if( strcmp(currentState,"unavailable") == 0 ){
-                strncpy(method, "Controller.1.deactivate",sizeof(method));
-                snprintf(post_data,MAX_BUFF_SIZE,"{\"jsonrpc\":\"2.0\",\"id\":\"3\",\"method\": \"%s\", \"params\":{\"callsign\":\"%s\"}}",method,callsignValue);
-
-                if(rdmMemDLAlloc(&DwnLoc, RDM_DEFAULT_DL_ALLOC) == RDM_SUCCESS) {
-                    if (DwnLoc.pvOut != NULL) {
-                        file_dwnl.pHeaderData = header;
-                        snprintf(token_header, sizeof(token_header), "Authorization: Bearer %s", token);
-                        file_dwnl.pPostFields = post_data;
-                        file_dwnl.pDlData = &DwnLoc;
-                        snprintf(file_dwnl.url, sizeof(file_dwnl.url), "%s", RDM_JSONRPC_URL);
-
-                        curl = doCurlInit();
-                        if(curl == NULL) {
-                            RDMError("Failed init curl\n");
-                            status = RDM_FAILURE;
-                        }
-                        else{
-                            curl_ret_code = getJsonRpcData(curl, &file_dwnl, token_header, &httpCode);
-
-                            RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
-
-                            if(curl_ret_code && httpCode != 200) {
-                                RDMError("Download failed\n");
-                                status = RDM_FAILURE;
-                            }
-                            else{
-                                FILE *file = fopen(deactivate_status_file,"w+");
-                                CHAR  result[64];
-                                size_t writebytes = 0;
-                                if(file){
-                                    writebytes = fwrite(DwnLoc.pvOut,1,strlen((CHAR*)DwnLoc.pvOut),file);
-                                    RDMInfo("writebytes %u\n",writebytes);
-                                    fclose(file);
-                                }
-                                rdmJRPCResultData(result, (CHAR *)DwnLoc.pvOut,sizeof(result) );
-                                if ( strcmp(result,"\0") == 0 ){
-                                    RDMInfo("%s successfully moved to deactivated state",pRdmAppDet->app_name);
-                                }
-                                else{
-                                    RDMInfo("%s failed to move to deactivated state",pRdmAppDet->app_name);
-                                    status = RDM_FAILURE;
-                                }
-
-                            }
-                            doStopDownload(curl);
-                        }
-                    }
-                    else{
-                        RDMError("DwnLoc.pvOut is NULL\n");
-                        status = RDM_FAILURE;
-                    }
-
-                    rdmMemDLFree(&DwnLoc);
-                }
-            }
-            else{
-                RDMInfo("Current state of %s is %s. Not deactivating it since it is not in unavailable state",pRdmAppDet->app_name,currentState);
-            }
-        }
-        else{
-            RDMError("%s not found\n",file);
-            status = RDM_FAILURE;
-        }
-    }
-    else{
-        RDMError("Invalid Parameter\n");
-        status = RDM_FAILURE;
-    }
-
-    return status;
+    return RDM_SUCCESS;
 }
 
 /* Description: Use For parsing jsonrpc results
@@ -1634,8 +1204,9 @@ INT32 rdmPackageMgrStateChange(RDMAPPDetails *pRdmAppDet)
  * */
 INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
 {
+    INT32 ret = 0;
     JSON *pJson = NULL;
-    INT32 ret = -1;
+    ret = -1;
 
     if (result == NULL || pJsonStr == NULL) {
         RDMError( "Parameter is NULL\n");
@@ -1650,6 +1221,5 @@ INT32 rdmJRPCResultData(CHAR *result, CHAR *pJsonStr, UINT32 result_size)
         FreeJson(pJson);
         ret = 0;
     }
-
     return ret;
 }
