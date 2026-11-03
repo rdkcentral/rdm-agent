@@ -60,7 +60,7 @@
 #define DOWNLOAD_APP_RETRY_COUNT 2
 #define DOWNLOAD_APP_DIRECT_RETRY_DELAY 30
 #define DOWNLOAD_RETRY_COUNT 12
-
+/*
 #ifdef LIBRDKCERTSELECTOR
 #include "rdkcertselector.h"
 #include <urlHelper.h>
@@ -74,6 +74,7 @@ typedef enum {
 
 MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
 #endif
+*/
 
 INT32  rdmDwnlUpdateURL(CHAR *pUrl);
 INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
