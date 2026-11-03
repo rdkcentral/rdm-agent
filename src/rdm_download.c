@@ -143,6 +143,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
             if (rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path) != RDM_SUCCESS ||
                 rdmEmptyFolderNoFollow(pRdmAppDet->app_home) != RDM_SUCCESS) {
                 RDMError("Unable to safely prepare default download paths\n");
+                *pDLStatus = RDM_DL_MISC;
                 return RDM_FAILURE;
             }
         }
