@@ -300,6 +300,20 @@ protected:
     }
 };
 
+TEST_F(RDMDownloadTest, rdmDownloadApp_RejectsUnsafeAppNamesBeforeFilesystemChecks) {
+    for (const char *name : {"", "/", ".", "..", "../outside", "nested/app"}) {
+        RDMAPPDetails appDetails = {};
+        snprintf(appDetails.app_name, sizeof(appDetails.app_name), "%s", name);
+        appDetails.bFsCheck = true;
+        INT32 downloadStatus = RDM_DL_NOERROR;
+
+        EXPECT_CALL(*mockRdmUtils, checkFileSystem(_)).Times(0);
+        EXPECT_CALL(*mockRdmUtils, findPFile(_, _, _)).Times(0);
+        EXPECT_EQ(rdmDownloadApp(&appDetails, &downloadStatus), RDM_FAILURE) << name;
+        EXPECT_EQ(downloadStatus, RDM_DL_PARAMERR) << name;
+    }
+}
+
 TEST_F(RDMDownloadTest, rdmDownloadApp_Success) {
     RDMAPPDetails appDetails = {};
     strncpy(appDetails.app_name, "test_app", sizeof(appDetails.app_name) - 1);

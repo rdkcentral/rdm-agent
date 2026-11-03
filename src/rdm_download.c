@@ -110,6 +110,21 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     CHAR *DLInfoFile = NULL;
     INT32 DLInfoStatus = RDM_SUCCESS;
 
+    if (pRdmAppDet == NULL || pDLStatus == NULL) {
+        RDMError("Invalid download parameters\n");
+        return RDM_FAILURE;
+    }
+
+    *pDLStatus = RDM_DL_PARAMERR;
+    size_t app_name_len = strnlen(pRdmAppDet->app_name, sizeof(pRdmAppDet->app_name));
+    if (app_name_len == 0 || app_name_len == sizeof(pRdmAppDet->app_name) ||
+        strchr(pRdmAppDet->app_name, '/') != NULL ||
+        strcmp(pRdmAppDet->app_name, ".") == 0 ||
+        strcmp(pRdmAppDet->app_name, "..") == 0) {
+        RDMError("Invalid application name; refusing filesystem operations\n");
+        return RDM_FAILURE;
+    }
+
     *pDLStatus = RDM_DL_NOERROR;
 
     RDMInfo("Downloading %s...\n", pRdmAppDet->app_name);

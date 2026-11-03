@@ -30,6 +30,10 @@ The service SHALL retry the legacy package installation flow when a package down
 - **AND** missing directories are treated as already empty.
 - **AND** cleanup failures stop use of the requested paths; any default-path fallback is checked with the same no-follow cleanup before installation continues.
 
+#### Scenario: Unsafe application name
+- **WHEN** a download record has an empty, unterminated, slash-containing, `.` or `..` app name
+- **THEN** the service rejects it before checking or cleaning any filesystem path.
+
 #### Scenario: Retry after legacy install failure
 - **WHEN** repeated failure occurs in the legacy install sequence while the retry count limit is not reached
 - **THEN** the loop invokes `rdmDwnlUnInstallApp` and retries the download/install sequence.
