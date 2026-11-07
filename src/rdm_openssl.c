@@ -973,10 +973,10 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
             RDMError("prepare_rdm_files_for_sign_verification failed\n");
             return status;
         }
+#if !defined LIBRDKCONFIG_BUILD
     } else {
         if (0 != prepare_kms_pubkey()) {
 	}
-#if !defined LIBRDKCONFIG_BUILD
         else {
               if (0 != prepare_kms_pubkey()) {
                 RDMError("prepare_kms_pubkey failed\n");
