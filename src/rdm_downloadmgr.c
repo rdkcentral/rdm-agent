@@ -17,6 +17,7 @@
  */
 
 #include "rdm_types.h"
+
 #include "rdm.h"
 #include "rdm_utils.h"
 #include "rdm_jsonquery.h"
