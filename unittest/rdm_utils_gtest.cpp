@@ -19,6 +19,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "unittest/mocks/mock_iarm_bus.h"
+#include "mocks/mock_rdm_utils.h"
+#include "mocks/mock_rdm_downloadutils.h"
 extern "C" {
 #include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
