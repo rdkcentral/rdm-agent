@@ -797,14 +797,18 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
         BIO *pBio_Pem  = NULL;
         pBio_Pem = BIO_new_mem_buf((char *)vkey_file, (int)strlen(vkey_file));
         if (pBio_Pem == NULL) {
+#if defined(DEBUG_ENABLED)
             debug_print("Unable to assign the PEM to BIO buffer.");
+#endif
             goto error;
         }
 
         /* Convert the BIO to PKEY format. */
         pkey = PEM_read_bio_PUBKEY(pBio_Pem, NULL, NULL, NULL);  
         if (pkey == NULL) {
+#if defined(DEBUG_ENABLED)
            debug_print("Unable to read the key from PEM.");
+#endif
            goto error;
         }
 #else
@@ -901,7 +905,9 @@ error:
          size_t keysize;
          retval = prepare_kms_pubkey_config(&key, &keysize);
          if (retval) {
+#if defined(DEBUG_ENABLED)
              debug_print("prepare_kms_pubkey_config() failed\n");
+#endif
              return retval;
          }
          vkey_file=(const char*)key;
