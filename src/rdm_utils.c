@@ -42,8 +42,10 @@
 #ifdef RDK_LOGGER_ENABLED
 INT32  g_rdk_logger_enabled = 0;
 #endif
+#ifndef GTEST_ENABLE
 #include <urlHelper.h>
 #include <downloadUtil.h>
+#endif
 
 void RDMLOGInit()
 {
