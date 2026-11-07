@@ -33,6 +33,9 @@ cp ./unittest/mocks/rdm-manifest.json /etc/rdm/rdm-manifest.json
 cp ./unittest/mocks/remote_debugger.json /etc/rrd/remote_debugger.json
 cp /mnt/RDK-RRD-Test_1.0-signed.tar /mnt/usb/RDK-RRD-Test_1.0-pkg.tar
 
+cp /opt/certs/client.p12 /etc/ssl/certs/client.p12
+sed -i '1a MTLS,OPERFB_P12,P12,file:///etc/ssl/certs/client.p12,cfgOpsCert' /etc/ssl/certsel/certsel.cfg
+
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.rdm_ssr_location
 echo "https://mockxconf:50056/rdmUploadFile" > /tmp/.xconfssrdownloadurl
 rbuscli  set Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl string https://mockxconf:50056/rdmUploadFile
@@ -74,5 +77,6 @@ pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_po
 pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_debugtool_expiry.json test/functional-tests/tests/test_rdm_debugtool_expiry.py
 
 # The cert selector test cases  are commented for now. Once the code changes are moved to open source, it will be enabled.
-#pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_dynamic_cert_selector.json test/functional-tests/tests/test_rdm_dynamic_cert_selector.py
-#pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_static_cert_selector.json test/functional-tests/tests/test_rdm_static_cert_selector.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_dynamic_cert_selector.json test/functional-tests/tests/test_rdm_dynamic_cert_selector.py
+pytest --json-report --json-report-summary --json-report-file $RESULT_DIR/rdm_static_cert_selector.json test/functional-tests/tests/test_rdm_static_cert_selector.py
+
