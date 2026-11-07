@@ -27,7 +27,9 @@
 #include "rdk_logger.h"
 #endif
 
+#ifdef GTEST_ENABLE
 #include <urlHelper.h>
+#endif
 /* RDM Error Codes */
 #define RDM_SUCCESS         0
 #define RDM_FAILURE        -1
