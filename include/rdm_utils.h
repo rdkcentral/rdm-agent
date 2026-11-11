@@ -27,6 +27,9 @@
 #include "rdk_logger.h"
 #endif
 
+#ifndef GTEST_ENABLE
+#include <urlHelper.h>
+#endif
 /* RDM Error Codes */
 #define RDM_SUCCESS         0
 #define RDM_FAILURE        -1
@@ -40,6 +43,19 @@
 #ifdef RDK_LOGGER_ENABLED
 
 extern int g_rdk_logger_enabled;
+
+#ifdef LIBRDKCERTSELECTOR
+#include "rdkcertselector.h"
+// Below macro is invoked if the MTLS certificates retrieved by getMtlscert have failed
+#define CURL_MTLS_LOCAL_CERTPROBLEM 58
+
+typedef enum {
+    MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
+    MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
+} MtlsAuthStatus;
+
+MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
+#endif
 
 #define LOG_ERROR(format, ...)   if(g_rdk_logger_enabled) {\
     RDK_LOG(RDK_LOG_ERROR,  "LOG.RDK.RDMAGENT", format, __VA_ARGS__);\
@@ -81,6 +97,8 @@ extern int g_rdk_logger_enabled;
 #define RDMInfo(format,  ...)  LOG_INFO(PREFIX(format),  __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define RDMDebug(format, ...)  LOG_DEBUG(PREFIX(format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define RDMTrace(format, ...)  LOG_TRACE(PREFIX(format), __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
 
 /* String Operations */
 INT32 rdmStrSplit(CHAR *in, CHAR *tok, CHAR **out, INT32 len);

@@ -223,85 +223,10 @@ VOID rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile)
         }
 }
 
-INT32 rdmDwnlGetCert(MtlsAuth_t *sec)
-{
-    //Read your Cert details here
-#ifdef L2_TEST_ENABLED
-    strncpy(sec->cert_name, CERT_STATIC, sizeof(sec->cert_name) - 1);
-    strncpy(sec->cert_type, "STATIC", sizeof(sec->cert_type) - 1);
-    strncpy(sec->key_pas, KEY_STATIC, sizeof(sec->key_pas) - 1);
-#else
-    strncpy(sec->cert_name, "MyCertName", sizeof(sec->cert_name) - 1);
-    sec->cert_name[sizeof(sec->cert_name) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->cert_type, "MyCertType", sizeof(sec->cert_type) - 1);
-    sec->cert_type[sizeof(sec->cert_type) - 1] = '\0';  // Ensure null termination
-    strncpy(sec->key_pas, "MyCertkey", sizeof(sec->key_pas) - 1);
-    sec->key_pas[sizeof(sec->key_pas) - 1] = '\0';  // Ensure null termination
-#endif
-    RDMInfo("RDM download certificate success. cert=%s, cert type=%s\n", sec->cert_name, sec->cert_type);
-    return RDM_SUCCESS;
-}
-
 //Check for OCSPEnable. Returns 1 if enabled.
 INT32 rdmDwnlIsOCSPEnable(void)
 {
     return 0;
-}
-
-INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
-{
-    VOID *curl = NULL;
-    INT32 status = RDM_SUCCESS;
-    INT32 curl_ret_code = -1;
-    INT32 httpCode;
-    INT32 max_dwnl_speed = 0;
-    FileDwnl_t file_dwnl;
-    MtlsAuth_t sec;
-
-    memset(&file_dwnl, 0, sizeof(FileDwnl_t));
-    memset(&sec, 0, sizeof(MtlsAuth_t));
-
-    /* Update the file download details */
-    file_dwnl.chunk_dwnl_retry_time = 0;
-    strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
-    file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
-    strcpy(pOut, file_dwnl.pathname);
-
-    if(rdmDwnlIsOCSPEnable()) {
-        file_dwnl.sslverify = true;
-    }
-    file_dwnl.pDlData = NULL;
-    file_dwnl.pPostFields = NULL;
-
-    /* Update the Certificate */
-    status = rdmDwnlGetCert(&sec);
-    if(status) {
-        RDMError("Failed to get MTLS certificate\n");
-        return RDM_FAILURE;
-    }
-
-    curl = doCurlInit();
-    if(curl == NULL) {
-        RDMError("CurlInit Failed\n");
-        return status;
-    }
-    RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
-    t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
-    curl_ret_code = doHttpFileDownload(curl, &file_dwnl, &sec,
-                                       max_dwnl_speed, NULL, &httpCode);
-
-    RDMInfo("curl_ret_code:%d httpCode:%d\n", curl_ret_code, httpCode);
-
-    if(curl_ret_code && httpCode != 200) {
-        RDMError("Download failed\n");
-	t2CountNotify("RDM_ERR_package_failed", 1);
-        status = RDM_FAILURE;
-    }
-
-    doStopDownload(curl);
-    return status;
 }
 
 #ifdef RDM_ENABLE_CODEBIG

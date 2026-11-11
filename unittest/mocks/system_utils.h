@@ -73,6 +73,11 @@ typedef struct filedwnl {
         hashParam_t *hashData;
 }FileDwnl_t;
 
+/* Declared so C callers do not fall back to an implicit int return (truncates pointers). */
+void* doCurlInit(void);
+INT32 doHttpFileDownload(void *in_curl, FileDwnl_t *pfile_dwnl, MtlsAuth_t *auth, unsigned int max_dwnl_speed, char *dnl_start_pos, int *out_httpCode);
+void doStopDownload(void *curl);
+
 typedef cJSON   JSON;
 
 /** Description: File present check.
