@@ -287,7 +287,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
     if (snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName) >= (int)sizeof(file_dwnl.pathname)) {
         RDMError("Download path is too long\n");
-        return status;
+        return RDM_FAILURE;
     }
     strcpy(pOut, file_dwnl.pathname);
 
