@@ -60,21 +60,6 @@
 #define DOWNLOAD_APP_RETRY_COUNT 2
 #define DOWNLOAD_APP_DIRECT_RETRY_DELAY 30
 #define DOWNLOAD_RETRY_COUNT 12
-/*
-#ifdef LIBRDKCERTSELECTOR
-#include "rdkcertselector.h"
-#include <urlHelper.h>
-// Below macro is invoked if the MTLS certificates retrieved by getMtlscert have failed
-#define CURL_MTLS_LOCAL_CERTPROBLEM 58
-
-typedef enum {
-    MTLS_CERT_FETCH_FAILURE = -1,          // Indicates general MTLS failure
-    MTLS_CERT_FETCH_SUCCESS = 0            // Indicates success
-} MtlsAuthStatus;
-
-MtlsAuthStatus rdmDwnlGetCert(MtlsAuth_t *sec, rdkcertselector_h* pthisCertSel);
-#endif
-*/
 
 INT32  rdmDwnlUpdateURL(CHAR *pUrl);
 INT32  rdmDwnlApplication(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut);
