@@ -279,16 +279,16 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
     MtlsAuthStatus ret = MTLS_CERT_FETCH_SUCCESS;
 #endif
     memset(&file_dwnl, 0, sizeof(FileDwnl_t));
+	memset(&sec, 0, sizeof(MtlsAuth_t));
 
     /* Update the file download details */
     file_dwnl.chunk_dwnl_retry_time = 0;
     strncpy(file_dwnl.url, pUrl, sizeof(file_dwnl.url) - 1);
     file_dwnl.url[sizeof(file_dwnl.url) - 1] = '\0';  // Ensure null termination
-    strncpy(file_dwnl.pathname, pDwnlPath, sizeof(file_dwnl.pathname) - 1);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
-    strcat(file_dwnl.pathname, "/");
-    strcat(file_dwnl.pathname, pPkgName);
-    file_dwnl.pathname[sizeof(file_dwnl.pathname) - 1] = '\0';  // Ensure null termination
+    if (snprintf(file_dwnl.pathname, sizeof(file_dwnl.pathname), "%s/%s", pDwnlPath, pPkgName) >= (int)sizeof(file_dwnl.pathname)) {
+        RDMError("Download path is too long\n");
+        return status;
+    }
     strcpy(pOut, file_dwnl.pathname);
 
     if(rdmDwnlIsOCSPEnable()) {
