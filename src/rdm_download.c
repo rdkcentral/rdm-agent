@@ -115,6 +115,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
 #endif
 
     if(pRdmAppDet->bFsCheck) {
+        RDMInfo("bFsCheck enabled %d\n", pRdmAppDet->bFsCheck);
         INT32 fs_status = RDM_SUCCESS;
 
         fs_status = rdmDownloadCheckFs(pRdmAppDet);
