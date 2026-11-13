@@ -39,7 +39,7 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
     INT32 status = RDM_SUCCESS;
     INT32 found = 0;
-    CHAR tmp_file[RDM_APP_PATH_LEN];
+    CHAR tmp_file[RDM_APP_PATH_LEN] = {0};
 
     /* check we are able to remove the file as well.
        Sometimes, corrupted disk don't allow us to delete a file */

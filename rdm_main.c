@@ -499,7 +499,7 @@ int main(int argc, char* argv[])
 
         rdmPrintAppDetails(pApp_det);
 
-        //app_status = checkAppDownload app_name
+        /* Check if app was already downloaded using filesystem check (BFS) */
         if(app_status == 0) {
             RDMWarn("%s application already downloaded\n", pApp_det->app_name);
         }
@@ -509,10 +509,10 @@ int main(int argc, char* argv[])
             ret = rdmDownloadApp(pApp_det, &download_status);
             if(ret) {
                 RDMError("Failed to download the App: %s, status: %d\n", pApp_det->app_name, download_status);
+            } else {
+                RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
+                t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
             }
-
-            RDMInfo("Download completed for App %s with status=%d\n", pApp_det->app_name, download_status);
-            t2ValNotify("RDM_INFO_AppDownloadComplete", pApp_det->app_name );
         }
     } //else if (download_singleapp)
 
