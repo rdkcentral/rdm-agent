@@ -113,69 +113,72 @@ TEST_F(RdmTest, rdmIARMEvntSendPayload_InitFailure) {
 }
 // Test rdmListDirectory
 TEST(RdmDirectoryTest, rdmListDirectory_Success) {
-    CHAR* dirList[10];
+    RDMDirectoryEntry *dirList = nullptr;
     INT32 numDirs = 0;
 
     // Create a temporary directory for testing
     system("mkdir -p /tmp/test_rdm_dir && touch /tmp/test_rdm_dir/file1 /tmp/test_rdm_dir/file2");
 
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir", dirList, &numDirs, 10), RDM_SUCCESS);
-    EXPECT_EQ(numDirs, 4);
+    EXPECT_EQ(rdmListDirectory("/tmp/test_rdm_dir", &dirList), RDM_SUCCESS);
 
-    for (int i = 0; i < numDirs; i++) {
-        free(dirList[i]);
+    for (RDMDirectoryEntry *entry = dirList; entry != nullptr; entry = entry->next) {
+        numDirs++;
     }
+    EXPECT_EQ(numDirs, 4);
+    rdmFreeDirectoryList(dirList);
 
     system("rm -rf /tmp/test_rdm_dir");
 }
 
 TEST(RdmDirectoryTest, rdmListDirectory_Failure) {
-    CHAR* dirList[10];
-    INT32 numDirs = 0;
+    RDMDirectoryEntry *dirList = nullptr;
 
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/nonexistent", dirList, &numDirs, 10), RDM_FAILURE);
+    EXPECT_EQ(rdmListDirectory("/nonexistent", &dirList), RDM_FAILURE);
+    EXPECT_EQ(dirList, nullptr);
 }
 
 TEST(RdmDirectoryTest, rdmListDirectory_NullArgument) {
-    CHAR* dirList[10];
-    INT32 numDirs = 0;
+    RDMDirectoryEntry *dirList = nullptr;
 
-    EXPECT_EQ(rdmListDirectory(nullptr, dirList, &numDirs, 10), RDM_FAILURE);
+    EXPECT_EQ(rdmListDirectory(nullptr, &dirList), RDM_FAILURE);
 }
 
-TEST(RdmDirectoryTest, rdmListDirectory_StopsAtMaxEntries) {
-    CHAR* sentinel = (CHAR*)"sentinel";
-    CHAR* dirList[4] = { nullptr, nullptr, nullptr, sentinel };
+TEST(RdmDirectoryTest, rdmListDirectory_DoesNotLimitEntryCount) {
+    RDMDirectoryEntry *dirList = nullptr;
     INT32 numDirs = 0;
 
-    // 5 files plus "." and ".." is more than the 3 slots allowed
-    system("mkdir -p /tmp/test_rdm_dir_max && touch /tmp/test_rdm_dir_max/f1 /tmp/test_rdm_dir_max/f2 /tmp/test_rdm_dir_max/f3 /tmp/test_rdm_dir_max/f4 /tmp/test_rdm_dir_max/f5");
-
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir_max", dirList, &numDirs, 3), RDM_FAILURE);
-    EXPECT_EQ(numDirs, 3);
-    EXPECT_EQ(dirList[3], sentinel);
-
-    for (int i = 0; i < numDirs; i++) {
-        free(dirList[i]);
+    system("mkdir -p /tmp/test_rdm_dir_max");
+    for (int index = 0; index < 70; index++) {
+        std::string command = "touch /tmp/test_rdm_dir_max/f" + std::to_string(index);
+        ASSERT_EQ(system(command.c_str()), 0);
     }
+
+    EXPECT_EQ(rdmListDirectory("/tmp/test_rdm_dir_max", &dirList), RDM_SUCCESS);
+
+    for (RDMDirectoryEntry *entry = dirList; entry != nullptr; entry = entry->next) {
+        numDirs++;
+    }
+    EXPECT_EQ(numDirs, 72);
+    rdmFreeDirectoryList(dirList);
 
     system("rm -rf /tmp/test_rdm_dir_max");
 }
 
 TEST(RdmDirectoryTest, rdmListDirectory_SkipsNamesTooLong) {
-    CHAR* dirList[10];
+    RDMDirectoryEntry *dirList = nullptr;
     INT32 numDirs = 0;
     std::string longName(200, 'a');
 
     system(("mkdir -p /tmp/test_rdm_dir_long && touch /tmp/test_rdm_dir_long/app1 /tmp/test_rdm_dir_long/" + longName).c_str());
 
-    EXPECT_EQ(rdmListDirectory((CHAR*)"/tmp/test_rdm_dir_long", dirList, &numDirs, 10), RDM_SUCCESS);
-    EXPECT_EQ(numDirs, 3);
+    EXPECT_EQ(rdmListDirectory("/tmp/test_rdm_dir_long", &dirList), RDM_SUCCESS);
 
-    for (int i = 0; i < numDirs; i++) {
-        EXPECT_LT(strlen(dirList[i]), (size_t)RDM_APPNAME_LEN);
-        free(dirList[i]);
+    for (RDMDirectoryEntry *entry = dirList; entry != nullptr; entry = entry->next) {
+        EXPECT_LT(strlen(entry->name), (size_t)RDM_APPNAME_LEN);
+        numDirs++;
     }
+    EXPECT_EQ(numDirs, 3);
+    rdmFreeDirectoryList(dirList);
 
     system("rm -rf /tmp/test_rdm_dir_long");
 }
