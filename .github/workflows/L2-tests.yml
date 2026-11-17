@@ -65,20 +65,6 @@ jobs:
           cd /tmp/cert2/
           tar -xvf RDK-RRD-Test_1.0-signed.tar
 
-      - name: Create rdm post-services script
-        run: |
-          cd /tmp/RDK-RRD-Test/
-          tar -xvf RDK-RRD-Test_1.0-signed.tar
-          tar -xvf RDK-RRD-Test_1.0.tar
-          tar -xvf RDK-RRD-Test.tar
-          mkdir -p etc/rdm/post-services/
-          echo 'echo "executing scripts"' > etc/rdm/post-services/post_cadl.sh
-          rm -rf RDK-RRD-Test.tar RDK-RRD-Test_1.0.tar RDK-RRD-Test_1.0-signed.tar
-          tar -rvf RDK-RRD-Test.tar etc/rrd/remote_debugger.json etc/rdm/post-services/post_cadl.sh
-          tar -cvf RDK-RRD-Test_1.0.tar package.json RDK-RRD-Test.tar
-          tar -cvf RDK-RRD-Test_1.0-signed.tar RDK-RRD-Test_1.0.tar RDK-RRD-Test_1.0.sig pkg_padding pkg_cpemanifest
-          docker cp RDK-RRD-Test_1.0-signed.tar mockxconf:/tmp/RDM/RDK-RRD-Test_1.0-signed.tar
-
       - name: Rename tar and signature
         run: |
           cd /tmp/cert7/
