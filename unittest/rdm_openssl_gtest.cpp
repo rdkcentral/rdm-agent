@@ -21,7 +21,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
-#include <unistd.h>
 #include <openssl/evp.h>
 
 using namespace testing;

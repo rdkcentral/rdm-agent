@@ -804,9 +804,9 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 {
     INT32 status                         = RDM_SUCCESS;
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
-    RDMDirectoryEntry *app_installed     = NULL;
-    RDMDirectoryEntry *appEntry          = NULL;
+    CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
 
+    INT32 numOfAppsInstalled             = 0;
     INT32 numOfAppsManifest              = 0;
     INT32 isAppUninstalled               = 0;
     bool  isFileFound                    = 0;
@@ -828,26 +828,26 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
     if(status == RDM_SUCCESS){
 
-        status = rdmListDirectory(APP_MOUNT_PATH, &app_installed);
+        status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled,
+                                  sizeof(app_installed) / sizeof(app_installed[0]));
 
         if ( status == RDM_SUCCESS ){
 
-            for (appEntry = app_installed; appEntry != NULL; appEntry = appEntry->next) {
-                CHAR *app_name = appEntry->name;
+            for ( INT32 index = 0 ; index < numOfAppsInstalled; index++){
 
-                if( ( strcmp(app_name,"etc") == 0 )  || \
-                    (strcmp(app_name,"rdm")  == 0 )  || \
-                    (strcmp(app_name,"..")   == 0 )  || \
-                    (strcmp(app_name,".")    == 0 ) ) {
-                    RDMInfo("Path is [%s]. Not required to check, so skipping it\n",app_name);
+                if( ( strcmp(app_installed[index],"etc") == 0 )  || \
+                    (strcmp(app_installed[index],"rdm")  == 0 )  || \
+                    (strcmp(app_installed[index],"..")   == 0 )  || \
+                    (strcmp(app_installed[index],".")    == 0 ) ) {
+                    RDMInfo("Path is [%s]. Not required to check, so skipping it\n",app_installed[index]);
                     continue;
                 }
                 else{
                     CHAR path[RDM_APPNAME_LEN]        = { 0 };
                     CHAR searchFile[RDM_TMP_LEN_64]   = { 0 };
 
-                    snprintf(path, sizeof(path), "%s/%s/", APP_MOUNT_PATH, app_name);
-                    snprintf(searchFile, sizeof(searchFile), "%s_cpemanifest", app_name);
+                    snprintf(path, sizeof(path), "%s/%s/", APP_MOUNT_PATH, app_installed[index]);
+                    snprintf(searchFile, sizeof(searchFile), "%s_cpemanifest", app_installed[index]);
 
                     isFileFound = findPFile(path, searchFile, pkg_file);
 
@@ -855,14 +855,14 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
                         INT32 isFoundinManifest = 0;
 
-                        isFoundinManifest = isDataInList(app_manifests,app_name,numOfAppsManifest);
+                        isFoundinManifest = isDataInList(app_manifests,app_installed[index],numOfAppsManifest);
 
                         if(isFoundinManifest){
 
                             memset(pApp_det, 0, sizeof(RDMAPPDetails));
 
                             /* Parse the JSON file and get the app details */
-                            ret = rdmJSONGetAppDetName(app_name, pApp_det);
+                            ret = rdmJSONGetAppDetName(app_installed[index], pApp_det);
                             if(ret) {
                                 RDMInfo("Failed to get app details with status %d\n", ret);
                             }
@@ -878,9 +878,9 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                 RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                 if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
 			                        isAppUninstalled = 1;
-                                    RDMInfo("Packages to be uninstalled %s \n",app_name);
+                                    RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                     rdmDwnlAppCleanUp(path);
-                                    rdmRemvDwnlAppInfo(app_name, pApp_det->app_dwnl_info);
+                                    rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                     continue;
                                 }
                                 else {
@@ -899,20 +899,20 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                     {
                                         RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
                                         isAppUninstalled = 1;
-                                        RDMInfo("Packages to be uninstalled %s \n",app_name);
+                                        RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                         rdmDwnlAppCleanUp(path);
-                                        rdmRemvDwnlAppInfo(app_name, pApp_det->app_dwnl_info);
+                                        rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                         continue;
                                    }
                                }									
                             }
-                            RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_name);
+                            RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                         }
                         else{
 		                    isAppUninstalled = 1;
-                            RDMInfo("Packages to be uninstalled %s \n",app_name);
+                            RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                             rdmDwnlAppCleanUp(path);
-                            rdmRemvDwnlAppInfo(app_name, pApp_det->app_dwnl_info);
+                            rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                             continue;
                         }
                     }
@@ -924,13 +924,13 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
                             INT32 isFoundinManifest = 0;
 
-                            isFoundinManifest = isDataInList(app_manifests,app_name,numOfAppsManifest);
+                            isFoundinManifest = isDataInList(app_manifests,app_installed[index],numOfAppsManifest);
 
                             if(isFoundinManifest){
                                 memset(pApp_det, 0, sizeof(RDMAPPDetails));
 
                                 /* Parse the JSON file and get the app details */
-                                ret = rdmJSONGetAppDetName(app_name, pApp_det);
+                                ret = rdmJSONGetAppDetName(app_installed[index], pApp_det);
 
                                 if(ret) {
                                     RDMInfo("Failed to get app details with status %d\n", ret);
@@ -940,9 +940,9 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                     RDMInfo("dwld_on_demand set to yes!!! Check RFC value of the APP to be downloaded\n");
                                     if(strcmp(pApp_det->dwld_method_controller, "RFC") != 0) {
 				                        isAppUninstalled = 1;
-                                        RDMInfo("Packages to be uninstalled %s \n",app_name);
+                                        RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                         rdmDwnlAppCleanUp(path);
-                                        rdmRemvDwnlAppInfo(app_name, pApp_det->app_dwnl_info);
+                                        rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                         continue;
                                     }
                                     else {
@@ -960,14 +960,14 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
                                         {
                                             RDMInfo("APP RFC disabled, Deleting App  name=%s\n", pApp_det->app_name);
                                             isAppUninstalled = 1;
-                                            RDMInfo("Packages to be uninstalled %s \n",app_name);
+                                            RDMInfo("Packages to be uninstalled %s \n",app_installed[index]);
                                             rdmDwnlAppCleanUp(path);
-                                            rdmRemvDwnlAppInfo(app_name, pApp_det->app_dwnl_info);
+                                            rdmRemvDwnlAppInfo(app_installed[index], pApp_det->app_dwnl_info);
                                             continue;
                                        }
                                    }										
                                 }
-                                RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_name);
+                                RDMInfo(" Installed App %s is found in Manifest, so Skipping to next... \n", app_installed[index]);
                             }
                         }
 	        }
@@ -987,7 +987,11 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
     }
 
 error:
-   rdmFreeDirectoryList(app_installed);
+   for ( INT32 index = 0; index < numOfAppsInstalled; index++ ){
+       if ( app_installed[index] ){
+           free(app_installed[index]);
+       }
+   }
 
    for ( INT32 index = 0; index < numOfAppsManifest; index++ ){
        if ( app_manifests[index] ){
