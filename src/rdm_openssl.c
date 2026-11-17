@@ -651,22 +651,20 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
     path_buff = strtok(manifest, "\t\r\n");
 
     while (path_buff != NULL) {
-        data_fh = fopen( path_buff, "r" );
-        if ( data_fh == NULL ) {
-            RDMError("datafile open error\n");
-            goto error;
-        }
-        bytesread=0;
+        if (strstr(path_buff, "tmp") ||
+            strstr(path_buff, "media") ||
+            strstr(path_buff, "padding") ||
+            strstr(path_buff, "json")) {
+            data_fh = fopen(path_buff, "r");
+            if (data_fh == NULL) {
+                RDMError("datafile open error\n");
+                goto error;
+            }
 
-        while (1) {
-            bytesread = fread(buffer, 1, BUFSIZE, data_fh );
-            if ( bytesread > 0 ) {
-                if( 1 != EVP_DigestUpdate(mdctx, buffer, bytesread) ) {
+       while ((bytesread = fread(buffer, 1, BUFSIZE, data_fh)) > 0) {
+                if (1 != EVP_DigestUpdate(mdctx, buffer, bytesread)) {
                     goto error;
                 }
-            }
-            if ( bytesread != BUFSIZE)
-                break; // EoF found
         }
         if ( ferror( data_fh ) ) {
             goto error;
