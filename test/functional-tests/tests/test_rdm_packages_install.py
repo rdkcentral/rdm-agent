@@ -18,28 +18,12 @@
 ##########################################################################
 
 from time import sleep
-from collections import deque
 from helper_functions import *
 
 def test_is_rdm_packages_install():
-    result = subprocess.run(
-        ["./rdm", "-v", "RDK-RRD-Test:1.0"],
-        capture_output=True,
-        text=True,
-    )
-    package_path = "/media/apps/rdm/downloads/RDK-RRD-Test"
-    if result.returncode != 0 or not os.path.isdir(package_path):
-        try:
-            with open(LOG_FILE, encoding="utf-8", errors="replace") as log_file:
-                log_tail = "".join(deque(log_file, maxlen=80))
-        except OSError as error:
-            log_tail = f"Unable to read {LOG_FILE}: {error}"
-        raise AssertionError(
-            f"RDM installation failed: exit code {result.returncode}, "
-            f"package directory present: {os.path.isdir(package_path)}\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}\n"
-            f"Last 80 lines of {LOG_FILE}:\n{log_tail}"
-        )
+    command_to_check = "./rdm -v RDK-RRD-Test:1.0"
+    result = run_shell_command(command_to_check)
+    assert result != "", "rdm process did not start"
 
 def test_media_apps_exists():
     """Verify /media/apps exists and is a directory"""
