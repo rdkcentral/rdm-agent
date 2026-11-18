@@ -355,7 +355,6 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
         doStopDownload(curl);
         curl = NULL;
     }
-    return status;
 #endif
     RDMInfo("Downloading The Package %s \n",file_dwnl.pathname);
     t2ValNotify("RDM_INFO_package_download", file_dwnl.pathname);
