@@ -313,6 +313,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
         thisCertSel = rdkcertselector_new(NULL, NULL, certGroup);
         if (thisCertSel == NULL) {
              RDMInfo("Cert Selector Initialisation Failed\n");
+             doStopDownload(curl);
              return cert_ret_code;
         } else {
              RDMInfo("Cert Selector Initialisation is Successful\n");
@@ -327,6 +328,7 @@ INT32 rdmDwnlDirect(CHAR *pUrl, CHAR *pDwnlPath, CHAR *pPkgName, CHAR *pOut)
         RDMInfo("rdmDwnlGetCert function ret value = %d\n", ret);
         if (ret == MTLS_CERT_FETCH_FAILURE) {
             RDMInfo("MTLS cert Failed ret= %d\n", ret);
+            doStopDownload(curl);
             return cert_ret_code;
         } else {
             RDMInfo("MTLS is enable\nMTLS creds for SSR fetched ret=%d\n", ret);
