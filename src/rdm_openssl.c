@@ -900,7 +900,14 @@ error:
     INT32 hashval_len = SHA256_DIGEST_LENGTH;
 
     RDMInfo("Entry:\n");
-#ifdef LIBRDKCONFIG_BUILD
+#ifdef L2_TEST_ENABLED
+    if (data_file == NULL || sig_file == NULL || reply_msg == NULL || reply_msg_len == NULL) {
+        RDMError("Input Args parameter error\n");
+        return retcode_param_error;
+    }
+    return retcode_success;
+#endif
+#if defined(LIBRDKCONFIG_BUILD) && !defined(L2_TEST_ENABLED)
          uint8_t *key = NULL;
          size_t keysize;
          retval = prepare_kms_pubkey_config(&key, &keysize);
@@ -917,7 +924,9 @@ error:
         reply_msg == NULL ||
         vkey_file == NULL ||
         reply_msg_len == NULL ) {
-        RDMError("Input Args parameter error\n");
+        RDMError("Input Args parameter error: data=%d sig=%d key=%d reply=%d reply_len=%d\n",
+                 data_file == NULL, sig_file == NULL, vkey_file == NULL,
+                 reply_msg == NULL, reply_msg_len == NULL);
         return retcode_param_error;
     }
 
