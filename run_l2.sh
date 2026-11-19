@@ -23,7 +23,6 @@ export top_srcdir=`pwd`
 RESULT_DIR="/tmp/l2_test_report"
 mkdir -p "$RESULT_DIR"
 
-echo "LOG.RDK.DEFAULT" >> /etc/debug.ini
 
 rm -rf /media/apps
 mkdir -p /media/apps
