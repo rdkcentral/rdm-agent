@@ -41,18 +41,6 @@
 #define EnableOCSP              "/path/to/EnableOCSPCA"
 #define RDM_POSTSCRIPT_PATH     "/etc/rdm/post-services/"
 
-#define CERT_DYNAMIC            "/path/to/dynamic/cert"
-
-#ifdef L2_TEST_ENABLED
-#define CERT_STATIC             "/opt/certs/client.pem"
-#define KEY_STATIC              "/opt/certs/client.pem"
-#else
-#define CERT_STATIC             "/path/to/static/cert"
-#define KEY_STATIC              "/path/to/cert/key"
-#endif
-
-#define MTLS_CERT               "/path/to/mtls/cert"
-#define MTLS_KEY                "/path/to/mtls/key"
 #define GET_CONFIG_FILE         "/usr/bin/GetConfigFile"
 #define SYS_CMD_GET_CONFIG_FILE "/usr/bin/GetConfigFile %s"
 #define KEY_GEN_BIN             "/path/to/keygen"
@@ -80,7 +68,7 @@ INT32  rdmDwnlCreateFolder(CHAR *pAppPath, CHAR *pAppname);
 VOID   rdmDwnlCleanUp(CHAR *pDwnlPath);
 VOID   rdmDwnlAppCleanUp(CHAR *pAppPath);
 #ifdef GTEST_ENABLE
-INT32  rdmDwnlGetCert(MtlsAuth_t*);
+
 INT32  rdmDwnlUpdateManifest(CHAR *pInManifest, CHAR *pOutManifest, CHAR *update, CHAR *padding);
 #endif
 VOID   rdmRemvDwnlAppInfo(CHAR *pAppName, CHAR *pDwnlInfoFile);
@@ -93,7 +81,6 @@ INT32  rdmJRPCTokenData(CHAR *token,CHAR *pJsonStr,UINT32 token_size);
 INT32  rdmMemDLAlloc(VOID *pDwnData, size_t szDataSize);
 VOID   rdmMemDLFree(VOID *pvDwnData);
 INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
-INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
 INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32 is_broadband );
 INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
