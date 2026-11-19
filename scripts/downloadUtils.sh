@@ -49,7 +49,7 @@ FORCE_DIRECT_ONCE="/tmp/.forcedirectonce"
 BB_TRIES=3
 RDM_SSR_LOCATION=/tmp/.rdm_ssr_location
 PEER_COMM_DAT="/etc/dropbear/elxrretyt.swr"
-PEER_COMM_ID="/tmp/elxrretyt-rdm.swr"
+
 ARM_SCP_IP_ADRESS=$ARM_INTERFACE_IP
 JSONQUERY="/usr/bin/jsonquery"
 DEVICE_MODEL=$MODEL_NUM
@@ -312,8 +312,7 @@ getCodebigUrl()
        if [ "$domainName" == "$DAC15_URL" ]; then
            request_type=14
        fi
-       SIGN_CMD="$CONFIGPARAMGEN $request_type \"$imageHTTPURL\""
-       eval $SIGN_CMD > /tmp/.signedRequest_${DOWNLOAD_APP_MODULE}
+       "$CONFIGPARAMGEN" "$request_type" "$imageHTTPURL" > /tmp/.signedRequest_${DOWNLOAD_APP_MODULE}
        cbSignedimageHTTPURL=`cat /tmp/.signedRequest_${DOWNLOAD_APP_MODULE}`
        rm -f /tmp/.signedRequest_${DOWNLOAD_APP_MODULE}
        

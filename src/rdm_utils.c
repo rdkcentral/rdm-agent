@@ -17,8 +17,10 @@
  */
 #include <errno.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 #include <limits.h>
 #include <stdint.h>
+#include <sys/stat.h>
 
 #ifndef GTEST_ENABLE
 #ifdef IARMBUS_SUPPORT
@@ -274,6 +276,92 @@ INT32 rdmEmptyFolderNoFollow(const CHAR *path)
     }
 
     return rdmEmptyDirectoryFd(fd);
+}
+
+static INT32 rdmFindPackageFilesInDir(const CHAR *path, const CHAR *pattern,
+                                     CHAR **out, size_t outSize,
+                                     INT32 *count, INT32 maxCount)
+{
+    DIR *dir = opendir(path);
+    INT32 status = RDM_SUCCESS;
+
+    if (dir == NULL) {
+        RDMError("Unable to open package directory %s: %s\n", path, strerror(errno));
+        return RDM_FAILURE;
+    }
+
+    while (*count < maxCount) {
+        struct dirent *entry;
+        struct stat info;
+        CHAR fullPath[RDM_APP_PATH_LEN];
+        INT32 length;
+
+        errno = 0;
+        entry = readdir(dir);
+        if (entry == NULL) {
+            if (errno != 0) {
+                RDMError("Unable to read package directory %s: %s\n", path, strerror(errno));
+                status = RDM_FAILURE;
+            }
+            break;
+        }
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        length = snprintf(fullPath, sizeof(fullPath), "%s/%s", path, entry->d_name);
+        if (length < 0 || (size_t)length >= sizeof(fullPath)) {
+            RDMError("Package path exceeds supported length in %s\n", path);
+            status = RDM_FAILURE;
+            break;
+        }
+        if (lstat(fullPath, &info) != 0) {
+            RDMError("Unable to inspect package path %s: %s\n", fullPath, strerror(errno));
+            status = RDM_FAILURE;
+            break;
+        }
+        if (S_ISDIR(info.st_mode)) {
+            status = rdmFindPackageFilesInDir(fullPath, pattern, out, outSize, count, maxCount);
+            if (status != RDM_SUCCESS) {
+                break;
+            }
+        } else if (fnmatch(pattern, entry->d_name, 0) == 0) {
+            if ((size_t)length >= outSize) {
+                RDMError("Package path does not fit destination: %s\n", fullPath);
+                status = RDM_FAILURE;
+                break;
+            }
+            memcpy(out[*count], fullPath, (size_t)length + 1);
+            (*count)++;
+        }
+    }
+
+    if (closedir(dir) != 0) {
+        RDMError("Unable to close package directory %s: %s\n", path, strerror(errno));
+        status = RDM_FAILURE;
+    }
+    return status;
+}
+
+INT32 rdmFindPackageFiles(const CHAR *path, const CHAR *pattern, CHAR **out,
+                          size_t outSize, INT32 *count, INT32 maxCount)
+{
+    if (path == NULL || pattern == NULL || out == NULL || count == NULL ||
+        outSize == 0 || maxCount <= 0 || *count < 0 || *count > maxCount) {
+        RDMError("Invalid package file search argument\n");
+        return RDM_FAILURE;
+    }
+    if (path[0] == '\0' || strlen(path) >= RDM_APP_PATH_LEN) {
+        RDMError("Invalid package directory path length\n");
+        return RDM_FAILURE;
+    }
+    for (INT32 i = *count; i < maxCount; i++) {
+        if (out[i] == NULL) {
+            RDMError("Missing package path buffer\n");
+            return RDM_FAILURE;
+        }
+    }
+    return rdmFindPackageFilesInDir(path, pattern, out, outSize, count, maxCount);
 }
 
 INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR ***pDirList, INT32 *pNumOfDir)

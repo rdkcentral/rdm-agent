@@ -189,6 +189,16 @@ static INT32 prepare_sig_file(CHAR *sig_file)
     INT32 read = 0, skip = 0;
 
     FILE *file_in  = fopen(sig_file, "r");
+    struct stat st;
+    if (lstat(RDM_TMP_SIGFILE, &st) == 0)
+    {
+        if (S_ISLNK(st.st_mode))
+        {
+            rdmLog(RDM_ERROR, "%s is a symbolic link\n", RDM_TMP_SIGFILE);
+            return -1;
+        }
+    }
+
     FILE *file_out = fopen(RDM_TMP_SIGFILE, "w+");
 
     if (NULL == file_in || NULL == file_out)

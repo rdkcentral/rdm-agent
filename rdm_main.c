@@ -136,8 +136,13 @@ static VOID rdmExtractBundleType(const CHAR *input_str,
     /* Find end of bundle list (either | or end of string) */
     CHAR *pipe_pos = strchr(bundle_start, '|');
     if (pipe_pos) {
-        strncpy(bundle_list, bundle_start, pipe_pos - bundle_start);
-        bundle_list[pipe_pos - bundle_start < sizeof(bundle_list) ? pipe_pos - bundle_start : sizeof(bundle_list) - 1] = '\0';
+       size_t copy_len = (size_t)(pipe_pos - bundle_start);
+            if (copy_len >= sizeof(bundle_list))
+            {
+                copy_len = sizeof(bundle_list) - 1;
+            }
+            strncpy(bundle_list, bundle_start, copy_len);
+            bundle_list[copy_len] = '\0';
     } else {
         strncpy(bundle_list, bundle_start, sizeof(bundle_list) - 1);
         bundle_list[sizeof(bundle_list) - 1] = '\0';
