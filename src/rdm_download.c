@@ -199,13 +199,14 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
                 fclose(fp_in);
             }
             // Append the new entry
-            fprintf(fp_out, "%s %s %s/%s %d %s\n",
+            fprintf(fp_out, "%s %s %s/%s %d %s %d\n",
                 pRdmAppDet->app_name,
                 pRdmAppDet->pkg_name,
                 pRdmAppDet->app_home,
                 pRdmAppDet->app_name,
                 pRdmAppDet->app_size_kb,
-                rdm_status);
+                rdm_status,
+		pRdmAppDet->is_versioned);
             fclose(fp_out);
             // Atomically replace the original file
             if (rename(tmpfile, pRdmAppDet->app_dwnl_info) != 0) {
