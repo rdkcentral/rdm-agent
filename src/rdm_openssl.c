@@ -872,7 +872,9 @@ error:
         vkey == NULL ||
         vkey_len == 0 ||
         reply_msg_len == NULL ) {
-        RDMError("Input Args parameter error\n");
+        RDMError("Input Args parameter error: data=%d sig=%d key=%d reply=%d reply_len=%d\n",
+                 data_file == NULL, sig_file == NULL, vkey_file == NULL,
+                 reply_msg == NULL, reply_msg_len == NULL);
         return retcode_param_error;
     }
 
