@@ -92,6 +92,14 @@ INT32 rdmIARMEvntSendStatus(UINT8 status);
 INT32 rdmIARMEvntSendPayload(CHAR *pkg_name, CHAR *pkg_ver,
                              CHAR *pkg_path, INT32 pkg_status);
 INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir);
+/**
+ * Recursively append matching paths to preallocated out buffers of outSize bytes.
+ * Paths must fit RDM_APP_PATH_LEN, including the terminator. Directory symlinks
+ * are not traversed. Returns RDM_SUCCESS when complete or maxCount is reached.
+ * On failure, count includes partial results; callers must not process them.
+ */
+INT32 rdmFindPackageFiles(const CHAR *path, const CHAR *pattern, CHAR **out,
+                          size_t outSize, INT32 *count, INT32 maxCount);
 /* Empty a directory without following symlinks in its path or contents. */
 INT32 rdmEmptyFolderNoFollow(const CHAR *path);
 void RDMLOGInit();

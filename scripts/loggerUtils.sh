@@ -25,6 +25,10 @@ if [ -f /etc/device.properties ];then
 fi
 if [ "$LOG_PATH" ];then
      LOG_FILE="$LOG_PATH/rdm_status.log"
+     if [ -L "$LOG_FILE" ]; then
+         log_msg "Log file $LOG_FILE is a symbolic link, exiting."
+         exit 1
+     fi
 else
      if [ -d /var/log ];then
           if [ -f /var/log/rdm_status.log ];then

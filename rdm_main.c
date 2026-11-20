@@ -136,8 +136,13 @@ static VOID rdmExtractBundleType(const CHAR *input_str,
     /* Find end of bundle list (either | or end of string) */
     CHAR *pipe_pos = strchr(bundle_start, '|');
     if (pipe_pos) {
-        strncpy(bundle_list, bundle_start, pipe_pos - bundle_start);
-        bundle_list[pipe_pos - bundle_start < sizeof(bundle_list) ? pipe_pos - bundle_start : sizeof(bundle_list) - 1] = '\0';
+       size_t copy_len = (size_t)(pipe_pos - bundle_start);
+            if (copy_len >= sizeof(bundle_list))
+            {
+                copy_len = sizeof(bundle_list) - 1;
+            }
+            strncpy(bundle_list, bundle_start, copy_len);
+            bundle_list[copy_len] = '\0';
     } else {
         strncpy(bundle_list, bundle_start, sizeof(bundle_list) - 1);
         bundle_list[sizeof(bundle_list) - 1] = '\0';
@@ -203,13 +208,11 @@ static INT32 rdmParseBundleList(const CHAR *bundle_list_input, CHAR *parsed_list
     return 1;
 }
 
-enum { RDM_INSTALL_PACKAGE_NAME_CAPACITY = 30 };
-
 /**
  * @brief Validate install package token format.
  *
  * Accepts only: [cert:|app:]packagename:packageversion
- * Package names contain at most 29 [A-Za-z0-9._-] characters.
+ * Package names contain [A-Za-z0-9._-] characters and must fit app_name.
  */
 static bool rdmIsValidInstallPackageToken(const CHAR *token)
 {
@@ -230,7 +233,7 @@ static bool rdmIsValidInstallPackageToken(const CHAR *token)
         return false;
     }
 
-    if ((size_t)(delimiter - token_str) >= RDM_INSTALL_PACKAGE_NAME_CAPACITY) {
+    if ((size_t)(delimiter - token_str) >= RDM_APPNAME_LEN) {
         return false;
     }
 
@@ -575,13 +578,13 @@ int main(int argc, char* argv[])
 		    pApp_det->bFsCheck = bFsCheck;
 		    pApp_det->is_oss = is_oss;
 		    
-		    char result[RDM_INSTALL_PACKAGE_NAME_CAPACITY] = {0};
+		    CHAR *result = NULL;
 		    CHAR current_bundle[MAX_BUFF_SIZE] = {0};
 		    strncpy(current_bundle, bundle_token, sizeof(current_bundle) - 1);
 		    current_bundle[sizeof(current_bundle) - 1] = '\0';
 
                     if (!rdmIsValidInstallPackageToken(bundle_token)) {
-                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion with a package name of at most 29 characters\n", bundle_token);
+                        RDMError("Invalid install package value '%s'. Expected format: packagename:packageversion with a package name shorter than %d characters\n", bundle_token, RDM_APPNAME_LEN);
                         download_status = RDM_FAILURE;
                         break;
                     }
@@ -614,12 +617,18 @@ int main(int argc, char* argv[])
 			    pApp_det->pkg_ver[sizeof(pApp_det->pkg_ver) - 1] = '\0';
 			    RDMWarn("No version specified for %s, using NA\n", bundle_name);
 		    }
-            memcpy(result, bundle_name, strcspn(bundle_name, ":"));
+            result = strndup(bundle_name, strcspn(bundle_name, ":"));
+            if (result == NULL) {
+                RDMError("Failed to allocate memory for package name\n");
+                download_status = RDM_FAILURE;
+                break;
+            }
 		    strncpy(pApp_det->app_name, result, sizeof(pApp_det->app_name) - 1);
 		    pApp_det->app_name[sizeof(pApp_det->app_name) - 1] = '\0';
 		    
 		    RDMInfo("Parsed app_name: %s, pkg_ver: %s\n", pApp_det->app_name, pApp_det->pkg_ver);
 		    snprintf(pApp_det->pkg_name, sizeof(pApp_det->pkg_name), "%s_%s-signed.tar", result, pApp_det->pkg_ver);
+		    free(result);
 		    RDMInfo("pkg_name_signed = %s\n", pApp_det->pkg_name);
 		    pApp_det->is_versioned_app = 1;
 		    
