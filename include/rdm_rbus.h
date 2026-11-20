@@ -19,6 +19,8 @@
 #ifndef _RDM_RBUS_H_
 #define _RDM_RBUS_H_
 
+#include <stddef.h>
+
 #define RDM_RFC_URL        "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CDLDM.CDLModuleUrl"
 #define RDM_CODEBIG_STATUS "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.CodeBigFirst.Enable"
 #define RDM_INIT_NAME "RFCCHECK"
@@ -30,7 +32,7 @@ enum rfcType
 };
 
 INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName);
-INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue);
+INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue, size_t pValueSize);
 VOID  rdmRbusUnInit(VOID *pRDMbusHandle);
 INT32 rdmRbusSetDownloadStatus(VOID *handle, bool value);
 #endif //_RDM_RBUS_H_

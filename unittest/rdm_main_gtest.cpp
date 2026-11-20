@@ -18,6 +18,7 @@
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <string>
 #include "rdm_types.h"
 #include "rdm.h"
 #include "rdm_utils.h"
@@ -170,6 +171,26 @@ TEST(RDMInstallPackageValidationTest, RejectsInvalidPackageNamesAndPrefixes) {
     EXPECT_FALSE(rdmTestIsValidInstallPackageToken("meminsight:1.0:extra"));
     EXPECT_FALSE(rdmTestIsValidInstallPackageToken("app::1.0"));
     EXPECT_FALSE(rdmTestIsValidInstallPackageToken("cert::1.0"));
+}
+
+TEST(RDMInstallPackageValidationTest, AcceptsMaximumLengthPackageNames) {
+    const std::string name(29, 'a');
+    for (const char *prefix : {"", "app:", "cert:"}) {
+        const std::string token = std::string(prefix) + name + ":1.0";
+        EXPECT_TRUE(rdmTestIsValidInstallPackageToken(token.c_str()));
+    }
+}
+
+TEST(RDMInstallPackageValidationTest, RejectsOverlongPackageNamesWithoutTruncation) {
+    const std::string sharedPrefix(29, 'a');
+    for (const char *prefix : {"", "app:", "cert:"}) {
+        for (const char *suffix : {"b", "c"}) {
+            const std::string token = std::string(prefix) + sharedPrefix + suffix + ":1.0";
+            EXPECT_FALSE(rdmTestIsValidInstallPackageToken(token.c_str()));
+        }
+        const std::string token = std::string(prefix) + std::string(MAX_BUFF_SIZE, 'a') + ":1.0";
+        EXPECT_FALSE(rdmTestIsValidInstallPackageToken(token.c_str()));
+    }
 }
 
 GTEST_API_ int main(int argc, char *argv[]){

@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <libgen.h>
+#include <sys/stat.h>
 
 #include "rdm_types.h"
 #include "rdm.h"
@@ -60,14 +61,17 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
         UINT32 fs_freespace = 0;
         INT32  fs_status = RDM_SUCCESS;
 
-        fs_status = emptyFolder(pRdmAppDet->app_dwnl_path);
+        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
-            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
+            RDMError("Failed to safely empty the download folder: %s\n",
+                     pRdmAppDet->app_dwnl_path);
+            return RDM_FAILURE;
         }
 
-        fs_status = emptyFolder(pRdmAppDet->app_home);
+        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_home);
         if(fs_status) {
-            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
+            RDMError("Failed to safely empty the app home: %s\n", pRdmAppDet->app_home);
+            return RDM_FAILURE;
         }
 
         fs_freespace = getFreeSpace(pRdmAppDet->app_mnt);
@@ -106,6 +110,21 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     CHAR *DLInfoFile = NULL;
     INT32 DLInfoStatus = RDM_SUCCESS;
 
+    if (pRdmAppDet == NULL || pDLStatus == NULL) {
+        RDMError("Invalid download parameters\n");
+        return RDM_FAILURE;
+    }
+
+    *pDLStatus = RDM_DL_PARAMERR;
+    size_t app_name_len = strnlen(pRdmAppDet->app_name, sizeof(pRdmAppDet->app_name));
+    if (app_name_len == 0 || app_name_len == sizeof(pRdmAppDet->app_name) ||
+        strchr(pRdmAppDet->app_name, '/') != NULL ||
+        strcmp(pRdmAppDet->app_name, ".") == 0 ||
+        strcmp(pRdmAppDet->app_name, "..") == 0) {
+        RDMError("Invalid application name; refusing filesystem operations\n");
+        return RDM_FAILURE;
+    }
+
     *pDLStatus = RDM_DL_NOERROR;
 
     RDMInfo("Downloading %s...\n", pRdmAppDet->app_name);
@@ -121,6 +140,12 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
         if(fs_status) {
             rdmDownloadUpdateDef(pRdmAppDet);
             RDMWarn("%s is not in working condition.\n", APP_MOUNT_PATH);
+            if (rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path) != RDM_SUCCESS ||
+                rdmEmptyFolderNoFollow(pRdmAppDet->app_home) != RDM_SUCCESS) {
+                RDMError("Unable to safely prepare default download paths\n");
+                *pDLStatus = RDM_DL_MISC;
+                return RDM_FAILURE;
+            }
         }
         else {
             RDMInfo("%s Disk check is fine\n", APP_MOUNT_PATH);
@@ -228,4 +253,3 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
     }
     return status;
 }
-

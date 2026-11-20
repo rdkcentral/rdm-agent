@@ -500,6 +500,8 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     INT32 ssl_status = 0;
     INT32 outputMsgLen = REPLY_MSG_LEN;
     CHAR *out_buf = calloc(RDM_SIGFILE_LEN, 1);
+    UINT8 *kms_pub_key = NULL;
+    size_t kms_pub_key_len = 0;
 
     if(out_buf == NULL) {
         RDMError("RDM Validation Failed : Unable to allocate memory\n");
@@ -587,7 +589,12 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
     }
 
     if(pRdmAppDet->sig_type == RDM_SIG_TYPE_KMS) {
-        status = rdmDecryptKey(RDM_KMS_PUB_KEY);
+        status = rdmDecryptKey(&kms_pub_key, &kms_pub_key_len);
+        if(status != RDM_SUCCESS) {
+            RDMError("RDM Validation Failed : Unable to retrieve KMS public key\n");
+            free(out_buf);
+            return RDM_FAILURE;
+        }
 
         RDMInfo("Validate the Package\n");
 
@@ -608,6 +615,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         if (n < 0 || n >= RDM_APP_PATH_LEN)
         {
             RDMError("Output manifest file path is too long");
+            rdmFreeKmsPubKey(&kms_pub_key, kms_pub_key_len);
             free(out_buf);
             return RDM_FAILURE;
         }
@@ -624,7 +632,9 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
 
             ssl_status = rdmOpensslRsafileSignatureVerify(out_file, -1,
                                                           out_buf,
-                                                          RDM_KMS_PUB_KEY, tmp_file,
+                                                          kms_pub_key,
+                                                          kms_pub_key_len,
+                                                          tmp_file,
                                                           &outputMsgLen);
 
             if (ssl_status == retcode_success) {
@@ -645,6 +655,7 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
         status = RDM_FAILURE;
     }
 
+    rdmFreeKmsPubKey(&kms_pub_key, kms_pub_key_len);
     if(out_buf) {
         free(out_buf);
     }
@@ -742,7 +753,8 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
     if(status == RDM_SUCCESS){
 
-        status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled);
+        status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled,
+                                  sizeof(app_installed) / sizeof(app_installed[0]));
 
         if ( status == RDM_SUCCESS ){
 
@@ -804,7 +816,8 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
                                     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
                                                    rfc_app,
-                                                   &app_rfc_status);
+                                                   &app_rfc_status,
+                                                   sizeof(app_rfc_status));
 
 
                                     if(ret != RDM_SUCCESS || app_rfc_status == 0)
@@ -865,7 +878,8 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
                                         ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
                                                    rfc_app,
-                                                   &app_rfc_status);
+                                                   &app_rfc_status,
+                                                   sizeof(app_rfc_status));
 
                                         if (ret == RDM_SUCCESS && app_rfc_status == 0)
                                         {
@@ -936,7 +950,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
                         RDM_RFC_URL,
-                        pRdmAppDet->app_dwnl_url);
+                        pRdmAppDet->app_dwnl_url,
+                        sizeof(pRdmAppDet->app_dwnl_url));
 
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get RDM url from rbus\n");
@@ -951,7 +966,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 #ifdef RDM_ENABLE_CODEBIG
     ret = rdmRbusGetRfc(prdmHandle->pRbusHandle,
                         RDM_CODEBIG_STATUS,
-                        &pRdmAppDet->is_codebig);
+                        &pRdmAppDet->is_codebig,
+                        sizeof(pRdmAppDet->is_codebig));
 
     if (ret != RDM_SUCCESS) {
         RDMWarn("Failed to Get codebig flag from rbus\n");

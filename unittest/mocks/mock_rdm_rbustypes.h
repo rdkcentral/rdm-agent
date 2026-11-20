@@ -16,6 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "rdm_types.h"
 #include "rdm_utils.h"
 #include "rdm_rbus.h"
@@ -55,3 +56,16 @@ typedef enum
 typedef void* rbusHandle_t;
 typedef void* rbusValue_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+INT32 rbus_get(rbusHandle_t handle, INT8 *paramName, rbusValue_t *value);
+rbusValueType_t rbusValue_GetType(rbusValue_t value);
+bool rbusValue_GetBoolean(rbusValue_t value);
+INT8 *rbusValue_ToString(rbusValue_t value, void *buffer, int length);
+void rbusValue_Release(rbusValue_t value);
+
+#ifdef __cplusplus
+}
+#endif

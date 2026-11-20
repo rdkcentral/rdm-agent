@@ -30,6 +30,10 @@ The system SHALL support a non-versioned app install path without delegating to 
 - **WHEN** extraction fails while processing a `.tar` or `.ipk` entry from `packages.list`
 - **THEN** the function emits `rdmIARMEvntSendPayload` with the package error code and logs the failure.
 
+#### Scenario: Oversized IPK path
+- **WHEN** the combined download directory and IPK entry name do not fit the supported path buffer
+- **THEN** extraction logs the error, stops processing the package list, closes the list file, and returns `RDM_FAILURE` without processing later archives.
+
 #### Scenario: Standard legacy flow
 - **WHEN** a package record is not marked as versioned and is not plugin-based
 - **THEN** `rdmDownloadApp` calls `rdmDownloadMgr` and continues with the standard legacy package installation pipeline.
