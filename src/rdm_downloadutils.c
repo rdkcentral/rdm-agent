@@ -804,7 +804,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 {
     INT32 status                         = RDM_SUCCESS;
     CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
-    CHAR **app_installed                 = NULL;
+    CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
 
     INT32 numOfAppsInstalled             = 0;
     INT32 numOfAppsManifest              = 0;
@@ -828,7 +828,8 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 
     if(status == RDM_SUCCESS){
 
-        status = rdmListDirectory(APP_MOUNT_PATH, &app_installed, &numOfAppsInstalled);
+        status = rdmListDirectory(APP_MOUNT_PATH, app_installed, &numOfAppsInstalled,
+                                  sizeof(app_installed) / sizeof(app_installed[0]));
 
         if ( status == RDM_SUCCESS ){
 
@@ -991,7 +992,6 @@ error:
            free(app_installed[index]);
        }
    }
-   free(app_installed);
 
    for ( INT32 index = 0; index < numOfAppsManifest; index++ ){
        if ( app_manifests[index] ){

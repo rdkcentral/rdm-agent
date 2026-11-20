@@ -18,8 +18,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
-#include <limits.h>
-#include <stdint.h>
 #include <sys/stat.h>
 
 #ifndef GTEST_ENABLE
@@ -364,107 +362,66 @@ INT32 rdmFindPackageFiles(const CHAR *path, const CHAR *pattern, CHAR **out,
     return rdmFindPackageFilesInDir(path, pattern, out, outSize, count, maxCount);
 }
 
-INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR ***pDirList, INT32 *pNumOfDir)
+/** @brief This Function finds the directory inside the directory.
+ *
+ *  @param[in]   pRdmAppDet    App details
+ *.
+ *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
+ */
+INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir)
 {
-    struct dirent *de;
-    DIR *dr;
-    CHAR **dirList = NULL;
-    size_t capacity = 0;
+    struct dirent *de;  // Pointer for directory entry
     INT32 status = RDM_SUCCESS;
     INT32 idx = 0;
 
-    if (pDirList != NULL) {
-        *pDirList = NULL;
-    }
-    if (pNumOfDir != NULL) {
-        *pNumOfDir = 0;
-    }
-    if (pDirList == NULL || pNumOfDir == NULL) {
-        RDMError("Invalid directory list output argument\n");
-        return RDM_FAILURE;
-    }
+    // opendir() returns a pointer of DIR type.
+    if(rdmDirToList != NULL){
+        DIR *dr = opendir(rdmDirToList);
 
-    if (rdmDirToList == NULL) {
+        if (dr == NULL){  // opendir returns NULL if couldn't open directory
+            RDMError("Could not open current directory\n" );
+            status = RDM_FAILURE;
+            goto error;
+        }
+
+        // for readdir()
+        while ((de = readdir(dr)) != NULL){
+            size_t nameLen = strlen(de->d_name);
+
+            /* Names that do not fit cannot be valid app names */
+            if (nameLen >= RDM_APPNAME_LEN) {
+                continue;
+            }
+
+            if (idx >= maxDir) {
+                RDMError("Too many entries in directory\n");
+                status = RDM_FAILURE;
+                break;
+            }
+
+            pDirList[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
+
+            if( pDirList[idx] == NULL ){
+                RDMError("Malloc for Dir List is failed");
+                status = RDM_FAILURE;
+                break;
+            }
+
+            memset(pDirList[idx], 0, RDM_APPNAME_LEN);
+
+            RDMInfo("%s\n", de->d_name);
+            memcpy(pDirList[idx], de->d_name, nameLen + 1);
+            idx += 1;
+        }
+
+        closedir(dr);
+        *pNumOfDir = idx;
+    }
+    else{
         RDMError("Invalid argument as DIR to list\n");
-        return RDM_FAILURE;
-    }
-
-    dr = opendir(rdmDirToList);
-    if (dr == NULL) {
-        RDMError("Could not open current directory: %s\n", strerror(errno));
-        return RDM_FAILURE;
-    }
-
-    for (;;) {
-        errno = 0;
-        de = readdir(dr);
-        if (de == NULL) {
-            if (errno != 0) {
-                RDMError("Could not read directory: %s\n", strerror(errno));
-                status = RDM_FAILURE;
-            }
-            break;
-        }
-
-        size_t nameLen = strlen(de->d_name);
-
-        /* Names that do not fit cannot be valid app names */
-        if (nameLen >= RDM_APPNAME_LEN) {
-            continue;
-        }
-
-        if (idx == INT_MAX) {
-            RDMError("Directory entry count exceeds INT32 range\n");
-            status = RDM_FAILURE;
-            break;
-        }
-
-        if ((size_t)idx == capacity) {
-            size_t newCapacity = capacity + 20;
-            CHAR **newList;
-
-            if (newCapacity < capacity || newCapacity > SIZE_MAX / sizeof(*dirList)) {
-                RDMError("Directory list allocation size overflow\n");
-                status = RDM_FAILURE;
-                break;
-            }
-            newList = (CHAR **)realloc(dirList, newCapacity * sizeof(*dirList));
-            if (newList == NULL) {
-                RDMError("Realloc for Dir List failed\n");
-                status = RDM_FAILURE;
-                break;
-            }
-            dirList = newList;
-            capacity = newCapacity;
-        }
-
-        dirList[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
-        if (dirList[idx] == NULL) {
-            RDMError("Malloc for Dir List failed\n");
-            status = RDM_FAILURE;
-            break;
-        }
-
-        memset(dirList[idx], 0, RDM_APPNAME_LEN);
-        RDMInfo("%s\n", de->d_name);
-        memcpy(dirList[idx], de->d_name, nameLen + 1);
-        idx += 1;
-    }
-
-    if (closedir(dr) != 0) {
-        RDMError("Could not close directory: %s\n", strerror(errno));
         status = RDM_FAILURE;
     }
 
-    if (status != RDM_SUCCESS) {
-        for (INT32 index = 0; index < idx; index++) {
-            free(dirList[index]);
-        }
-        free(dirList);
-        return status;
-    }
-
-    *pDirList = dirList;
-    *pNumOfDir = idx;
-    return RDM_SUCCESS;
+error:
+    return status;
 }

@@ -91,15 +91,7 @@ INT32 rdmStrRmDuplicate(CHAR **in, INT32 len);
 INT32 rdmIARMEvntSendStatus(UINT8 status);
 INT32 rdmIARMEvntSendPayload(CHAR *pkg_name, CHAR *pkg_ver,
                              CHAR *pkg_path, INT32 pkg_status);
-/**
- * List directory entries, including "." and "..", skipping names too long for
- * RDM_APPNAME_LEN. The array grows in chunks of 20 pointers.
- * Pass an output pointer that does not own an existing allocation.
- * On success, the caller must free each of the *pNumOfDir strings, then *pDirList.
- * On failure, allocations are freed and valid outputs are NULL/zero.
- * The count retains its INT32 range; allocation and count overflow return failure.
- */
-INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR ***pDirList, INT32 *pNumOfDir);
+INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, INT32 maxDir);
 /**
  * Recursively append matching paths to preallocated out buffers of outSize bytes.
  * Paths must fit RDM_APP_PATH_LEN, including the terminator. Directory symlinks
