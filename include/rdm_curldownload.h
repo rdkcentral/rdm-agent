@@ -27,6 +27,7 @@ typedef struct _rdmMTLSParam {
     INT32 ssl_peerverify;
 }RDMCertParam;
 
+
 typedef struct _rdmCurlParams {
     CHAR *url;
     INT32 ssl_version;
