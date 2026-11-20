@@ -985,12 +985,8 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
         return RDM_FAILURE;
     }
 
-    size_t len = strlen(pRdmAppDet->app_dwnl_url);
-
-    snprintf(pRdmAppDet->app_dwnl_url + len,
-         MAX_BUFF_SIZE - len,
-         "/%s",
-         pRdmAppDet->pkg_name);
+    strcat(pRdmAppDet->app_dwnl_url, "/");
+    strcat(pRdmAppDet->app_dwnl_url, pRdmAppDet->pkg_name);
     return RDM_SUCCESS;
 }
 

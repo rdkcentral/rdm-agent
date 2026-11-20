@@ -189,16 +189,6 @@ static INT32 prepare_sig_file(CHAR *sig_file)
     INT32 read = 0, skip = 0;
 
     FILE *file_in  = fopen(sig_file, "r");
-    struct stat st;
-    if (lstat(RDM_TMP_SIGFILE, &st) == 0)
-    {
-        if (S_ISLNK(st.st_mode))
-        {
-            rdmLog(RDM_ERROR, "%s is a symbolic link\n", RDM_TMP_SIGFILE);
-            return -1;
-        }
-    }
-
     FILE *file_out = fopen(RDM_TMP_SIGFILE, "w+");
 
     if (NULL == file_in || NULL == file_out)
@@ -661,20 +651,22 @@ INT32 rdm_openssl_file_hash_sha256_pkg_components(const CHAR *data_file,
     path_buff = strtok(manifest, "\t\r\n");
 
     while (path_buff != NULL) {
-        if (strstr(path_buff, "tmp") ||
-            strstr(path_buff, "media") ||
-            strstr(path_buff, "padding") ||
-            strstr(path_buff, "json")) {
-            data_fh = fopen(path_buff, "r");
-            if (data_fh == NULL) {
-                RDMError("datafile open error\n");
-                goto error;
-            }
+        data_fh = fopen( path_buff, "r" );
+        if ( data_fh == NULL ) {
+            RDMError("datafile open error\n");
+            goto error;
+        }
+        bytesread=0;
 
-       while ((bytesread = fread(buffer, 1, BUFSIZE, data_fh)) > 0) {
-                if (1 != EVP_DigestUpdate(mdctx, buffer, bytesread)) {
+        while (1) {
+            bytesread = fread(buffer, 1, BUFSIZE, data_fh );
+            if ( bytesread > 0 ) {
+                if( 1 != EVP_DigestUpdate(mdctx, buffer, bytesread) ) {
                     goto error;
                 }
+            }
+            if ( bytesread != BUFSIZE)
+                break; // EoF found
         }
         if ( ferror( data_fh ) ) {
             goto error;

@@ -121,16 +121,11 @@ static VOID  rdmDwnlVAGetInstallVer(RDMAPPDetails *pRdmAppDet,
     INT32 num_ver = 0, f_ver = 0;
     INT32 status = RDM_SUCCESS;
     INT32 i = 0;
-    CHAR *pkg_json[RDM_MAX_VER_LIST] = {0};
+    CHAR *pkg_json[RDM_MAX_VER_LIST];
     CHAR app_cpe_metadata_file[RDM_APP_PATH_LEN] = {0};
 
     for(i = 0; i < RDM_MAX_VER_LIST; i++) {
         pkg_json[i] = calloc(RDM_APP_PATH_LEN, 1);
-        if (pkg_json[i] == NULL) {
-            RDMError("Unable to allocate package metadata path\n");
-            *pInum = 0;
-            goto cleanup;
-        }
     }
 
     /* Check for metadata based on bundle type if bundle_type is set */
@@ -142,22 +137,12 @@ static VOID  rdmDwnlVAGetInstallVer(RDMAPPDetails *pRdmAppDet,
         if (status == RDM_SUCCESS) {
             RDMInfo("Found metadata file: %s\n", app_cpe_metadata_file);
             /* Add metadata file to pkg_json list for version processing */
-            INT32 length = snprintf(pkg_json[num_ver], RDM_APP_PATH_LEN, "%s",
-                                    app_cpe_metadata_file);
-            if (length < 0 || length >= RDM_APP_PATH_LEN) {
-                RDMError("Package metadata path exceeds destination size\n");
-                *pInum = 0;
-                goto cleanup;
-            }
+            strncpy(pkg_json[num_ver], app_cpe_metadata_file, RDM_APP_PATH_LEN - 1);
             num_ver++;
         }
     }
 
-    if (rdmFindPackageFiles(pRdmAppDet->app_home, RDM_JSON_VER, pkg_json,
-                            RDM_APP_PATH_LEN, &num_ver, RDM_MAX_VER_LIST) != RDM_SUCCESS) {
-        *pInum = 0;
-        goto cleanup;
-    }
+    findPFileAll(pRdmAppDet->app_home, RDM_JSON_VER, pkg_json, &num_ver, RDM_MAX_VER_LIST);
 
     for(i = 0; i < num_ver; i++) {
         status = rdmJSONQuery(pkg_json[i], "version", ppVer[i]);
@@ -199,7 +184,6 @@ static VOID  rdmDwnlVAGetInstallVer(RDMAPPDetails *pRdmAppDet,
 
     *pInum = f_ver;
 
-cleanup:
     for(i = 0; i < RDM_MAX_VER_LIST; i++) {
         free(pkg_json[i]);
     }

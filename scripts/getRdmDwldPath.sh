@@ -22,32 +22,6 @@ if [ -f /etc/rdm/loggerUtils.sh ];then
     . /etc/rdm/loggerUtils.sh
 fi
 DOWNLOAD_APP_MODULE="$1"
-
-[ -n "$DOWNLOAD_APP_MODULE" ] || {
-    echo "ERROR: Missing module name"
-    exit 1
-}
-
-MAX_LEN=64
-[ "${#DOWNLOAD_APP_MODULE}" -le "$MAX_LEN" ] || {
-    echo "ERROR: Module name too long"
-    exit 1
-}
-
-case "$DOWNLOAD_APP_MODULE" in
-    *[!A-Za-z0-9._-]*)
-        echo "ERROR: Invalid module name"
-        exit 1
-        ;;
-esac
-
-case "$DOWNLOAD_APP_MODULE" in
-    .|..|*/*)
-        echo "ERROR: Invalid path component"
-        exit 1
-        ;;
-esac
-
 APP_MOUNT_PATH="/media/apps"
 TMP_MOUNT_PATH="/tmp"
 APPLN_HOME_PATH="/media/apps/$DOWNLOAD_APP_MODULE"
