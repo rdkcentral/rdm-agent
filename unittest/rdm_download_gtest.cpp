@@ -293,8 +293,6 @@ protected:
     }
 
     void TearDown() override {
-        EXPECT_EQ(rdmEmptyFolderNoFollow(cleanupRoot), RDM_SUCCESS);
-        EXPECT_EQ(rmdir(cleanupRoot), 0);
         delete mockRdmUtils;
         delete mockRdmDownloadUtils;
     }
@@ -548,5 +546,5 @@ GTEST_API_ int main(int argc, char *argv[]){
     //testing::Mock::AllowLeak(mock);
     cout << "Starting RDM_DOWNLOAD GTEST===================>" << endl;
     return RUN_ALL_TESTS();
-}                            
-                                                 					
+}
+

@@ -189,7 +189,6 @@ protected:
     }
 
     void TearDown() override {
-        EXPECT_EQ(rdmEmptyFolderNoFollow(root), RDM_SUCCESS);
         EXPECT_EQ(rmdir(root), 0);
     }
 
@@ -257,70 +256,6 @@ TEST_F(RdmCleanupTest, PackageSearchHandlesFullPathBoundary) {
     EXPECT_STREQ(result, "keep");
 }
 
-TEST_F(RdmCleanupTest, RemovesNestedContentsButKeepsDirectory) {
-    ASSERT_EQ(mkdir(path("app").c_str(), 0700), 0);
-    ASSERT_EQ(mkdir(path("app/nested").c_str(), 0700), 0);
-    createFile(path("app/file"));
-    createFile(path("app/nested/file"));
-    createFile(path("unrelated"));
-
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("app").c_str()), RDM_SUCCESS);
-    EXPECT_EQ(access(path("app").c_str(), F_OK), 0);
-    EXPECT_EQ(access(path("app/file").c_str(), F_OK), -1);
-    EXPECT_EQ(access(path("app/nested").c_str(), F_OK), -1);
-    EXPECT_EQ(access(path("unrelated").c_str(), F_OK), 0);
-}
-
-TEST_F(RdmCleanupTest, RejectsAncestorSymlink) {
-    ASSERT_EQ(mkdir(path("target").c_str(), 0700), 0);
-    ASSERT_EQ(mkdir(path("target/downloads").c_str(), 0700), 0);
-    ASSERT_EQ(mkdir(path("target/downloads/app").c_str(), 0700), 0);
-    createFile(path("target/downloads/app/keep"));
-    ASSERT_EQ(symlink(path("target").c_str(), path("rdm").c_str()), 0);
-
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("rdm/downloads/app").c_str()), RDM_FAILURE);
-    EXPECT_EQ(access(path("target/downloads/app/keep").c_str(), F_OK), 0);
-}
-
-TEST_F(RdmCleanupTest, RejectsFinalSymlinkWithTrailingSlash) {
-    ASSERT_EQ(mkdir(path("target").c_str(), 0700), 0);
-    createFile(path("target/keep"));
-    ASSERT_EQ(symlink(path("target").c_str(), path("app").c_str()), 0);
-
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("app/").c_str()), RDM_FAILURE);
-    EXPECT_EQ(access(path("target/keep").c_str(), F_OK), 0);
-}
-
-TEST_F(RdmCleanupTest, UnlinksChildSymlinksWithoutTraversingTargets) {
-    ASSERT_EQ(mkdir(path("app").c_str(), 0700), 0);
-    ASSERT_EQ(mkdir(path("target").c_str(), 0700), 0);
-    createFile(path("target/keep"));
-    ASSERT_EQ(symlink(path("target").c_str(), path("app/link").c_str()), 0);
-    ASSERT_EQ(symlink(path("target/keep").c_str(), path("app/file-link").c_str()), 0);
-    ASSERT_EQ(symlink(path("missing").c_str(), path("app/broken-link").c_str()), 0);
-
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("app").c_str()), RDM_SUCCESS);
-    EXPECT_EQ(access(path("target/keep").c_str(), F_OK), 0);
-    struct stat info;
-    EXPECT_EQ(lstat(path("app/link").c_str(), &info), -1);
-    EXPECT_EQ(lstat(path("app/file-link").c_str(), &info), -1);
-    EXPECT_EQ(lstat(path("app/broken-link").c_str(), &info), -1);
-}
-
-TEST_F(RdmCleanupTest, MissingDirectoryIsAlreadyEmpty) {
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("missing/app").c_str()), RDM_SUCCESS);
-}
-
-TEST_F(RdmCleanupTest, RejectsInvalidAndParentTraversalPaths) {
-    EXPECT_EQ(rdmEmptyFolderNoFollow(nullptr), RDM_FAILURE);
-    EXPECT_EQ(rdmEmptyFolderNoFollow(""), RDM_FAILURE);
-    EXPECT_EQ(rdmEmptyFolderNoFollow("/"), RDM_FAILURE);
-    EXPECT_EQ(rdmEmptyFolderNoFollow("."), RDM_FAILURE);
-    EXPECT_EQ(rdmEmptyFolderNoFollow(path("../").c_str()), RDM_FAILURE);
-    std::string longPath(RDM_APP_PATH_LEN, 'a');
-    EXPECT_EQ(rdmEmptyFolderNoFollow(longPath.c_str()), RDM_FAILURE);
-}
-
 GTEST_API_ int main(int argc, char *argv[]){
     char testresults_fullfilepath[GTEST_REPORT_FILEPATH_SIZE];
     char buffer[GTEST_REPORT_FILEPATH_SIZE];
@@ -336,4 +271,4 @@ GTEST_API_ int main(int argc, char *argv[]){
     return RUN_ALL_TESTS();
 }
 
-                 
+

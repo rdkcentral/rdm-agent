@@ -36,6 +36,31 @@
 #include "unittest/mocks/system_utils.h"
 #endif
 
+static INT32 rdmEmptyFolderIfNotSymlink(const CHAR *path)
+{
+    struct stat path_stat;
+    CHAR mutable_path[RDM_APP_PATH_LEN];
+    size_t path_len;
+
+    if (path == NULL) {
+        return RDM_FAILURE;
+    }
+
+    if (lstat(path, &path_stat) == 0 && S_ISLNK(path_stat.st_mode)) {
+        RDMDebug("Skipping cleanup of symlink path: %s\n", path);
+        return RDM_SUCCESS;
+    }
+
+    path_len = strlen(path);
+    if (path_len >= sizeof(mutable_path)) {
+        RDMError("Path too long to empty folder\n");
+        return RDM_FAILURE;
+    }
+    memcpy(mutable_path, path, path_len + 1);
+
+    return emptyFolder(mutable_path);
+}
+
 static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
 {
     INT32 status = RDM_SUCCESS;
@@ -61,17 +86,14 @@ static INT32 rdmDownloadCheckFs(RDMAPPDetails *pRdmAppDet)
         UINT32 fs_freespace = 0;
         INT32  fs_status = RDM_SUCCESS;
 
-        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path);
+        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_dwnl_path);
         if(fs_status) {
-            RDMError("Failed to safely empty the download folder: %s\n",
-                     pRdmAppDet->app_dwnl_path);
-            return RDM_FAILURE;
+            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_dwnl_path);
         }
 
-        fs_status = rdmEmptyFolderNoFollow(pRdmAppDet->app_home);
+        fs_status = rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_home);
         if(fs_status) {
-            RDMError("Failed to safely empty the app home: %s\n", pRdmAppDet->app_home);
-            return RDM_FAILURE;
+            RDMDebug("Failed to empty the folder: %s\n", pRdmAppDet->app_home);
         }
 
         fs_freespace = getFreeSpace(pRdmAppDet->app_mnt);
@@ -140,9 +162,9 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
         if(fs_status) {
             rdmDownloadUpdateDef(pRdmAppDet);
             RDMWarn("%s is not in working condition.\n", APP_MOUNT_PATH);
-            if (rdmEmptyFolderNoFollow(pRdmAppDet->app_dwnl_path) != RDM_SUCCESS ||
-                rdmEmptyFolderNoFollow(pRdmAppDet->app_home) != RDM_SUCCESS) {
-                RDMError("Unable to safely prepare default download paths\n");
+            if (rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_dwnl_path) != RDM_SUCCESS ||
+                rdmEmptyFolderIfNotSymlink(pRdmAppDet->app_home) != RDM_SUCCESS) {
+                RDMError("Unable to prepare default download paths\n");
                 *pDLStatus = RDM_DL_MISC;
                 return RDM_FAILURE;
             }

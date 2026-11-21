@@ -100,7 +100,5 @@ INT32 rdmListDirectory(CHAR *rdmDirToList, CHAR **pDirList, INT32 *pNumOfDir, IN
  */
 INT32 rdmFindPackageFiles(const CHAR *path, const CHAR *pattern, CHAR **out,
                           size_t outSize, INT32 *count, INT32 maxCount);
-/* Empty a directory without following symlinks in its path or contents. */
-INT32 rdmEmptyFolderNoFollow(const CHAR *path);
 void RDMLOGInit();
 #endif //_RDM_UTILS_H_
