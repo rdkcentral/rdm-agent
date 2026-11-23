@@ -206,7 +206,7 @@ INT32 rdmDownloadApp(RDMAPPDetails *pRdmAppDet, INT32 *pDLStatus)
                 pRdmAppDet->app_name,
                 pRdmAppDet->app_size_kb,
                 rdm_status,
-		pRdmAppDet->is_versioned);
+                pRdmAppDet->is_versioned_app);
             fclose(fp_out);
             // Atomically replace the original file
             if (rename(tmpfile, pRdmAppDet->app_dwnl_info) != 0) {
