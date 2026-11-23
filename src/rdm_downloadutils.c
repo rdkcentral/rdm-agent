@@ -744,35 +744,49 @@ INT32 rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer)
  *  @return  Returns status of the function.
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  **/
-INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
+INT32 rdmGetManifestApps(CHAR ***pAppsInManifest, INT32 *numOfApps)
 {
     INT32 ret           = RDM_SUCCESS;
     INT32 len           = 0;
     INT32 idx           = 0;
 
+    if(pAppsInManifest == NULL || numOfApps == NULL) {
+        return RDM_FAILURE;
+    }
+
+    *pAppsInManifest = NULL;
+    *numOfApps = 0;
+
     ret = rdmJSONGetLen(RDM_MANIFEST, &len);
 
-    if(ret || len == 0) {
+    if(ret || len <= 0) {
         RDMError("Failed : Invalid json file\n");
+        goto error;
+    }
+
+    *pAppsInManifest = (CHAR **)calloc((size_t)len, sizeof(CHAR *));
+    if(*pAppsInManifest == NULL) {
+        RDMError("Failed : Memory Allocation failed for pAppsInManifest");
+        ret = RDM_FAILURE;
         goto error;
     }
 
     do{
 
-        pAppsInManifest[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
+        (*pAppsInManifest)[idx] = (CHAR *)malloc(RDM_APPNAME_LEN);
 
-        if(pAppsInManifest[idx] == NULL){
+        if((*pAppsInManifest)[idx] == NULL){
             RDMError("Failed : Memory Allocation failed for pAppsInManifest");
             ret = RDM_FAILURE;
             break;
         }
 
-        memset(pAppsInManifest[idx], 0, RDM_APPNAME_LEN);
+        memset((*pAppsInManifest)[idx], 0, RDM_APPNAME_LEN);
 
-        ret = rdmJSONGetAppNames(idx,pAppsInManifest[idx]);
+        ret = rdmJSONGetAppNames(idx,(*pAppsInManifest)[idx]);
 
         if ( ret == RDM_SUCCESS ){
-            RDMInfo("Packages listed in manifest %s idx %d\n",pAppsInManifest[idx], idx);
+            RDMInfo("Packages listed in manifest %s idx %d\n",(*pAppsInManifest)[idx], idx);
         }
         else{
             RDMError("rdmJSONGetAppNames Failed\n");
@@ -791,6 +805,16 @@ INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps)
     *numOfApps = idx;
 
 error:
+    if(ret != RDM_SUCCESS && *pAppsInManifest != NULL) {
+        for(INT32 index = 0; index < len; index++) {
+            if((*pAppsInManifest)[index] != NULL) {
+                free((*pAppsInManifest)[index]);
+            }
+        }
+        free(*pAppsInManifest);
+        *pAppsInManifest = NULL;
+        *numOfApps = 0;
+    }
     return ret;
 }
 
@@ -803,7 +827,7 @@ error:
 INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
 {
     INT32 status                         = RDM_SUCCESS;
-    CHAR *app_manifests[RDM_TMP_LEN_64]  = {0};
+    CHAR **app_manifests                 = NULL;
     CHAR *app_installed[RDM_TMP_LEN_64]  = {0};
 
     INT32 numOfAppsInstalled             = 0;
@@ -824,7 +848,7 @@ INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32  is_broadband)
         return RDM_FAILURE;
     }
 
-    status = rdmGetManifestApps(app_manifests, &numOfAppsManifest);
+    status = rdmGetManifestApps(&app_manifests, &numOfAppsManifest);
 
     if(status == RDM_SUCCESS){
 
@@ -993,10 +1017,13 @@ error:
        }
    }
 
-   for ( INT32 index = 0; index < numOfAppsManifest; index++ ){
-       if ( app_manifests[index] ){
-           free(app_manifests[index]);
+   if(app_manifests) {
+       for ( INT32 index = 0; index < numOfAppsManifest; index++ ){
+           if ( app_manifests[index] ){
+               free(app_manifests[index]);
+           }
        }
+       free(app_manifests);
    }
    free(pApp_det);
    return status;

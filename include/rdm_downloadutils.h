@@ -95,7 +95,7 @@ VOID   rdmMemDLFree(VOID *pvDwnData);
 INT32  rdmDwnlValidation(RDMAPPDetails *pRdmAppDet, CHAR *pVer);
 INT32  rdmDwnlDirect(CHAR* pUrl, CHAR* pDwnlPath, CHAR* pPkgName, CHAR* pOut);
 INT32 rdmUnInstallApps(RDMHandle *prdmHandle, INT32 is_broadband );
-INT32 rdmGetManifestApps(CHAR **pAppsInManifest, INT32 *numOfApps);
+INT32 rdmGetManifestApps(CHAR ***pAppsInManifest, INT32 *numOfApps);
 INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
                           RDMAPPDetails *pRdmAppDet,
                           INT32 is_broadband);
