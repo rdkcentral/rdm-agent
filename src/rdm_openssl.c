@@ -720,7 +720,6 @@ error:
  *
  * @ret returns -1                    Bad parameters, including bad length.  *buffer_len contains required len.
  */
-
 static
 INT32 openssl_verify_signature(const UINT8 *hashval,
                                INT32 hashval_len,
@@ -773,6 +772,7 @@ INT32 openssl_verify_signature(const UINT8 *hashval,
      * Perform verify operations
      */
 
+    /* initialize `key` with a public key */
     if (vkey_len > INT_MAX) {
         RDMError("Public key buffer is too large\n");
         retval = retcode_keyfile_err;
@@ -826,7 +826,7 @@ err:
 error:
 
     if (mdctx != NULL) EVP_MD_CTX_destroy(mdctx);
-     // coverity[copy_paste_error : FALSE] This part is required and code changes are intentional
+     /* coverity[copy_paste_error : FALSE] This part is required and code changes are intentional */
     /* coverity[deadcode] INTENTIONAL: pkey is assigned in both #ifdef and #else branches above; defensive cleanup */
     if (pkey != NULL) EVP_PKEY_free(pkey);
 
@@ -872,7 +872,9 @@ error:
         vkey == NULL ||
         vkey_len == 0 ||
         reply_msg_len == NULL ) {
-        RDMError("Input Args parameter error\n");
+        RDMError("Input Args parameter error: data=%d sig=%d key=%d reply=%d reply_len=%d\n",
+                 data_file == NULL, sig_file == NULL, vkey == NULL,
+                 reply_msg == NULL, reply_msg_len == NULL);
         return retcode_param_error;
     }
 
@@ -932,7 +934,14 @@ INT32 rdmSignatureVerify(CHAR *cache_dir, CHAR *app_name, INT32 prepare_files)
             return status;
         }
     }
-
+#if !defined LIBRDKCONFIG_BUILD
+    else {
+        if (0 != prepare_kms_pubkey()) {
+            RDMError("prepare_kms_pubkey failed\n");
+            return status;
+        }
+    }
+#endif
     /* Initialize the openSSL crypto library and configurations */
     rdmInitSslLib();
 

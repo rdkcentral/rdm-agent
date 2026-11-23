@@ -22,6 +22,7 @@
 #include <string>
 #include <unistd.h>
 #include "unittest/mocks/mock_iarm_bus.h"
+#include "unittest/mocks/mock_rdm_utils.h"
 extern "C" {
 #include "unittest/mocks/libIBus.h"
 #include "unittest/mocks/rdmMgr.h"
@@ -45,9 +46,12 @@ using namespace testing;
 using ::testing::_;
 using ::testing::Return;
 using ::testing::StrEq;
+using ::testing::DoAll;
+using ::testing::SetArgPointee;
 using namespace std;
 
 MockIARM* mockIARM = nullptr;
+extern MockRdmUtils* mockRdmUtils;
 
 class RdmTest : public ::testing::Test {
 protected:
@@ -254,6 +258,73 @@ TEST_F(RdmCleanupTest, PackageSearchHandlesFullPathBoundary) {
     EXPECT_EQ(rdmFindPackageFiles(root, "*", out, sizeof(result), &count, 1), RDM_FAILURE);
     EXPECT_EQ(count, 0);
     EXPECT_STREQ(result, "keep");
+}
+
+class RdmDwnlDirectTest : public ::testing::Test {
+protected:
+    int dummyCurl = 0;
+    char out[512];
+
+    void SetUp() override {
+        mockRdmUtils = new MockRdmUtils();
+        memset(out, 0, sizeof(out));
+    }
+
+    void TearDown() override {
+        delete mockRdmUtils;
+        mockRdmUtils = nullptr;
+    }
+};
+
+TEST_F(RdmDwnlDirectTest, Success) {
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlIsOCSPEnable()).WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(&dummyCurl));
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(&dummyCurl, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<5>(200), Return(0)));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(&dummyCurl));
+
+    EXPECT_EQ(rdmDwnlDirect((CHAR*)"http://host/pkg.tar", (CHAR*)"/tmp/dl", (CHAR*)"pkg.tar", out), RDM_SUCCESS);
+    EXPECT_STREQ(out, "/tmp/dl/pkg.tar");
+}
+
+TEST_F(RdmDwnlDirectTest, OcspEnabled) {
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlIsOCSPEnable()).WillOnce(Return(1));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(&dummyCurl));
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(&dummyCurl, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<5>(200), Return(0)));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(&dummyCurl));
+
+    EXPECT_EQ(rdmDwnlDirect((CHAR*)"https://host/pkg.tar", (CHAR*)"/tmp/dl", (CHAR*)"pkg.tar", out), RDM_SUCCESS);
+}
+
+TEST_F(RdmDwnlDirectTest, CurlInitFailure) {
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlIsOCSPEnable()).WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(nullptr));
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(_, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(_)).Times(0);
+
+    // Current implementation returns the initial status (RDM_SUCCESS) on curl init failure.
+    EXPECT_EQ(rdmDwnlDirect((CHAR*)"http://host/pkg.tar", (CHAR*)"/tmp/dl", (CHAR*)"pkg.tar", out), RDM_SUCCESS);
+}
+
+TEST_F(RdmDwnlDirectTest, DownloadFailure) {
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlIsOCSPEnable()).WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(&dummyCurl));
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(&dummyCurl, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<5>(404), Return(-1)));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(&dummyCurl));
+
+    EXPECT_EQ(rdmDwnlDirect((CHAR*)"http://host/pkg.tar", (CHAR*)"/tmp/dl", (CHAR*)"pkg.tar", out), RDM_FAILURE);
+}
+
+TEST_F(RdmDwnlDirectTest, CurlErrorWithHttp200) {
+    EXPECT_CALL(*mockRdmUtils, rdmDwnlIsOCSPEnable()).WillOnce(Return(0));
+    EXPECT_CALL(*mockRdmUtils, doCurlInit()).WillOnce(Return(&dummyCurl));
+    EXPECT_CALL(*mockRdmUtils, doHttpFileDownload(&dummyCurl, _, _, _, _, _))
+        .WillOnce(DoAll(SetArgPointee<5>(200), Return(-1)));
+    EXPECT_CALL(*mockRdmUtils, doStopDownload(&dummyCurl));
+
+    EXPECT_EQ(rdmDwnlDirect((CHAR*)"http://host/pkg.tar", (CHAR*)"/tmp/dl", (CHAR*)"pkg.tar", out), RDM_SUCCESS);
 }
 
 GTEST_API_ int main(int argc, char *argv[]){
