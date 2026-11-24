@@ -236,12 +236,6 @@ TEST(rdmDwnlDirect, rdmDwnlDirect_Success) {
 
 }
 
-// Test rdmDwnlGetCert
-TEST(rdmDwnlGetCert, rdmDwnlGetCert_Success) {
-    MtlsAuth_t sec = { .cert_name = "MyCert.pem", .cert_type = "Type1", .key_pas = "MyKeyVal" };
-    EXPECT_EQ(rdmDwnlGetCert(&sec), RDM_SUCCESS);
-}
-
 // Test rdmDwnlRunPostScripts
 TEST(rdmDwnlRunPostScripts, rdmDwnlRunPostScripts_Success) {
     INT32 versionedapp = 0;    

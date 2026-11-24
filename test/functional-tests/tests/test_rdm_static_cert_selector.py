@@ -22,14 +22,14 @@ from helper_functions import *
 
 def test_rdm_dynamic_cert_selector():
     
-    CERT_INIT_MSG = "Initializing cert selector"
+    CERT_INIT_MSG = "Initializing CertSelector"
     assert CERT_INIT_MSG in grep_RDMlogs(CERT_INIT_MSG)
 
-    CERT_INIT_MSG_STATUS = "Cert selector initialization successful"
+    CERT_INIT_MSG_STATUS = "Cert Selector Initialisation is Successful"
     assert CERT_INIT_MSG_STATUS in grep_RDMlogs(CERT_INIT_MSG_STATUS)
 
 
-    CERT_STATUS_MSG = "MTLS dynamic/static cert success. cert=/etc/ssl/certs/client.pem"
+    CERT_STATUS_MSG = "MTLS cert success. cert=/etc/ssl/certs/client.p12, type=P12"
     assert CERT_STATUS_MSG in grep_RDMlogs(CERT_STATUS_MSG)
 
     MTLS_STATUS_MSG = "MTLS is enable"
