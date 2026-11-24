@@ -193,7 +193,7 @@ protected:
     }
 
     void TearDown() override {
-        EXPECT_EQ(rmdir(root), 0);
+        EXPECT_EQ(system(("rm -rf -- \"" + std::string(root) + "\"").c_str()), 0);
     }
 
     std::string path(const char *name) {
