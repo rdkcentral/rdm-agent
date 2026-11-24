@@ -195,6 +195,9 @@ static INT32 prepare_sig_file(CHAR *sig_file)
         if (S_ISLNK(st.st_mode))
         {
            RDMError("%s is a symbolic link\n", RDM_TMP_SIGFILE);
+            if (file_in != NULL) {
+                fclose(file_in);
+            }
             return -1;
         }
     }
