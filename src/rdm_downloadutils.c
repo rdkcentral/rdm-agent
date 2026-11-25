@@ -1014,10 +1014,13 @@ INT32 rdmUpdateAppDetails(RDMHandle *prdmHandle,
 
     size_t len = strlen(pRdmAppDet->app_dwnl_url);
 
-    snprintf(pRdmAppDet->app_dwnl_url + len,
-         MAX_BUFF_SIZE - len,
-         "/%s",
-         pRdmAppDet->pkg_name);
+    INT32 appended = snprintf(pRdmAppDet->app_dwnl_url + len,
+                              sizeof(pRdmAppDet->app_dwnl_url) - len,
+                              "/%s", pRdmAppDet->pkg_name);
+    if (appended < 0 || (size_t)appended >= sizeof(pRdmAppDet->app_dwnl_url) - len) {
+        RDMError("Download URL exceeds destination size\n");
+        return RDM_FAILURE;
+    }
     return RDM_SUCCESS;
 }
 
