@@ -87,7 +87,7 @@ INT32 rdmRbusInit(VOID **pRDMRbusHandle, INT8* rbusName)
  *  @return  Returns the status of the operation.
  *  @retval  Returns RDM_SUCCESS on success, RDM_FAILURE otherwise.
  */
-INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue )
+INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue, size_t pValueSize)
 {
     INT32           ret = RDM_SUCCESS;
     INT32           rc  = RBUS_ERROR_SUCCESS;
@@ -103,7 +103,7 @@ INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue )
         return RDM_FAILURE;
     }
 
-    if(rdm_enb == NULL) {
+    if(rdm_enb == NULL || pValueSize < sizeof(*rdm_enb)) {
         RDMError("Input param is null\n");
         return RDM_FAILURE;
     }
@@ -135,7 +135,11 @@ INT32 rdmRbusGetRfc(VOID *plRDMRbusHandle, INT8* rdmRFCName, VOID *pValue )
             goto exit;
         }
         else {
-            strcpy( rdm_ver, stringValue);
+            INT32 string_len = snprintf((CHAR *)rdm_ver, pValueSize, "%s", (CHAR *)stringValue);
+            if (string_len < 0 || (size_t)string_len >= pValueSize) {
+                rdm_ver[0] = '\0';
+                ret = RDM_FAILURE;
+            }
             RDMInfo("RDM URL: %s\n", stringValue);
         }
     }
