@@ -370,7 +370,7 @@ int main(int argc, char* argv[])
     }
 
     if (check_expiry) {
-        return rdmDwnlDebugToolCheckExpiry();
+        return rdmDwnlDebugToolCheckExpiry(download_versionedapp);
     }
 	if (expiry_spec != NULL) {
         CHAR tool[64] = {0};
